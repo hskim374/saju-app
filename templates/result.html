@@ -728,11 +728,6 @@
                 {% endfor %}
             </div>
             {% if result.premium_report.enabled %}
-            <div class="cta-row" style="margin-bottom: 14px;">
-                {% if premium_pdf_link %}
-                <a class="cta-button" href="{{ premium_pdf_link }}">프리미엄 PDF 다운로드</a>
-                {% endif %}
-            </div>
             <div class="premium-grid">
                 {% for section in result.premium_report.sections %}
                 <div class="premium-card">

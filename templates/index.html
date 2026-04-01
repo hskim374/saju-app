@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>내 사주 간단히 보기</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f1ea;
+            color: #222;
+        }
+
+        .container {
+            max-width: 520px;
+            margin: 48px auto;
+            padding: 24px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        p {
+            color: #555;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .error {
+            margin-bottom: 20px;
+            padding: 14px;
+            border-radius: 10px;
+            background: #fde8e4;
+            color: #a33c20;
+            font-size: 14px;
+        }
+
+        .radio-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .radio-row label,
+        .check-row label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: normal;
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 16px;
+            border: 1px solid #d5d0c8;
+            border-radius: 10px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        input[type="radio"],
+        input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .hint {
+            margin-top: -8px;
+            margin-bottom: 16px;
+            color: #666;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: 0;
+            border-radius: 10px;
+            background: #9c4f2f;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #7e3f25;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>내 사주 간단히 보기</h1>
+        <p>양력/음력과 출생시간을 입력하면 실제 절기 기준 사주 8자를 계산합니다.</p>
+
+        {% if error_message %}
+        <div class="error">{{ error_message }}</div>
+        {% endif %}
+
+        <form action="/result" method="post">
+            <label>달력 종류</label>
+            <div class="radio-row">
+                <label>
+                    <input type="radio" name="calendar_type" value="solar" {% if form_data.calendar_type == "solar" %}checked{% endif %}>
+                    양력
+                </label>
+                <label>
+                    <input type="radio" name="calendar_type" value="lunar" {% if form_data.calendar_type == "lunar" %}checked{% endif %}>
+                    음력
+                </label>
+            </div>
+
+            <div class="check-row">
+                <label>
+                    <input type="checkbox" name="is_leap_month" {% if form_data.is_leap_month %}checked{% endif %}>
+                    윤달 여부 (음력 입력일 때만 체크)
+                </label>
+            </div>
+
+            <label for="year">출생년도</label>
+            <input id="year" name="year" type="number" min="1000" max="2200" placeholder="예: 2006" value="{{ form_data.year }}" required>
+
+            <label for="month">출생월</label>
+            <input id="month" name="month" type="number" min="1" max="12" placeholder="예: 8" value="{{ form_data.month }}" required>
+
+            <label for="day">출생일</label>
+            <input id="day" name="day" type="number" min="1" max="31" placeholder="예: 1" value="{{ form_data.day }}" required>
+
+            <label for="time_slot">출생시간 구간</label>
+            <select id="time_slot" name="time_slot">
+                {% for slot in time_slots %}
+                <option value="{{ slot.id }}" {% if form_data.time_slot == slot.id %}selected{% endif %}>{{ slot.label }}</option>
+                {% endfor %}
+            </select>
+            <div class="hint">시간은 일반 시각 대신 구간으로 선택합니다. 자시는 00:00~00:59와 23:00~23:59 두 선택지가 모두 자시로 계산됩니다.</div>
+
+            <label>성별 (대운/관계운 기준)</label>
+            <div class="radio-row">
+                <label>
+                    <input type="radio" name="gender" value="male" {% if form_data.gender == "male" %}checked{% endif %} required>
+                    남성
+                </label>
+                <label>
+                    <input type="radio" name="gender" value="female" {% if form_data.gender == "female" %}checked{% endif %}>
+                    여성
+                </label>
+            </div>
+            <div class="hint">대운 방향과 관계운 기준이 달라지므로 성별 입력은 필수입니다.</div>
+
+            <label for="target_year">운세 기준 연도</label>
+            <input id="target_year" name="target_year" type="number" min="1000" max="2200" placeholder="예: 2026" value="{{ form_data.target_year }}">
+
+            <label for="target_month">확인할 월 (선택)</label>
+            <input id="target_month" name="target_month" type="number" min="1" max="12" placeholder="예: 3" value="{{ form_data.target_month }}">
+
+            <label for="target_date">확인할 날짜 (선택)</label>
+            <input id="target_date" name="target_date" type="date" value="{{ form_data.target_date }}">
+
+            <button type="submit">사주 보기</button>
+        </form>
+    </div>
+</body>
+</html>

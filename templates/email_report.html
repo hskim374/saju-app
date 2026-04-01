@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>사주 리포트</title>
+</head>
+<body style="margin:0; padding:24px; background:#f6f7f6; font-family:Arial, sans-serif; color:#222;">
+    <div style="max-width:760px; margin:0 auto; background:#ffffff; border-radius:16px; padding:28px; border:1px solid #d8ddd8;">
+        <h1 style="margin:0 0 8px; color:#1f2937;">{{ recipient_name }}님 전체 사주 리포트</h1>
+        <p style="margin:0 0 18px; color:#6b7280;">웹에서 보이는 핵심 내용 전체를 이메일 본문에 담아 전달드립니다.</p>
+
+        <div style="margin-bottom:20px; padding:16px; background:#f7f8f7; border-left:4px solid #2f5d50;">
+            <div style="font-weight:bold; color:#1f2937; margin-bottom:8px;">입력 정보</div>
+            <div style="margin-bottom:4px;">
+                {% if result.raw_input.calendar_type == "solar" %}양력{% else %}음력{% endif %}
+                {{ result.raw_input.year }}년 {{ result.raw_input.month }}월 {{ result.raw_input.day }}일
+                {% if result.raw_input.is_leap_month %}(윤달){% endif %}
+            </div>
+            <div style="margin-bottom:4px;">
+                성별 기준: {% if result.raw_input.gender == "male" %}남성{% else %}여성{% endif %}
+            </div>
+            <div style="margin-bottom:4px;">양력 환산 기준일: {{ result.resolved_solar.iso }}</div>
+            {% if result.time_basis %}
+            <div>사주 기준 시간: {{ result.time_basis.saju_time_kor }} / 적용 구간: {{ result.time_basis.time_range }}</div>
+            {% endif %}
+        </div>
+
+        <div style="margin-bottom:22px;">
+            <div style="font-size:18px; font-weight:700; color:#2f5d50; margin:0 0 10px;">핵심 요약</div>
+            <table style="width:100%; border-collapse:separate; border-spacing:0 8px;">
+                <tr>
+                    <td style="width:50%; padding:12px; background:#f7f8f7; border:1px solid #d8ddd8;">
+                        <div style="font-size:12px; color:#6b7280; margin-bottom:4px;">올해 흐름</div>
+                        <div style="font-weight:bold; color:#1f2937;">{{ result.summary_card.year_trend }}</div>
+                    </td>
+                    <td style="width:50%; padding:12px; background:#f7f8f7; border:1px solid #d8ddd8;">
+                        <div style="font-size:12px; color:#6b7280; margin-bottom:4px;">재물 기조</div>
+                        <div style="font-weight:bold; color:#1f2937;">{{ result.summary_card.wealth }}</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width:50%; padding:12px; background:#f7f8f7; border:1px solid #d8ddd8;">
+                        <div style="font-size:12px; color:#6b7280; margin-bottom:4px;">직장운</div>
+                        <div style="font-weight:bold; color:#1f2937;">{{ result.summary_card.career }}</div>
+                    </td>
+                    <td style="width:50%; padding:12px; background:#f7f8f7; border:1px solid #d8ddd8;">
+                        <div style="font-size:12px; color:#6b7280; margin-bottom:4px;">관계운</div>
+                        <div style="font-weight:bold; color:#1f2937;">{{ result.summary_card.relationship }}</div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div style="margin-bottom:22px;">
+            <div style="font-size:18px; font-weight:700; color:#2f5d50; margin:0 0 10px;">사주 8자</div>
+            <div style="margin-bottom:12px; padding:14px; background:#f7f8f7; border-left:4px solid #2f5d50;">
+            <div style="font-weight:bold; margin-bottom:6px;">한 줄 요약</div>
+                <div>{{ result.interpretation_sections.overall.one_line }}</div>
+                <div style="margin-top:10px; padding:10px 12px; background:#eef5f0; border-left:4px solid #2f5d50; font-weight:600;">{{ result.interpretation_sections.overall.highlight }}</div>
+                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">쉬운 설명</div>
+                {% for item in result.interpretation_sections.overall.easy_explanation %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">현실에서 이렇게 나타납니다</div>
+                {% for item in result.interpretation_sections.overall.real_life %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">장점과 주의점</div>
+                {% for item in result.interpretation_sections.overall.strength_and_risk %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">행동 조언</div>
+                {% for item in result.interpretation_sections.overall.action_advice %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+            </div>
+            <table style="width:100%; border-collapse:collapse;">
+                <tr>
+                    <th style="border:1px solid #d8ddd8; padding:10px; background:#eef3f0;">년주</th>
+                    <th style="border:1px solid #d8ddd8; padding:10px; background:#eef3f0;">월주</th>
+                    <th style="border:1px solid #d8ddd8; padding:10px; background:#eef3f0;">일주</th>
+                    <th style="border:1px solid #d8ddd8; padding:10px; background:#eef3f0;">시주</th>
+                </tr>
+                <tr>
+                    <td style="border:1px solid #d8ddd8; padding:10px; text-align:center;">{{ result.saju.year.kor }}<br><span style="font-size:12px; color:#6b7280;">{{ result.saju.year.hanja }}</span></td>
+                    <td style="border:1px solid #d8ddd8; padding:10px; text-align:center;">{{ result.saju.month.kor }}<br><span style="font-size:12px; color:#6b7280;">{{ result.saju.month.hanja }}</span></td>
+                    <td style="border:1px solid #d8ddd8; padding:10px; text-align:center;">{{ result.saju.day.kor }}<br><span style="font-size:12px; color:#6b7280;">{{ result.saju.day.hanja }}</span></td>
+                    <td style="border:1px solid #d8ddd8; padding:10px; text-align:center;">{% if result.saju.time %}{{ result.saju.time.kor }}<br><span style="font-size:12px; color:#6b7280;">{{ result.saju.time.hanja }}</span>{% else %}미산출{% endif %}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div style="margin-bottom:22px;">
+            <div style="font-size:18px; font-weight:700; color:#2f5d50; margin:0 0 10px;">오행 · 십성</div>
+            <div style="margin-bottom:10px;">
+                강한 오행: <strong>{{ result.dominant_kor | join(", ") }}</strong> /
+                약한 오행: <strong>{{ result.weak_kor | join(", ") }}</strong>
+            </div>
+            <table style="width:100%; border-collapse:collapse; margin-bottom:12px;">
+                <tr>
+                    <th style="border:1px solid #d8ddd8; padding:10px; background:#eef3f0;">오행</th>
+                    <th style="border:1px solid #d8ddd8; padding:10px; background:#eef3f0;">개수</th>
+                    <th style="border:1px solid #d8ddd8; padding:10px; background:#eef3f0;">의미</th>
+                </tr>
+                <tr><td style="border:1px solid #d8ddd8; padding:10px;">목(木)</td><td style="border:1px solid #d8ddd8; padding:10px; text-align:center;">{{ result.elements.wood }}</td><td style="border:1px solid #d8ddd8; padding:10px;">성장, 방향성</td></tr>
+                <tr><td style="border:1px solid #d8ddd8; padding:10px;">화(火)</td><td style="border:1px solid #d8ddd8; padding:10px; text-align:center;">{{ result.elements.fire }}</td><td style="border:1px solid #d8ddd8; padding:10px;">표현, 활동</td></tr>
+                <tr><td style="border:1px solid #d8ddd8; padding:10px;">토(土)</td><td style="border:1px solid #d8ddd8; padding:10px; text-align:center;">{{ result.elements.earth }}</td><td style="border:1px solid #d8ddd8; padding:10px;">안정, 현실</td></tr>
+                <tr><td style="border:1px solid #d8ddd8; padding:10px;">금(金)</td><td style="border:1px solid #d8ddd8; padding:10px; text-align:center;">{{ result.elements.metal }}</td><td style="border:1px solid #d8ddd8; padding:10px;">정리, 구조</td></tr>
+                <tr><td style="border:1px solid #d8ddd8; padding:10px;">수(水)</td><td style="border:1px solid #d8ddd8; padding:10px; text-align:center;">{{ result.elements.water }}</td><td style="border:1px solid #d8ddd8; padding:10px;">사고, 흐름</td></tr>
+            </table>
+            <ul style="padding-left:18px; margin:0;">
+                <li style="margin-bottom:8px;">년간: {{ result.ten_gods.year }} - {{ result.ten_gods_labels.year }} ({{ result.ten_gods_details.year }}) / {{ result.ten_gods_explanations.year }}</li>
+                <li style="margin-bottom:8px;">월간: {{ result.ten_gods.month }} - {{ result.ten_gods_labels.month }} ({{ result.ten_gods_details.month }}) / {{ result.ten_gods_explanations.month }}</li>
+                <li>시간:
+                    {% if result.ten_gods.time %}
+                    {{ result.ten_gods.time }} - {{ result.ten_gods_labels.time }} ({{ result.ten_gods_details.time }}) / {{ result.ten_gods_explanations.time }}
+                    {% else %}
+                    미산출
+                    {% endif %}
+                </li>
+            </ul>
+        </div>
+
+        <div style="margin-bottom:22px;">
+            <div style="font-size:18px; font-weight:700; color:#2f5d50; margin:0 0 10px;">성격 분석</div>
+            <div style="margin-bottom:12px; padding:14px; background:#f7f8f7; border-left:4px solid #2f5d50;">
+                <div style="font-weight:bold; margin-bottom:6px;">한 줄 요약</div>
+                <div>{{ result.interpretation_sections.personality.one_line }}</div>
+                <div style="margin-top:10px; padding:10px 12px; background:#eef5f0; border-left:4px solid #2f5d50; font-weight:600;">{{ result.interpretation_sections.personality.highlight }}</div>
+                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">쉬운 설명</div>
+                {% for item in result.interpretation_sections.personality.easy_explanation %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">현실에서 이렇게 나타납니다</div>
+                {% for item in result.interpretation_sections.personality.real_life %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">장점과 주의점</div>
+                {% for item in result.interpretation_sections.personality.strength_and_risk %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">행동 조언</div>
+                {% for item in result.interpretation_sections.personality.action_advice %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div style="margin-bottom:22px;">
+            <div style="font-size:18px; font-weight:700; color:#2f5d50; margin:0 0 10px;">재물 분석</div>
+            <div style="margin-bottom:12px; padding:14px; background:#f7f8f7; border-left:4px solid #2f5d50;">
+                <div style="font-weight:bold; margin-bottom:6px;">한 줄 요약</div>
+                <div>{{ result.interpretation_sections.wealth.one_line }}</div>
+                <div style="margin-top:10px; padding:10px 12px; background:#eef5f0; border-left:4px solid #2f5d50; font-weight:600;">{{ result.interpretation_sections.wealth.highlight }}</div>
+                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">쉬운 설명</div>
+                {% for item in result.interpretation_sections.wealth.easy_explanation %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">현실에서 이렇게 나타납니다</div>
+                {% for item in result.interpretation_sections.wealth.real_life %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">장점과 주의점</div>
+                {% for item in result.interpretation_sections.wealth.strength_and_risk %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">행동 조언</div>
+                {% for item in result.interpretation_sections.wealth.action_advice %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div style="margin-bottom:22px;">
+            <div style="font-size:18px; font-weight:700; color:#2f5d50; margin:0 0 10px;">대운 흐름</div>
+            <div style="margin-bottom:12px;">{{ result.daewoon.direction_kor }} / 대운 시작: {{ result.daewoon.start_age_display }}</div>
+            <div style="margin-bottom:12px; padding:14px; background:#f7f8f7; border-left:4px solid #2f5d50;">
+                <div style="font-weight:bold; margin-bottom:6px;">현재 작동 중인 대운</div>
+                <div style="margin-bottom:6px;"><strong>{{ result.daewoon.active_cycle_summary.pillar }}</strong> / {{ result.daewoon.active_cycle_summary.section.one_line }}</div>
+                <div style="margin-top:10px; padding:10px 12px; background:#eef5f0; border-left:4px solid #2f5d50; font-weight:600;">{{ result.daewoon.active_cycle_summary.section.highlight }}</div>
+                {% for item in result.daewoon.active_cycle_summary.section.easy_explanation %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+                {% for item in result.daewoon.active_cycle_summary.section.real_life %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">장점과 주의점</div>
+                {% for item in result.daewoon.active_cycle_summary.section.strength_and_risk %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">행동 조언</div>
+                {% for item in result.daewoon.active_cycle_summary.section.action_advice %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+            </div>
+            <table style="width:100%; border-collapse:collapse;">
+                <tr>
+                    <th style="border:1px solid #d8ddd8; padding:10px; background:#eef3f0;">기간</th>
+                    <th style="border:1px solid #d8ddd8; padding:10px; background:#eef3f0;">대운</th>
+                    <th style="border:1px solid #d8ddd8; padding:10px; background:#eef3f0;">풀이</th>
+                </tr>
+                {% for cycle in result.daewoon.cycles %}
+                <tr>
+                    <td style="border:1px solid #d8ddd8; padding:10px;">{{ cycle.start_age }}세~{{ cycle.end_age }}세<br><span style="font-size:12px; color:#6b7280;">{{ cycle.start_year }}~{{ cycle.end_year }}</span></td>
+                    <td style="border:1px solid #d8ddd8; padding:10px;">{{ cycle.pillar }}<br><span style="font-size:12px; color:#6b7280;">{{ cycle.ten_god }}</span></td>
+                    <td style="border:1px solid #d8ddd8; padding:10px;">{{ cycle.explanation }}<br><span style="font-size:12px; color:#6b7280;">조언: {{ cycle.advice }}</span></td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div style="margin-bottom:22px;">
+            <div style="font-size:18px; font-weight:700; color:#2f5d50; margin:0 0 10px;">{{ result.year_fortune.year }}년 운세</div>
+            <div style="margin-bottom:12px; padding:14px; background:#f7f8f7; border-left:4px solid #2f5d50;">
+                <div style="font-weight:bold; margin-bottom:6px;">한 줄 요약</div>
+                <div>{{ result.year_fortune.section.one_line }}</div>
+                <div style="margin-top:10px; padding:10px 12px; background:#eef5f0; border-left:4px solid #2f5d50; font-weight:600;">{{ result.year_fortune.section.highlight }}</div>
+                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">쉬운 설명</div>
+                {% for item in result.year_fortune.section.easy_explanation %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">현실에서 이렇게 나타납니다</div>
+                {% for item in result.year_fortune.section.real_life %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">장점과 주의점</div>
+                {% for item in result.year_fortune.section.strength_and_risk %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">행동 조언</div>
+                {% for item in result.year_fortune.section.action_advice %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+            </div>
+            <div style="font-size:13px; color:#6b7280;">세운 {{ result.year_fortune.pillar }} / 세운 십성 {{ result.year_fortune.ten_god }} / 작동 대운 {{ result.year_fortune.active_daewoon.pillar }} / 대운 십성 {{ result.year_fortune.daewoon_ten_god }}</div>
+        </div>
+
+        <div style="margin-bottom:22px;">
+            <div style="font-size:18px; font-weight:700; color:#2f5d50; margin:0 0 10px;">특정 날짜 운세</div>
+            <div style="margin-bottom:12px; padding:14px; background:#f7f8f7; border-left:4px solid #2f5d50;">
+                <div style="font-weight:bold; margin-bottom:6px;">한 줄 요약</div>
+                <div>{{ result.daily_fortune.section.one_line }}</div>
+                <div style="margin-top:10px; padding:10px 12px; background:#eef5f0; border-left:4px solid #2f5d50; font-weight:600;">{{ result.daily_fortune.section.highlight }}</div>
+                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">쉬운 설명</div>
+                {% for item in result.daily_fortune.section.easy_explanation %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">현실에서 이렇게 나타납니다</div>
+                {% for item in result.daily_fortune.section.real_life %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">장점과 주의점</div>
+                {% for item in result.daily_fortune.section.strength_and_risk %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">행동 조언</div>
+                {% for item in result.daily_fortune.section.action_advice %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+            </div>
+            <div style="font-size:13px; color:#6b7280;">기준 날짜 {{ result.daily_fortune.date }} / 일운 {{ result.daily_fortune.pillar }} / 키워드 {{ result.daily_fortune.keywords | join(", ") }}</div>
+        </div>
+
+        <div style="margin-bottom:22px;">
+            <div style="font-size:18px; font-weight:700; color:#2f5d50; margin:0 0 10px;">{{ result.raw_input.target_year }}년 월운</div>
+            <table style="width:100%; border-collapse:collapse;">
+                <tr>
+                    <th style="border:1px solid #d8ddd8; padding:10px; background:#eef3f0;">월</th>
+                    <th style="border:1px solid #d8ddd8; padding:10px; background:#eef3f0;">월운</th>
+                    <th style="border:1px solid #d8ddd8; padding:10px; background:#eef3f0;">설명</th>
+                </tr>
+                {% for item in result.monthly_fortune %}
+                <tr>
+                    <td style="border:1px solid #d8ddd8; padding:10px;">{{ item.month }}월</td>
+                    <td style="border:1px solid #d8ddd8; padding:10px;">{{ item.pillar }}<br><span style="font-size:12px; color:#6b7280;">{{ item.headline }}</span></td>
+                    <td style="border:1px solid #d8ddd8; padding:10px;">{{ item.explanation }}<br><span style="font-size:12px; color:#6b7280;">조언: {{ item.advice }}</span></td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div style="margin-bottom:22px;">
+            <div style="font-size:18px; font-weight:700; color:#2f5d50; margin:0 0 10px;">직장운</div>
+            <div style="margin-bottom:12px; padding:14px; background:#f7f8f7; border-left:4px solid #2f5d50;">
+                <div style="font-weight:bold; margin-bottom:6px;">한 줄 요약</div>
+                <div>{{ result.career_fortune.section.one_line }}</div>
+                <div style="margin-top:10px; padding:10px 12px; background:#eef5f0; border-left:4px solid #2f5d50; font-weight:600;">{{ result.career_fortune.section.highlight }}</div>
+                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">쉬운 설명</div>
+                {% for item in result.career_fortune.section.easy_explanation %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">현실에서 이렇게 나타납니다</div>
+                {% for item in result.career_fortune.section.real_life %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">장점과 주의점</div>
+                {% for item in result.career_fortune.section.strength_and_risk %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">행동 조언</div>
+                {% for item in result.career_fortune.section.action_advice %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+            </div>
+            <ul style="padding-left:18px; margin:0;">
+                {% for item in result.career_fortune.strengths %}
+                <li style="margin-bottom:8px;">{{ item }}</li>
+                {% endfor %}
+                {% for item in result.career_fortune.warnings %}
+                <li style="margin-bottom:8px;">{{ item }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div style="margin-bottom:22px;">
+            <div style="font-size:18px; font-weight:700; color:#2f5d50; margin:0 0 10px;">결혼운 / 연애운</div>
+            <div style="margin-bottom:12px; padding:14px; background:#f7f8f7; border-left:4px solid #2f5d50;">
+                <div style="font-weight:bold; margin-bottom:6px;">한 줄 요약</div>
+                <div>{{ result.relationship_fortune.section.one_line }}</div>
+                <div style="margin-top:10px; padding:10px 12px; background:#eef5f0; border-left:4px solid #2f5d50; font-weight:600;">{{ result.relationship_fortune.section.highlight }}</div>
+                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">쉬운 설명</div>
+                {% for item in result.relationship_fortune.section.easy_explanation %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">현실에서 이렇게 나타납니다</div>
+                {% for item in result.relationship_fortune.section.real_life %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">장점과 주의점</div>
+                {% for item in result.relationship_fortune.section.strength_and_risk %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">행동 조언</div>
+                {% for item in result.relationship_fortune.section.action_advice %}
+                <div style="margin-bottom:4px;">{{ item }}</div>
+                {% endfor %}
+            </div>
+            <ul style="padding-left:18px; margin:0;">
+                {% for item in result.relationship_fortune.strengths %}
+                <li style="margin-bottom:8px;">{{ item }}</li>
+                {% endfor %}
+                {% for item in result.relationship_fortune.warnings %}
+                <li style="margin-bottom:8px;">{{ item }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div style="margin-bottom:20px; padding-top:14px; border-top:1px solid #d8ddd8; color:#6b7280; font-size:13px;">
+            <div style="font-weight:bold; color:#1f2937; margin-bottom:6px;">계산 기준</div>
+            <div>기준 시간대: {{ result.calculation_basis.timezone }}</div>
+            <div>년주: {{ result.calculation_basis.year_boundary }}</div>
+            <div>월주: {{ result.calculation_basis.month_boundary }}</div>
+            <div>일주: {{ result.calculation_basis.day_boundary }}</div>
+            <div>시주: {{ result.calculation_basis.time_boundary }}</div>
+        </div>
+
+        <a href="{{ detail_link }}" style="display:inline-block; padding:12px 18px; background:#2f5d50; color:#ffffff; text-decoration:none; border-radius:10px; font-weight:bold;">웹에서 상세보기</a>
+
+        <p style="margin:20px 0 0; color:#6b7280; font-size:13px;">
+            본 메일은 절기 기준 사주 계산과 대운/세운 흐름을 바탕으로 생성되었습니다.
+        </p>
+    </div>
+</body>
+</html>

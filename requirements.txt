@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+jinja2
+python-multipart
+korean_lunar_calendar
+lunar_python
+gspread
+python-dotenv
+tzdata

@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>사주 결과</title>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3984376475463185"
+        crossorigin="anonymous"></script>
     <style>
         :root {
             --bg-top: #f3f7f4;
@@ -33,7 +36,10 @@
             padding: 24px;
         }
 
-        h1, h2, h3, p {
+        h1,
+        h2,
+        h3,
+        p {
             margin-top: 0;
         }
 
@@ -378,8 +384,32 @@
             text-decoration: none;
             font-weight: bold;
         }
+
+        .ad-block {
+            margin: 20px 0;
+        }
+
+        .affiliate-box {
+            margin: 20px 0 0;
+            width: 100%;
+        }
+
+        .affiliate-banner-slot {
+            width: 100%;
+        }
+
+        .affiliate-note {
+            font-size: 12px;
+            color: #888;
+            margin-top: 8px;
+        }
+
+        iframe {
+            max-width: 100%;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="hero">
@@ -400,8 +430,17 @@
             </p>
             <p class="hero-meta">양력 환산 기준일: {{ result.resolved_solar.iso }}</p>
             {% if result.time_basis %}
-            <p class="hero-meta">사주 기준 시간: {{ result.time_basis.saju_time_kor }} / 적용 구간: {{ result.time_basis.time_range }}</p>
+            <p class="hero-meta">사주 기준 시간: {{ result.time_basis.saju_time_kor }} / 적용 구간: {{
+                result.time_basis.time_range }}</p>
             {% endif %}
+
+            <div class="ad-block">
+                <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-3984376475463185"
+                    data-ad-slot="7453825128" data-ad-format="auto"></ins>
+                <script>
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
 
             <div class="summary-grid">
                 <div class="card summary-card">
@@ -458,23 +497,27 @@
                 <div class="saju-card">
                     <span class="saju-label">년주</span>
                     <div class="saju-value">{{ result.saju.year.kor }}</div>
-                    <div class="saju-sub">한자: {{ result.saju.year.hanja }}<br>천간/지지: {{ result.saju.year.stem }} / {{ result.saju.year.branch }}</div>
+                    <div class="saju-sub">한자: {{ result.saju.year.hanja }}<br>천간/지지: {{ result.saju.year.stem }} / {{
+                        result.saju.year.branch }}</div>
                 </div>
                 <div class="saju-card">
                     <span class="saju-label">월주</span>
                     <div class="saju-value">{{ result.saju.month.kor }}</div>
-                    <div class="saju-sub">한자: {{ result.saju.month.hanja }}<br>천간/지지: {{ result.saju.month.stem }} / {{ result.saju.month.branch }}</div>
+                    <div class="saju-sub">한자: {{ result.saju.month.hanja }}<br>천간/지지: {{ result.saju.month.stem }} / {{
+                        result.saju.month.branch }}</div>
                 </div>
                 <div class="saju-card">
                     <span class="saju-label">일주</span>
                     <div class="saju-value">{{ result.saju.day.kor }}</div>
-                    <div class="saju-sub">한자: {{ result.saju.day.hanja }}<br>천간/지지: {{ result.saju.day.stem }} / {{ result.saju.day.branch }}</div>
+                    <div class="saju-sub">한자: {{ result.saju.day.hanja }}<br>천간/지지: {{ result.saju.day.stem }} / {{
+                        result.saju.day.branch }}</div>
                 </div>
                 <div class="saju-card">
                     <span class="saju-label">시주</span>
                     {% if result.saju.time %}
                     <div class="saju-value">{{ result.saju.time.kor }}</div>
-                    <div class="saju-sub">한자: {{ result.saju.time.hanja }}<br>천간/지지: {{ result.saju.time.stem }} / {{ result.saju.time.branch }}</div>
+                    <div class="saju-sub">한자: {{ result.saju.time.hanja }}<br>천간/지지: {{ result.saju.time.stem }} / {{
+                        result.saju.time.branch }}</div>
                     {% else %}
                     <div class="saju-value">미산출</div>
                     <div class="saju-sub">출생시간이 없어 시주는 생략했습니다.</div>
@@ -488,7 +531,8 @@
             <div class="analysis-grid">
                 <div class="card">
                     <h2>오행 분포</h2>
-                    <p class="lead"><strong>강한 오행은 {{ result.dominant_kor | join(", ") }}, 약한 오행은 {{ result.weak_kor | join(", ") }}입니다.</strong></p>
+                    <p class="lead"><strong>강한 오행은 {{ result.dominant_kor | join(", ") }}, 약한 오행은 {{ result.weak_kor |
+                            join(", ") }}입니다.</strong></p>
                     <ul>
                         <li>목(木): {{ result.elements.wood }} / 성장, 방향성</li>
                         <li>화(火): {{ result.elements.fire }} / 표현, 활동</li>
@@ -501,11 +545,17 @@
                     <h2>십성</h2>
                     <p class="lead"><strong>일간 기준으로 바깥에서 들어오는 역할 성향을 간단히 읽은 결과입니다.</strong></p>
                     <ul>
-                        <li>년간: {{ result.ten_gods.year }} - {{ result.ten_gods_labels.year }} ({{ result.ten_gods_details.year }})<br><span class="muted">{{ result.ten_gods_explanations.year }}</span></li>
-                        <li>월간: {{ result.ten_gods.month }} - {{ result.ten_gods_labels.month }} ({{ result.ten_gods_details.month }})<br><span class="muted">{{ result.ten_gods_explanations.month }}</span></li>
+                        <li>년간: {{ result.ten_gods.year }} - {{ result.ten_gods_labels.year }} ({{
+                            result.ten_gods_details.year }})<br><span class="muted">{{ result.ten_gods_explanations.year
+                                }}</span></li>
+                        <li>월간: {{ result.ten_gods.month }} - {{ result.ten_gods_labels.month }} ({{
+                            result.ten_gods_details.month }})<br><span class="muted">{{
+                                result.ten_gods_explanations.month }}</span></li>
                         <li>시간:
                             {% if result.ten_gods.time %}
-                            {{ result.ten_gods.time }} - {{ result.ten_gods_labels.time }} ({{ result.ten_gods_details.time }})<br><span class="muted">{{ result.ten_gods_explanations.time }}</span>
+                            {{ result.ten_gods.time }} - {{ result.ten_gods_labels.time }} ({{
+                            result.ten_gods_details.time }})<br><span class="muted">{{ result.ten_gods_explanations.time
+                                }}</span>
                             {% else %}
                             미산출
                             {% endif %}
@@ -520,21 +570,37 @@
             <div class="analysis-grid">
                 <div class="card">
                     <h2>성격</h2>
-                    <div class="narrative-step"><strong>한 줄 요약</strong><div>{{ result.interpretation_sections.personality.one_line }}</div></div>
+                    <div class="narrative-step"><strong>한 줄 요약</strong>
+                        <div>{{ result.interpretation_sections.personality.one_line }}</div>
+                    </div>
                     <div class="highlight-line">{{ result.interpretation_sections.personality.highlight }}</div>
-                    <div class="narrative-step"><strong>쉬운 설명</strong>{% for item in result.interpretation_sections.personality.easy_explanation %}<div>{{ item }}</div>{% endfor %}</div>
-                    <div class="narrative-step"><strong>현실에서 이렇게 나타납니다</strong>{% for item in result.interpretation_sections.personality.real_life %}<div>{{ item }}</div>{% endfor %}</div>
-                    <div class="narrative-step"><strong>장점과 주의점</strong>{% for item in result.interpretation_sections.personality.strength_and_risk %}<div>{{ item }}</div>{% endfor %}</div>
-                    <div class="narrative-step"><strong>행동 조언</strong>{% for item in result.interpretation_sections.personality.action_advice %}<div>{{ item }}</div>{% endfor %}</div>
+                    <div class="narrative-step"><strong>쉬운 설명</strong>{% for item in
+                        result.interpretation_sections.personality.easy_explanation %}<div>{{ item }}</div>{% endfor %}
+                    </div>
+                    <div class="narrative-step"><strong>현실에서 이렇게 나타납니다</strong>{% for item in
+                        result.interpretation_sections.personality.real_life %}<div>{{ item }}</div>{% endfor %}</div>
+                    <div class="narrative-step"><strong>장점과 주의점</strong>{% for item in
+                        result.interpretation_sections.personality.strength_and_risk %}<div>{{ item }}</div>{% endfor %}
+                    </div>
+                    <div class="narrative-step"><strong>행동 조언</strong>{% for item in
+                        result.interpretation_sections.personality.action_advice %}<div>{{ item }}</div>{% endfor %}
+                    </div>
                 </div>
                 <div class="card">
                     <h2>재물</h2>
-                    <div class="narrative-step"><strong>한 줄 요약</strong><div>{{ result.interpretation_sections.wealth.one_line }}</div></div>
+                    <div class="narrative-step"><strong>한 줄 요약</strong>
+                        <div>{{ result.interpretation_sections.wealth.one_line }}</div>
+                    </div>
                     <div class="highlight-line">{{ result.interpretation_sections.wealth.highlight }}</div>
-                    <div class="narrative-step"><strong>쉬운 설명</strong>{% for item in result.interpretation_sections.wealth.easy_explanation %}<div>{{ item }}</div>{% endfor %}</div>
-                    <div class="narrative-step"><strong>현실에서 이렇게 나타납니다</strong>{% for item in result.interpretation_sections.wealth.real_life %}<div>{{ item }}</div>{% endfor %}</div>
-                    <div class="narrative-step"><strong>장점과 주의점</strong>{% for item in result.interpretation_sections.wealth.strength_and_risk %}<div>{{ item }}</div>{% endfor %}</div>
-                    <div class="narrative-step"><strong>행동 조언</strong>{% for item in result.interpretation_sections.wealth.action_advice %}<div>{{ item }}</div>{% endfor %}</div>
+                    <div class="narrative-step"><strong>쉬운 설명</strong>{% for item in
+                        result.interpretation_sections.wealth.easy_explanation %}<div>{{ item }}</div>{% endfor %}</div>
+                    <div class="narrative-step"><strong>현실에서 이렇게 나타납니다</strong>{% for item in
+                        result.interpretation_sections.wealth.real_life %}<div>{{ item }}</div>{% endfor %}</div>
+                    <div class="narrative-step"><strong>장점과 주의점</strong>{% for item in
+                        result.interpretation_sections.wealth.strength_and_risk %}<div>{{ item }}</div>{% endfor %}
+                    </div>
+                    <div class="narrative-step"><strong>행동 조언</strong>{% for item in
+                        result.interpretation_sections.wealth.action_advice %}<div>{{ item }}</div>{% endfor %}</div>
                 </div>
             </div>
         </div>
@@ -542,16 +608,24 @@
         <div class="section">
             <div class="section-label">대운</div>
             <h2>대운 흐름</h2>
-            <p class="lead"><strong>{{ result.daewoon.direction_kor }} / 대운 시작: {{ result.daewoon.start_age_display }}</strong></p>
+            <p class="lead"><strong>{{ result.daewoon.direction_kor }} / 대운 시작: {{ result.daewoon.start_age_display
+                    }}</strong></p>
             <p class="muted">월주를 기준으로 10년 단위 흐름을 순행 또는 역행으로 배치했습니다.</p>
             <div class="card active-daewoon" style="margin-bottom: 14px;">
                 <h3>👉 현재 작동 중인 대운</h3>
-                <p class="lead"><strong>{{ result.daewoon.active_cycle_summary.pillar }} / {{ result.daewoon.active_cycle_summary.section.one_line }}</strong></p>
+                <p class="lead"><strong>{{ result.daewoon.active_cycle_summary.pillar }} / {{
+                        result.daewoon.active_cycle_summary.section.one_line }}</strong></p>
                 <div class="highlight-line">{{ result.daewoon.active_cycle_summary.section.highlight }}</div>
-                <div class="narrative-step"><strong>쉬운 설명</strong>{% for item in result.daewoon.active_cycle_summary.section.easy_explanation %}<div>{{ item }}</div>{% endfor %}</div>
-                <div class="narrative-step"><strong>현실에서 이렇게 나타납니다</strong>{% for item in result.daewoon.active_cycle_summary.section.real_life %}<div>{{ item }}</div>{% endfor %}</div>
-                <div class="narrative-step"><strong>장점과 주의점</strong>{% for item in result.daewoon.active_cycle_summary.section.strength_and_risk %}<div>{{ item }}</div>{% endfor %}</div>
-                <div class="narrative-step"><strong>행동 조언</strong>{% for item in result.daewoon.active_cycle_summary.section.action_advice %}<div>{{ item }}</div>{% endfor %}</div>
+                <div class="narrative-step"><strong>쉬운 설명</strong>{% for item in
+                    result.daewoon.active_cycle_summary.section.easy_explanation %}<div>{{ item }}</div>{% endfor %}
+                </div>
+                <div class="narrative-step"><strong>현실에서 이렇게 나타납니다</strong>{% for item in
+                    result.daewoon.active_cycle_summary.section.real_life %}<div>{{ item }}</div>{% endfor %}</div>
+                <div class="narrative-step"><strong>장점과 주의점</strong>{% for item in
+                    result.daewoon.active_cycle_summary.section.strength_and_risk %}<div>{{ item }}</div>{% endfor %}
+                </div>
+                <div class="narrative-step"><strong>행동 조언</strong>{% for item in
+                    result.daewoon.active_cycle_summary.section.action_advice %}<div>{{ item }}</div>{% endfor %}</div>
                 <ul class="stack">
                     {% for item in result.daewoon.active_cycle_summary.keywords %}
                     <li class="chip">{{ item }}</li>
@@ -561,7 +635,8 @@
             <ul class="cycle-list">
                 {% for cycle in result.daewoon.cycles %}
                 <li>
-                    <strong>{{ cycle.start_age }}세~{{ cycle.end_age }}세: {{ cycle.pillar }} ({{ cycle.start_year }}~{{ cycle.end_year }})</strong><br>
+                    <strong>{{ cycle.start_age }}세~{{ cycle.end_age }}세: {{ cycle.pillar }} ({{ cycle.start_year }}~{{
+                        cycle.end_year }})</strong><br>
                     {{ cycle.explanation }}<br>
                     <span class="muted">십성: {{ cycle.ten_god }} / 조언: {{ cycle.advice }}</span>
                 </li>
@@ -574,12 +649,18 @@
             <div class="analysis-grid">
                 <div class="card">
                     <h2>{{ result.year_fortune.year }}년 운세</h2>
-                    <div class="narrative-step"><strong>한 줄 요약</strong><div>{{ result.year_fortune.section.one_line }}</div></div>
+                    <div class="narrative-step"><strong>한 줄 요약</strong>
+                        <div>{{ result.year_fortune.section.one_line }}</div>
+                    </div>
                     <div class="highlight-line">{{ result.year_fortune.section.highlight }}</div>
-                    <div class="narrative-step"><strong>쉬운 설명</strong>{% for item in result.year_fortune.section.easy_explanation %}<div>{{ item }}</div>{% endfor %}</div>
-                    <div class="narrative-step"><strong>현실에서 이렇게 나타납니다</strong>{% for item in result.year_fortune.section.real_life %}<div>{{ item }}</div>{% endfor %}</div>
-                    <div class="narrative-step"><strong>장점과 주의점</strong>{% for item in result.year_fortune.section.strength_and_risk %}<div>{{ item }}</div>{% endfor %}</div>
-                    <div class="narrative-step"><strong>행동 조언</strong>{% for item in result.year_fortune.section.action_advice %}<div>{{ item }}</div>{% endfor %}</div>
+                    <div class="narrative-step"><strong>쉬운 설명</strong>{% for item in
+                        result.year_fortune.section.easy_explanation %}<div>{{ item }}</div>{% endfor %}</div>
+                    <div class="narrative-step"><strong>현실에서 이렇게 나타납니다</strong>{% for item in
+                        result.year_fortune.section.real_life %}<div>{{ item }}</div>{% endfor %}</div>
+                    <div class="narrative-step"><strong>장점과 주의점</strong>{% for item in
+                        result.year_fortune.section.strength_and_risk %}<div>{{ item }}</div>{% endfor %}</div>
+                    <div class="narrative-step"><strong>행동 조언</strong>{% for item in
+                        result.year_fortune.section.action_advice %}<div>{{ item }}</div>{% endfor %}</div>
                     <ul class="stack">
                         <li class="chip">세운 {{ result.year_fortune.pillar }}</li>
                         <li class="chip">세운 십성 {{ result.year_fortune.ten_god }}</li>
@@ -590,12 +671,18 @@
                 </div>
                 <div class="card">
                     <h2>특정 날짜 운세</h2>
-                    <div class="narrative-step"><strong>한 줄 요약</strong><div>{{ result.daily_fortune.section.one_line }}</div></div>
+                    <div class="narrative-step"><strong>한 줄 요약</strong>
+                        <div>{{ result.daily_fortune.section.one_line }}</div>
+                    </div>
                     <div class="highlight-line">{{ result.daily_fortune.section.highlight }}</div>
-                    <div class="narrative-step"><strong>쉬운 설명</strong>{% for item in result.daily_fortune.section.easy_explanation %}<div>{{ item }}</div>{% endfor %}</div>
-                    <div class="narrative-step"><strong>현실에서 이렇게 나타납니다</strong>{% for item in result.daily_fortune.section.real_life %}<div>{{ item }}</div>{% endfor %}</div>
-                    <div class="narrative-step"><strong>장점과 주의점</strong>{% for item in result.daily_fortune.section.strength_and_risk %}<div>{{ item }}</div>{% endfor %}</div>
-                    <div class="narrative-step"><strong>행동 조언</strong>{% for item in result.daily_fortune.section.action_advice %}<div>{{ item }}</div>{% endfor %}</div>
+                    <div class="narrative-step"><strong>쉬운 설명</strong>{% for item in
+                        result.daily_fortune.section.easy_explanation %}<div>{{ item }}</div>{% endfor %}</div>
+                    <div class="narrative-step"><strong>현실에서 이렇게 나타납니다</strong>{% for item in
+                        result.daily_fortune.section.real_life %}<div>{{ item }}</div>{% endfor %}</div>
+                    <div class="narrative-step"><strong>장점과 주의점</strong>{% for item in
+                        result.daily_fortune.section.strength_and_risk %}<div>{{ item }}</div>{% endfor %}</div>
+                    <div class="narrative-step"><strong>행동 조언</strong>{% for item in
+                        result.daily_fortune.section.action_advice %}<div>{{ item }}</div>{% endfor %}</div>
                     <ul>
                         <li>기준 날짜: {{ result.daily_fortune.date }}</li>
                         <li>일운: {{ result.daily_fortune.pillar }} / {{ result.daily_fortune.ten_god }}</li>
@@ -607,12 +694,18 @@
             <div class="analysis-grid">
                 <div class="card">
                     <h2>직장운</h2>
-                    <div class="narrative-step"><strong>한 줄 요약</strong><div>{{ result.career_fortune.section.one_line }}</div></div>
+                    <div class="narrative-step"><strong>한 줄 요약</strong>
+                        <div>{{ result.career_fortune.section.one_line }}</div>
+                    </div>
                     <div class="highlight-line">{{ result.career_fortune.section.highlight }}</div>
-                    <div class="narrative-step"><strong>쉬운 설명</strong>{% for item in result.career_fortune.section.easy_explanation %}<div>{{ item }}</div>{% endfor %}</div>
-                    <div class="narrative-step"><strong>현실에서 이렇게 나타납니다</strong>{% for item in result.career_fortune.section.real_life %}<div>{{ item }}</div>{% endfor %}</div>
-                    <div class="narrative-step"><strong>장점과 주의점</strong>{% for item in result.career_fortune.section.strength_and_risk %}<div>{{ item }}</div>{% endfor %}</div>
-                    <div class="narrative-step"><strong>행동 조언</strong>{% for item in result.career_fortune.section.action_advice %}<div>{{ item }}</div>{% endfor %}</div>
+                    <div class="narrative-step"><strong>쉬운 설명</strong>{% for item in
+                        result.career_fortune.section.easy_explanation %}<div>{{ item }}</div>{% endfor %}</div>
+                    <div class="narrative-step"><strong>현실에서 이렇게 나타납니다</strong>{% for item in
+                        result.career_fortune.section.real_life %}<div>{{ item }}</div>{% endfor %}</div>
+                    <div class="narrative-step"><strong>장점과 주의점</strong>{% for item in
+                        result.career_fortune.section.strength_and_risk %}<div>{{ item }}</div>{% endfor %}</div>
+                    <div class="narrative-step"><strong>행동 조언</strong>{% for item in
+                        result.career_fortune.section.action_advice %}<div>{{ item }}</div>{% endfor %}</div>
                     <ul class="stack">
                         <li class="chip">흐름 {{ result.career_fortune.trend_kor }}</li>
                         <li class="chip">강도 {{ result.career_fortune.intensity_kor }}</li>
@@ -629,12 +722,18 @@
                 </div>
                 <div class="card">
                     <h2>결혼운 / 연애운</h2>
-                    <div class="narrative-step"><strong>한 줄 요약</strong><div>{{ result.relationship_fortune.section.one_line }}</div></div>
+                    <div class="narrative-step"><strong>한 줄 요약</strong>
+                        <div>{{ result.relationship_fortune.section.one_line }}</div>
+                    </div>
                     <div class="highlight-line">{{ result.relationship_fortune.section.highlight }}</div>
-                    <div class="narrative-step"><strong>쉬운 설명</strong>{% for item in result.relationship_fortune.section.easy_explanation %}<div>{{ item }}</div>{% endfor %}</div>
-                    <div class="narrative-step"><strong>현실에서 이렇게 나타납니다</strong>{% for item in result.relationship_fortune.section.real_life %}<div>{{ item }}</div>{% endfor %}</div>
-                    <div class="narrative-step"><strong>장점과 주의점</strong>{% for item in result.relationship_fortune.section.strength_and_risk %}<div>{{ item }}</div>{% endfor %}</div>
-                    <div class="narrative-step"><strong>행동 조언</strong>{% for item in result.relationship_fortune.section.action_advice %}<div>{{ item }}</div>{% endfor %}</div>
+                    <div class="narrative-step"><strong>쉬운 설명</strong>{% for item in
+                        result.relationship_fortune.section.easy_explanation %}<div>{{ item }}</div>{% endfor %}</div>
+                    <div class="narrative-step"><strong>현실에서 이렇게 나타납니다</strong>{% for item in
+                        result.relationship_fortune.section.real_life %}<div>{{ item }}</div>{% endfor %}</div>
+                    <div class="narrative-step"><strong>장점과 주의점</strong>{% for item in
+                        result.relationship_fortune.section.strength_and_risk %}<div>{{ item }}</div>{% endfor %}</div>
+                    <div class="narrative-step"><strong>행동 조언</strong>{% for item in
+                        result.relationship_fortune.section.action_advice %}<div>{{ item }}</div>{% endfor %}</div>
                     <ul class="stack">
                         <li class="chip">흐름 {{ result.relationship_fortune.trend }}</li>
                         <li class="chip">강도 {{ result.relationship_fortune.intensity_kor }}</li>
@@ -653,17 +752,33 @@
             <div class="card">
                 <h2>{{ result.raw_input.target_year }}년 월운</h2>
                 {% if result.selected_month_fortune %}
-                <div class="narrative-step"><strong>한 줄 요약</strong><div>선택 월 {{ result.selected_month_fortune.month }}월은 {{ result.selected_month_fortune.pillar }} 흐름이며, {{ result.selected_month_fortune.headline }}</div></div>
-                <div class="narrative-step"><strong>쉬운 설명</strong><div>{{ result.selected_month_fortune.explanation }}</div></div>
-                <div class="narrative-step"><strong>행동 조언</strong><div>{{ result.selected_month_fortune.advice }}</div></div>
+                <div class="narrative-step"><strong>한 줄 요약</strong>
+                    <div>선택 월 {{ result.selected_month_fortune.month }}월은 {{ result.selected_month_fortune.pillar }}
+                        흐름이며, {{ result.selected_month_fortune.headline }}</div>
+                </div>
+                <div class="narrative-step"><strong>쉬운 설명</strong>
+                    <div>{{ result.selected_month_fortune.explanation }}</div>
+                </div>
+                <div class="narrative-step"><strong>행동 조언</strong>
+                    <div>{{ result.selected_month_fortune.advice }}</div>
+                </div>
                 {% else %}
                 <p class="lead"><strong>월별로 절기 기준 월주를 적용해 흐름 차이를 정리했습니다.</strong></p>
                 {% endif %}
                 <ul class="month-list">
                     {% for item in result.monthly_fortune %}
-                    <li><strong>{{ item.month }}월 / {{ item.pillar }}</strong><br>{{ item.headline }}<br><span class="muted">{{ item.explanation }} / 조언: {{ item.advice }}</span></li>
+                    <li><strong>{{ item.month }}월 / {{ item.pillar }}</strong><br>{{ item.headline }}<br><span
+                            class="muted">{{ item.explanation }} / 조언: {{ item.advice }}</span></li>
                     {% endfor %}
                 </ul>
+            </div>
+
+            <div class="ad-block">
+                <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-3984376475463185"
+                    data-ad-slot="8487705194" data-ad-format="auto"></ins>
+                <script>
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
             </div>
         </div>
 
@@ -688,7 +803,8 @@
                     <input type="hidden" name="month" value="{{ result.raw_input.month }}">
                     <input type="hidden" name="day" value="{{ result.raw_input.day }}">
                     <input type="hidden" name="time_slot" value="{{ result.raw_input.time_slot or '' }}">
-                    <input type="hidden" name="is_leap_month" value="{% if result.raw_input.is_leap_month %}1{% else %}0{% endif %}">
+                    <input type="hidden" name="is_leap_month"
+                        value="{% if result.raw_input.is_leap_month %}1{% else %}0{% endif %}">
                     <input type="hidden" name="gender" value="{{ result.raw_input.gender }}">
                     <input type="hidden" name="target_year" value="{{ result.raw_input.target_year }}">
                     <input type="hidden" name="target_month" value="{{ result.raw_input.target_month or '' }}">
@@ -726,6 +842,13 @@
                 {% for item in result.premium_report.overview %}
                 <div>{{ item }}</div>
                 {% endfor %}
+            </div>
+            <div class="ad-block">
+                <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-3984376475463185"
+                    data-ad-slot="4827661782" data-ad-format="auto"></ins>
+                <script>
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
             </div>
             {% if result.premium_report.enabled %}
             <div class="premium-grid">
@@ -781,9 +904,22 @@
                 </div>
             </div>
             {% endif %}
+            <div class="affiliate-box">
+                <div class="affiliate-banner-slot"></div>
+                <script src="https://ads-partners.coupang.com/g.js"></script>
+                <script>
+                    (function () {
+                        var bannerSlot = document.currentScript.previousElementSibling;
+                        var bannerWidth = Math.max(320, Math.floor(bannerSlot.clientWidth || bannerSlot.parentElement.clientWidth || 350));
+                        new PartnersCoupang.G({ "id": 933121, "trackingCode": "AF3819787", "subId": null, "template": "carousel", "width": String(bannerWidth), "height": "120" });
+                    })();
+                </script>
+                <p class="affiliate-note">쿠팡파트너스 활동을 통해 일정액의 수수료를 제공받습니다.</p>
+            </div>
         </div>
 
         <a class="back-link" href="/">다시 입력하러 가기</a>
     </div>
 </body>
+
 </html>

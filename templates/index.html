@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>내 사주 간단히 보기</title>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3984376475463185"
+        crossorigin="anonymous"></script>
     <style>
         body {
             margin: 0;
@@ -103,9 +106,37 @@
         button:hover {
             background: #7e3f25;
         }
+
+        .ad-block {
+            margin: 20px 0 24px;
+        }
+
+        .affiliate-box {
+            margin-top: 24px;
+            width: 100%;
+        }
+
+        .affiliate-banner-slot {
+            width: 100%;
+        }
+
+        .affiliate-note {
+            font-size: 12px;
+            color: #888;
+            margin-top: 8px;
+            text-align: left;
+        }
     </style>
 </head>
+
 <body>
+    <div class="ad-block" style="max-width: 520px; margin: 24px auto 0; padding: 0 24px; box-sizing: border-box;">
+        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-3984376475463185"
+            data-ad-slot="6065156606" data-ad-format="auto"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
     <div class="container">
         <h1>내 사주 간단히 보기</h1>
         <p>양력/음력과 출생시간을 입력하면 실제 절기 기준 사주 8자를 계산합니다.</p>
@@ -118,11 +149,13 @@
             <label>달력 종류</label>
             <div class="radio-row">
                 <label>
-                    <input type="radio" name="calendar_type" value="solar" {% if form_data.calendar_type == "solar" %}checked{% endif %}>
+                    <input type="radio" name="calendar_type" value="solar" {% if form_data.calendar_type=="solar"
+                        %}checked{% endif %}>
                     양력
                 </label>
                 <label>
-                    <input type="radio" name="calendar_type" value="lunar" {% if form_data.calendar_type == "lunar" %}checked{% endif %}>
+                    <input type="radio" name="calendar_type" value="lunar" {% if form_data.calendar_type=="lunar"
+                        %}checked{% endif %}>
                     음력
                 </label>
             </div>
@@ -135,18 +168,22 @@
             </div>
 
             <label for="year">출생년도</label>
-            <input id="year" name="year" type="number" min="1000" max="2200" placeholder="예: 2006" value="{{ form_data.year }}" required>
+            <input id="year" name="year" type="number" min="1000" max="2200" placeholder="예: 2006"
+                value="{{ form_data.year }}" required>
 
             <label for="month">출생월</label>
-            <input id="month" name="month" type="number" min="1" max="12" placeholder="예: 8" value="{{ form_data.month }}" required>
+            <input id="month" name="month" type="number" min="1" max="12" placeholder="예: 8"
+                value="{{ form_data.month }}" required>
 
             <label for="day">출생일</label>
-            <input id="day" name="day" type="number" min="1" max="31" placeholder="예: 1" value="{{ form_data.day }}" required>
+            <input id="day" name="day" type="number" min="1" max="31" placeholder="예: 1" value="{{ form_data.day }}"
+                required>
 
             <label for="time_slot">출생시간 구간</label>
             <select id="time_slot" name="time_slot">
                 {% for slot in time_slots %}
-                <option value="{{ slot.id }}" {% if form_data.time_slot == slot.id %}selected{% endif %}>{{ slot.label }}</option>
+                <option value="{{ slot.id }}" {% if form_data.time_slot==slot.id %}selected{% endif %}>{{ slot.label }}
+                </option>
                 {% endfor %}
             </select>
             <div class="hint">시간은 일반 시각 대신 구간으로 선택합니다. 자시는 00:00~00:59와 23:00~23:59 두 선택지가 모두 자시로 계산됩니다.</div>
@@ -154,27 +191,45 @@
             <label>성별 (대운/관계운 기준)</label>
             <div class="radio-row">
                 <label>
-                    <input type="radio" name="gender" value="male" {% if form_data.gender == "male" %}checked{% endif %} required>
+                    <input type="radio" name="gender" value="male" {% if form_data.gender=="male" %}checked{% endif %}
+                        required>
                     남성
                 </label>
                 <label>
-                    <input type="radio" name="gender" value="female" {% if form_data.gender == "female" %}checked{% endif %}>
+                    <input type="radio" name="gender" value="female" {% if form_data.gender=="female" %}checked{% endif
+                        %}>
                     여성
                 </label>
             </div>
             <div class="hint">대운 방향과 관계운 기준이 달라지므로 성별 입력은 필수입니다.</div>
 
             <label for="target_year">운세 기준 연도</label>
-            <input id="target_year" name="target_year" type="number" min="1000" max="2200" placeholder="예: 2026" value="{{ form_data.target_year }}">
+            <input id="target_year" name="target_year" type="number" min="1000" max="2200" placeholder="예: 2026"
+                value="{{ form_data.target_year }}">
 
             <label for="target_month">확인할 월 (선택)</label>
-            <input id="target_month" name="target_month" type="number" min="1" max="12" placeholder="예: 3" value="{{ form_data.target_month }}">
+            <input id="target_month" name="target_month" type="number" min="1" max="12" placeholder="예: 3"
+                value="{{ form_data.target_month }}">
 
             <label for="target_date">확인할 날짜 (선택)</label>
             <input id="target_date" name="target_date" type="date" value="{{ form_data.target_date }}">
 
             <button type="submit">사주 보기</button>
         </form>
+
+        <div class="affiliate-box">
+            <div class="affiliate-banner-slot"></div>
+            <script src="https://ads-partners.coupang.com/g.js"></script>
+            <script>
+                (function () {
+                    var bannerSlot = document.currentScript.previousElementSibling;
+                    var bannerWidth = Math.max(320, Math.floor(bannerSlot.clientWidth || bannerSlot.parentElement.clientWidth || 350));
+                    new PartnersCoupang.G({ "id": 933121, "trackingCode": "AF3819787", "subId": null, "template": "carousel", "width": String(bannerWidth), "height": "120" });
+                })();
+            </script>
+            <p class="affiliate-note">쿠팡파트너스 활동을 통해 일정액의 수수료를 제공받습니다.</p>
+        </div>
     </div>
 </body>
+
 </html>

@@ -312,6 +312,8 @@ Gmail 기준 권장값:
 - `GOOGLE_SHEETS_SPREADSHEET_ID`
 - `GOOGLE_SERVICE_ACCOUNT_JSON` 또는 `GOOGLE_SERVICE_ACCOUNT_FILE`
 
+Render에서는 로컬 파일 경로를 참조할 수 없으므로 `GOOGLE_SERVICE_ACCOUNT_FILE` 대신 `GOOGLE_SERVICE_ACCOUNT_JSON` 사용을 권장합니다. 서비스 계정 JSON 파일의 전체 내용을 한 줄 문자열 그대로 Render Environment에 넣으면 됩니다.
+
 Google Sheets 시트 이름은 `leads`이며, 첫 행은 아래 컬럼으로 자동 생성됩니다.
 
 - `email`

@@ -97,8 +97,16 @@ def _build_gspread_client(gspread_module):
     service_account_json = os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON")
     service_account_file = os.getenv("GOOGLE_SERVICE_ACCOUNT_FILE")
     if service_account_json:
-        return gspread_module.service_account_from_dict(json.loads(service_account_json))
+        try:
+            return gspread_module.service_account_from_dict(json.loads(service_account_json))
+        except json.JSONDecodeError as exc:
+            raise SajuCalculationError("GOOGLE_SERVICE_ACCOUNT_JSON 값이 올바른 JSON 형식이 아닙니다.") from exc
     if service_account_file:
+        if not os.path.exists(service_account_file):
+            raise SajuCalculationError(
+                "GOOGLE_SERVICE_ACCOUNT_FILE 경로를 찾을 수 없습니다. "
+                "Render 배포 환경에서는 GOOGLE_SERVICE_ACCOUNT_JSON에 서비스 계정 JSON 전체를 넣어 주세요."
+            )
         return gspread_module.service_account(filename=service_account_file)
     raise SajuCalculationError("GOOGLE_SERVICE_ACCOUNT_JSON 또는 GOOGLE_SERVICE_ACCOUNT_FILE 환경변수가 필요합니다.")
 

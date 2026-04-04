@@ -6,6 +6,7 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
+from services.report_display import build_display_result
 from services.saju_calculator import SajuCalculationError
 
 TEMPLATE_DIR = Path("templates")
@@ -22,7 +23,7 @@ def generate_pdf_bytes(result_data: dict, base_url: str) -> bytes:
         loader=FileSystemLoader(TEMPLATE_DIR),
         autoescape=select_autoescape(["html", "xml"]),
     )
-    html = environment.get_template("report_pdf.html").render(result=result_data)
+    html = environment.get_template("report_pdf.html").render(result=build_display_result(result_data))
     try:
         return HTML(string=html, base_url=base_url).write_pdf()
     except Exception as exc:  # pragma: no cover - runtime dependency issue path

@@ -65,7 +65,9 @@
 
         .summary-grid,
         .analysis-grid,
-        .saju-grid {
+        .saju-grid,
+        .pillar-interpretation-grid,
+        .single-column-grid {
             display: grid;
             gap: 14px;
         }
@@ -81,6 +83,15 @@
 
         .saju-grid {
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        }
+
+        .pillar-interpretation-grid {
+            grid-template-columns: 1fr;
+            margin-top: 16px;
+        }
+
+        .single-column-grid {
+            grid-template-columns: 1fr;
         }
 
         .card {
@@ -515,33 +526,63 @@
             <div class="saju-grid">
                 <div class="saju-card">
                     <span class="saju-label">년주</span>
-                    <div class="saju-value">{{ result.saju.year.kor }}</div>
-                    <div class="saju-sub">한자: {{ result.saju.year.hanja }}<br>천간/지지: {{ result.saju.year.stem }} / {{
-                        result.saju.year.branch }}</div>
+                    <div class="saju-value">{{ result.saju.year.display }}</div>
+                    <div class="saju-sub">천간/지지: {{ result.saju.year.stem_display }} / {{ result.saju.year.branch_display }}</div>
                 </div>
                 <div class="saju-card">
                     <span class="saju-label">월주</span>
-                    <div class="saju-value">{{ result.saju.month.kor }}</div>
-                    <div class="saju-sub">한자: {{ result.saju.month.hanja }}<br>천간/지지: {{ result.saju.month.stem }} / {{
-                        result.saju.month.branch }}</div>
+                    <div class="saju-value">{{ result.saju.month.display }}</div>
+                    <div class="saju-sub">천간/지지: {{ result.saju.month.stem_display }} / {{ result.saju.month.branch_display }}</div>
                 </div>
                 <div class="saju-card">
                     <span class="saju-label">일주</span>
-                    <div class="saju-value">{{ result.saju.day.kor }}</div>
-                    <div class="saju-sub">한자: {{ result.saju.day.hanja }}<br>천간/지지: {{ result.saju.day.stem }} / {{
-                        result.saju.day.branch }}</div>
+                    <div class="saju-value">{{ result.saju.day.display }}</div>
+                    <div class="saju-sub">천간/지지: {{ result.saju.day.stem_display }} / {{ result.saju.day.branch_display }}</div>
                 </div>
                 <div class="saju-card">
                     <span class="saju-label">시주</span>
                     {% if result.saju.time %}
-                    <div class="saju-value">{{ result.saju.time.kor }}</div>
-                    <div class="saju-sub">한자: {{ result.saju.time.hanja }}<br>천간/지지: {{ result.saju.time.stem }} / {{
-                        result.saju.time.branch }}</div>
+                    <div class="saju-value">{{ result.saju.time.display }}</div>
+                    <div class="saju-sub">천간/지지: {{ result.saju.time.stem_display }} / {{ result.saju.time.branch_display }}</div>
                     {% else %}
                     <div class="saju-value">미산출</div>
                     <div class="saju-sub">출생시간이 없어 시주는 생략했습니다.</div>
                     {% endif %}
                 </div>
+            </div>
+            <div class="pillar-interpretation-grid">
+                {% for pillar_key in ["year", "month", "day", "time"] %}
+                {% set pillar_section = result.interpretation_sections.pillars[pillar_key] %}
+                {% if pillar_section %}
+                <div class="card">
+                    <h2>{{ pillar_section.title }}</h2>
+                    <div class="narrative-step"><strong>한 줄 요약</strong>
+                        <div>{{ pillar_section.one_line }}</div>
+                    </div>
+                    <div class="highlight-line">{{ pillar_section.highlight }}</div>
+                    <div class="narrative-step"><strong>쉬운 설명</strong>
+                        {% for item in pillar_section.easy_explanation %}
+                        <div>{{ item }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="narrative-step"><strong>현실에서 이렇게 나타납니다</strong>
+                        {% for item in pillar_section.real_life %}
+                        <div>{{ item }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="narrative-step"><strong>장점과 주의점</strong>
+                        {% for item in pillar_section.strength_and_risk %}
+                        <div>{{ item }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="narrative-step"><strong>행동 조언</strong>
+                        {% for item in pillar_section.action_advice %}
+                        <div>{{ item }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
             </div>
         </div>
 
@@ -586,7 +627,7 @@
 
         <div class="section">
             <div class="section-label">해석</div>
-            <div class="analysis-grid">
+            <div class="single-column-grid">
                 <div class="card">
                     <h2>성격</h2>
                     <div class="narrative-step"><strong>한 줄 요약</strong>
@@ -632,7 +673,7 @@
             <p class="muted">월주를 기준으로 10년 단위 흐름을 순행 또는 역행으로 배치했습니다.</p>
             <div class="card active-daewoon" style="margin-bottom: 14px;">
                 <h3>👉 현재 작동 중인 대운</h3>
-                <p class="lead"><strong>{{ result.daewoon.active_cycle_summary.pillar }} / {{
+                <p class="lead"><strong>{{ result.daewoon.active_cycle_summary.pillar_display }} / {{
                         result.daewoon.active_cycle_summary.section.one_line }}</strong></p>
                 <div class="highlight-line">{{ result.daewoon.active_cycle_summary.section.highlight }}</div>
                 <div class="narrative-step"><strong>쉬운 설명</strong>{% for item in
@@ -654,7 +695,7 @@
             <ul class="cycle-list">
                 {% for cycle in result.daewoon.cycles %}
                 <li>
-                    <strong>{{ cycle.start_age }}세~{{ cycle.end_age }}세: {{ cycle.pillar }} ({{ cycle.start_year }}~{{
+                    <strong>{{ cycle.start_age }}세~{{ cycle.end_age }}세: {{ cycle.pillar_display }} ({{ cycle.start_year }}~{{
                         cycle.end_year }})</strong><br>
                     {{ cycle.explanation }}<br>
                     <span class="muted">십성: {{ cycle.ten_god }} / 조언: {{ cycle.advice }}</span>
@@ -665,7 +706,7 @@
 
         <div class="section">
             <div class="section-label">운세</div>
-            <div class="analysis-grid">
+            <div class="single-column-grid">
                 <div class="card">
                     <h2>{{ result.year_fortune.year }}년 운세</h2>
                     <div class="narrative-step"><strong>한 줄 요약</strong>
@@ -681,9 +722,9 @@
                     <div class="narrative-step"><strong>행동 조언</strong>{% for item in
                         result.year_fortune.section.action_advice %}<div>{{ item }}</div>{% endfor %}</div>
                     <ul class="stack">
-                        <li class="chip">세운 {{ result.year_fortune.pillar }}</li>
+                        <li class="chip">세운 {{ result.year_fortune.pillar_display }}</li>
                         <li class="chip">세운 십성 {{ result.year_fortune.ten_god }}</li>
-                        <li class="chip">작동 대운 {{ result.year_fortune.active_daewoon.pillar }}</li>
+                        <li class="chip">작동 대운 {{ result.year_fortune.active_daewoon.pillar_display }}</li>
                         <li class="chip">대운 십성 {{ result.year_fortune.daewoon_ten_god }}</li>
                     </ul>
                     <p class="muted">집중 포인트: {{ result.year_fortune.focus | join(", ") }}</p>
@@ -704,13 +745,13 @@
                         result.daily_fortune.section.action_advice %}<div>{{ item }}</div>{% endfor %}</div>
                     <ul>
                         <li>기준 날짜: {{ result.daily_fortune.date }}</li>
-                        <li>일운: {{ result.daily_fortune.pillar }} / {{ result.daily_fortune.ten_god }}</li>
+                        <li>일운: {{ result.daily_fortune.pillar_display }} / {{ result.daily_fortune.ten_god }}</li>
                         <li>키워드: {{ result.daily_fortune.keywords | join(", ") }}</li>
                     </ul>
                 </div>
             </div>
 
-            <div class="analysis-grid">
+            <div class="single-column-grid">
                 <div class="card">
                     <h2>직장운</h2>
                     <div class="narrative-step"><strong>한 줄 요약</strong>
@@ -772,7 +813,7 @@
                 <h2>{{ result.raw_input.target_year }}년 월운</h2>
                 {% if result.selected_month_fortune %}
                 <div class="narrative-step"><strong>한 줄 요약</strong>
-                    <div>선택 월 {{ result.selected_month_fortune.month }}월은 {{ result.selected_month_fortune.pillar }}
+                    <div>선택 월 {{ result.selected_month_fortune.month }}월은 {{ result.selected_month_fortune.pillar_display }}
                         흐름이며, {{ result.selected_month_fortune.headline }}</div>
                 </div>
                 <div class="narrative-step"><strong>쉬운 설명</strong>
@@ -786,7 +827,7 @@
                 {% endif %}
                 <ul class="month-list">
                     {% for item in result.monthly_fortune %}
-                    <li><strong>{{ item.month }}월 / {{ item.pillar }}</strong><br>{{ item.headline }}<br><span
+                    <li><strong>{{ item.month }}월 / {{ item.pillar_display }}</strong><br>{{ item.headline }}<br><span
                             class="muted">{{ item.explanation }} / 조언: {{ item.advice }}</span></li>
                     {% endfor %}
                 </ul>

@@ -82,10 +82,10 @@
                     <th style="border:1px solid #d8ddd8; padding:10px; background:#eef3f0;">시주</th>
                 </tr>
                 <tr>
-                    <td style="border:1px solid #d8ddd8; padding:10px; text-align:center;">{{ result.saju.year.kor }}<br><span style="font-size:12px; color:#6b7280;">{{ result.saju.year.hanja }}</span></td>
-                    <td style="border:1px solid #d8ddd8; padding:10px; text-align:center;">{{ result.saju.month.kor }}<br><span style="font-size:12px; color:#6b7280;">{{ result.saju.month.hanja }}</span></td>
-                    <td style="border:1px solid #d8ddd8; padding:10px; text-align:center;">{{ result.saju.day.kor }}<br><span style="font-size:12px; color:#6b7280;">{{ result.saju.day.hanja }}</span></td>
-                    <td style="border:1px solid #d8ddd8; padding:10px; text-align:center;">{% if result.saju.time %}{{ result.saju.time.kor }}<br><span style="font-size:12px; color:#6b7280;">{{ result.saju.time.hanja }}</span>{% else %}미산출{% endif %}</td>
+                    <td style="border:1px solid #d8ddd8; padding:10px; text-align:center;">{{ result.saju.year.display }}<br><span style="font-size:12px; color:#6b7280;">{{ result.saju.year.stem_display }} / {{ result.saju.year.branch_display }}</span></td>
+                    <td style="border:1px solid #d8ddd8; padding:10px; text-align:center;">{{ result.saju.month.display }}<br><span style="font-size:12px; color:#6b7280;">{{ result.saju.month.stem_display }} / {{ result.saju.month.branch_display }}</span></td>
+                    <td style="border:1px solid #d8ddd8; padding:10px; text-align:center;">{{ result.saju.day.display }}<br><span style="font-size:12px; color:#6b7280;">{{ result.saju.day.stem_display }} / {{ result.saju.day.branch_display }}</span></td>
+                    <td style="border:1px solid #d8ddd8; padding:10px; text-align:center;">{% if result.saju.time %}{{ result.saju.time.display }}<br><span style="font-size:12px; color:#6b7280;">{{ result.saju.time.stem_display }} / {{ result.saju.time.branch_display }}</span>{% else %}미산출{% endif %}</td>
                 </tr>
             </table>
         </div>
@@ -176,7 +176,7 @@
             <div style="margin-bottom:12px;">{{ result.daewoon.direction_kor }} / 대운 시작: {{ result.daewoon.start_age_display }}</div>
             <div style="margin-bottom:12px; padding:14px; background:#f7f8f7; border-left:4px solid #2f5d50;">
                 <div style="font-weight:bold; margin-bottom:6px;">현재 작동 중인 대운</div>
-                <div style="margin-bottom:6px;"><strong>{{ result.daewoon.active_cycle_summary.pillar }}</strong> / {{ result.daewoon.active_cycle_summary.section.one_line }}</div>
+                <div style="margin-bottom:6px;"><strong>{{ result.daewoon.active_cycle_summary.pillar_display }}</strong> / {{ result.daewoon.active_cycle_summary.section.one_line }}</div>
                 <div style="margin-top:10px; padding:10px 12px; background:#eef5f0; border-left:4px solid #2f5d50; font-weight:600;">{{ result.daewoon.active_cycle_summary.section.highlight }}</div>
                 {% for item in result.daewoon.active_cycle_summary.section.easy_explanation %}
                 <div style="margin-bottom:4px;">{{ item }}</div>
@@ -202,7 +202,7 @@
                 {% for cycle in result.daewoon.cycles %}
                 <tr>
                     <td style="border:1px solid #d8ddd8; padding:10px;">{{ cycle.start_age }}세~{{ cycle.end_age }}세<br><span style="font-size:12px; color:#6b7280;">{{ cycle.start_year }}~{{ cycle.end_year }}</span></td>
-                    <td style="border:1px solid #d8ddd8; padding:10px;">{{ cycle.pillar }}<br><span style="font-size:12px; color:#6b7280;">{{ cycle.ten_god }}</span></td>
+                    <td style="border:1px solid #d8ddd8; padding:10px;">{{ cycle.pillar_display }}<br><span style="font-size:12px; color:#6b7280;">{{ cycle.ten_god }}</span></td>
                     <td style="border:1px solid #d8ddd8; padding:10px;">{{ cycle.explanation }}<br><span style="font-size:12px; color:#6b7280;">조언: {{ cycle.advice }}</span></td>
                 </tr>
                 {% endfor %}
@@ -232,7 +232,7 @@
                 <div style="margin-bottom:4px;">{{ item }}</div>
                 {% endfor %}
             </div>
-            <div style="font-size:13px; color:#6b7280;">세운 {{ result.year_fortune.pillar }} / 세운 십성 {{ result.year_fortune.ten_god }} / 작동 대운 {{ result.year_fortune.active_daewoon.pillar }} / 대운 십성 {{ result.year_fortune.daewoon_ten_god }}</div>
+            <div style="font-size:13px; color:#6b7280;">세운 {{ result.year_fortune.pillar_display }} / 세운 십성 {{ result.year_fortune.ten_god }} / 작동 대운 {{ result.year_fortune.active_daewoon.pillar_display }} / 대운 십성 {{ result.year_fortune.daewoon_ten_god }}</div>
         </div>
 
         <div style="margin-bottom:22px;">
@@ -258,7 +258,7 @@
                 <div style="margin-bottom:4px;">{{ item }}</div>
                 {% endfor %}
             </div>
-            <div style="font-size:13px; color:#6b7280;">기준 날짜 {{ result.daily_fortune.date }} / 일운 {{ result.daily_fortune.pillar }} / 키워드 {{ result.daily_fortune.keywords | join(", ") }}</div>
+            <div style="font-size:13px; color:#6b7280;">기준 날짜 {{ result.daily_fortune.date }} / 일운 {{ result.daily_fortune.pillar_display }} / 키워드 {{ result.daily_fortune.keywords | join(", ") }}</div>
         </div>
 
         <div style="margin-bottom:22px;">
@@ -272,7 +272,7 @@
                 {% for item in result.monthly_fortune %}
                 <tr>
                     <td style="border:1px solid #d8ddd8; padding:10px;">{{ item.month }}월</td>
-                    <td style="border:1px solid #d8ddd8; padding:10px;">{{ item.pillar }}<br><span style="font-size:12px; color:#6b7280;">{{ item.headline }}</span></td>
+                    <td style="border:1px solid #d8ddd8; padding:10px;">{{ item.pillar_display }}<br><span style="font-size:12px; color:#6b7280;">{{ item.headline }}</span></td>
                     <td style="border:1px solid #d8ddd8; padding:10px;">{{ item.explanation }}<br><span style="font-size:12px; color:#6b7280;">조언: {{ item.advice }}</span></td>
                 </tr>
                 {% endfor %}

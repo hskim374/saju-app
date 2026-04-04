@@ -28,6 +28,7 @@ from services.lead_store import build_lead_payload, save_lead
 from services.monthly_fortune import calculate_monthly_fortune
 from services.pdf_generator import generate_pdf_bytes
 from services.premium_report import build_premium_report
+from services.report_display import build_display_result
 from services.relationship_fortune import build_relationship_fortune
 from services.saju_calculator import (
     SajuCalculationError,
@@ -213,18 +214,21 @@ def _build_result_data(
     monthly_fortune = calculate_monthly_fortune(result_data, parsed_target_year)
     daily_fortune = calculate_daily_fortune(result_data, parsed_target_date)
     career_fortune = build_career_fortune(result_data, year_fortune)
-    relationship_fortune = build_relationship_fortune(gender, year_fortune)
+    relationship_fortune = build_relationship_fortune(gender, year_fortune, result_data)
     interpretation = build_interpretation(
         element_analysis,
         ten_gods=ten_gods,
         daewoon=daewoon,
         year_fortune=year_fortune,
+        saju_result=result_data,
     )
     summary_card = build_summary_card(
         element_analysis=element_analysis,
         year_fortune=year_fortune,
         career_fortune=career_fortune,
         relationship_fortune=relationship_fortune,
+        ten_gods=ten_gods,
+        saju_result=result_data,
     )
 
     result_data["raw_input"].update(
@@ -277,6 +281,11 @@ def _build_pdf_response(request: Request, result_data: dict) -> Response:
         media_type="application/pdf",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
+
+
+def _display_result(result_data: dict) -> dict:
+    """Return a user-facing display copy for templates."""
+    return build_display_result(result_data)
 
 
 @app.get("/")
@@ -356,7 +365,7 @@ async def result(
         name="result.html",
         context={
             "form_data": form_data,
-            "result": result_data,
+            "result": _display_result(result_data),
             "email_form_data": _default_email_form_data(),
             "email_error_message": None,
             "email_success_message": None,
@@ -414,7 +423,7 @@ async def report_view(
         name="result.html",
         context={
             "form_data": form_data,
-            "result": result_data,
+            "result": _display_result(result_data),
             "email_form_data": _default_email_form_data(),
             "email_error_message": None,
             "email_success_message": None,
@@ -538,7 +547,7 @@ async def report_email(
         send_report_email(
             to_email=normalized_email,
             name=name,
-            result_data=result_data,
+            result_data=_display_result(result_data),
             detail_link=detail_link,
         )
         save_lead(
@@ -590,7 +599,7 @@ async def report_email(
             name="result.html",
             context={
                 "form_data": form_data,
-                "result": result_data,
+                "result": _display_result(result_data),
                 "email_form_data": email_form_data,
                 "email_error_message": email_error_message,
                 "email_success_message": email_success_message,
@@ -605,7 +614,7 @@ async def report_email(
         name="result.html",
         context={
             "form_data": form_data,
-            "result": result_data,
+            "result": _display_result(result_data),
             "email_form_data": email_form_data,
             "email_error_message": email_error_message,
             "email_success_message": email_success_message,

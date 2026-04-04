@@ -10,6 +10,7 @@ def build_interpretation(
     ten_gods: dict | None = None,
     daewoon: dict | None = None,
     year_fortune: dict | None = None,
+    saju_result: dict | None = None,
 ) -> dict:
     """Build interpretation payload while preserving legacy keys."""
     return build_interpretation_payload(
@@ -17,4 +18,5 @@ def build_interpretation(
         ten_gods=ten_gods,
         daewoon=daewoon,
         year_fortune=year_fortune,
+        saju_result=saju_result,
     )

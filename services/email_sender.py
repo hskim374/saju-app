@@ -10,6 +10,7 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
+from services.report_display import build_display_result
 from services.saju_calculator import SajuCalculationError
 
 logger = logging.getLogger(__name__)
@@ -58,8 +59,9 @@ def _render_email_html(*, name: str | None, result_data: dict, detail_link: str)
         loader=FileSystemLoader(TEMPLATE_DIR),
         autoescape=select_autoescape(["html", "xml"]),
     )
+    display_result = build_display_result(result_data)
     return environment.get_template("email_report.html").render(
-        result=result_data,
+        result=display_result,
         recipient_name=name or "고객",
         detail_link=detail_link,
     )

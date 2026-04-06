@@ -9,7 +9,7 @@ from data.day_pillar_sentences import DAY_PILLAR_SENTENCES
 from data.stems import STEMS_BY_KOR
 from services.analysis_sentence_store import load_analysis_sentences
 from services.interpretation_engine import build_daily_section
-from services.report_display import format_stem_label
+from services.report_display import format_branch_label, format_stem_label
 from services.saju_calculator import get_day_pillar_for_solar_date
 from services.ten_gods import calculate_ten_god_for_stem, calculate_ten_gods
 
@@ -182,6 +182,81 @@ DAILY_PROFILE_ADVICE = {
     "observer": "오늘은 큰 판단을 바로 내리기보다 저녁까지 한 번 더 흐름을 보는 편이 안전합니다.",
 }
 
+DAILY_SCORE_BASE = 55
+
+TEN_GOD_SCORE = {
+    "비견": 2,
+    "겁재": -6,
+    "식신": 10,
+    "상관": -2,
+    "편재": 7,
+    "정재": 8,
+    "편관": -7,
+    "정관": 4,
+    "편인": 0,
+    "정인": 5,
+}
+
+PROFILE_SCORE = {
+    "planner": 3,
+    "connector": 2,
+    "driver": 1,
+    "stabilizer": 5,
+    "precision": 4,
+    "observer": 0,
+}
+
+MONTH_BRANCH_SCORE = {
+    "자": 1,
+    "축": 3,
+    "인": 1,
+    "묘": 1,
+    "진": 3,
+    "사": 0,
+    "오": 0,
+    "미": 3,
+    "신": 2,
+    "유": 2,
+    "술": 3,
+    "해": 1,
+}
+
+TIME_BRANCH_SCORE = {
+    "자": 1,
+    "축": 2,
+    "인": 1,
+    "묘": 1,
+    "진": 2,
+    "사": -1,
+    "오": -1,
+    "미": 2,
+    "신": 1,
+    "유": 1,
+    "술": 2,
+    "해": 1,
+}
+
+POSITIVE_KEYWORDS = {"성과", "실행", "안정", "정리", "신뢰", "기회", "연결", "학습", "마감", "축적", "관리", "실무"}
+NEGATIVE_KEYWORDS = {"긴장", "경쟁", "압박", "분산", "충돌", "과열", "피로", "지연", "손실", "마찰", "주의"}
+
+PROFILE_LABELS = {
+    "planner": "방향 정리형",
+    "connector": "조율 연결형",
+    "driver": "속도 추진형",
+    "stabilizer": "안정 운영형",
+    "precision": "정밀 완성형",
+    "observer": "흐름 관찰형",
+}
+
+SCORE_GRADE_RULES = [
+    (90, "S", "활용도가 매우 높은 날"),
+    (80, "A+", "활용도가 높은 날"),
+    (65, "A", "활용하기 좋은 날"),
+    (50, "B", "관리형 보통의 날"),
+    (35, "C", "주의가 필요한 날"),
+    (1, "D", "방어가 우선인 날"),
+]
+
 DAY_STEM_HEADLINE_LINES = {
     "갑": "방향을 먼저 정할수록 판단이 빨라지는 날입니다.",
     "을": "조율과 완급 조절이 결과 차이를 만드는 날입니다.",
@@ -296,6 +371,462 @@ TIME_BRANCH_DAILY_ACTIONS = {
     "해": "큰 결론은 오늘 하루를 다 보내고 난 뒤 다시 보는 편이 좋습니다.",
 }
 
+PROFILE_VARIANT_META = {
+    "planner": {
+        "focus": "순서와 우선순위",
+        "gain": "먼저 할 일과 뒤로 미룰 일을 선명하게 나누는",
+        "risk": "계획만 정교해지고 실행이 늦어지는",
+        "action": "우선순위 세 줄만 남겨 움직이는",
+    },
+    "connector": {
+        "focus": "사람과 조건의 조율",
+        "gain": "조건을 맞추며 무리 없는 길을 고르는",
+        "risk": "조율만 길어지고 결론이 늦어지는",
+        "action": "관련된 사람 한 명과 조건을 먼저 맞춰 보는",
+    },
+    "driver": {
+        "focus": "속도와 실행",
+        "gain": "반응을 빠르게 결과로 연결하는",
+        "risk": "열기가 올라와 수위 조절이 약해지는",
+        "action": "빠르게 움직이되 한 번 더 다듬고 확정하는",
+    },
+    "stabilizer": {
+        "focus": "유지 가능성과 운영 범위",
+        "gain": "무리 없는 범위를 먼저 세워 흔들림을 줄이는",
+        "risk": "안전성만 오래 보다가 기회를 늦게 잡는",
+        "action": "현재 범위를 먼저 고정하고 그 안에서 움직이는",
+    },
+    "precision": {
+        "focus": "디테일과 마감 기준",
+        "gain": "작은 차이를 먼저 잡아 품질을 높이는",
+        "risk": "세부를 오래 보다가 큰 순서를 놓치는",
+        "action": "끝내는 기준부터 정하고 움직이는",
+    },
+    "observer": {
+        "focus": "흐름과 숨은 맥락",
+        "gain": "겉말보다 상황의 방향을 읽으며 실수를 줄이는",
+        "risk": "한 템포 더 보는 판단이 길어져 결정이 늦어지는",
+        "action": "바로 확정하지 말고 한 번 더 흐름을 확인하는",
+    },
+}
+
+DAY_STEM_VARIANT_META = {
+    "갑": {
+        "headline": "방향을 먼저 세우고 시작선을 분명히 잡는",
+        "daily": "방향이 맞는지부터 확인한 뒤 힘을 싣는",
+        "strength": "판을 열고 첫 실행을 붙이는",
+        "risk": "방향만 넓히고 첫 실행이 늦어지는",
+        "action": "우선순위 한 줄을 먼저 고정하는",
+    },
+    "을": {
+        "headline": "정면 돌파보다 조정안을 먼저 찾는",
+        "daily": "주변 조건을 살피며 손실이 적은 길을 고르는",
+        "strength": "관계를 해치지 않고 흐름을 부드럽게 잇는",
+        "risk": "조율을 오래 하다 결론이 늦어지는",
+        "action": "조건 두세 개만 확인하고 결론을 미루지 않는",
+    },
+    "병": {
+        "headline": "답이 보이면 속도 있게 밀어붙이는",
+        "daily": "반응이 붙는 순간 실행으로 바로 옮기는",
+        "strength": "분위기를 살리고 판을 움직이게 만드는",
+        "risk": "속도만 믿고 수위를 높이는",
+        "action": "열기가 올라와도 한 번 더 다듬고 확정하는",
+    },
+    "정": {
+        "headline": "분위기와 순서를 읽은 뒤 말을 고르는",
+        "daily": "상대 반응과 맥락을 살핀 뒤 결론을 드러내는",
+        "strength": "필요한 말만 골라 관계 피로를 줄이는",
+        "risk": "분위기를 오래 보다가 타이밍을 늦추는",
+        "action": "말하기 전 핵심 순서를 먼저 정하는",
+    },
+    "무": {
+        "headline": "버틸 수 있는지 먼저 따져 보는",
+        "daily": "현실성과 지속 가능성을 먼저 확인하는",
+        "strength": "흔들리는 조건 속에서도 중심을 잡는",
+        "risk": "안전성 검토가 길어져 움직임이 늦어지는",
+        "action": "버틸 범위부터 정하고 나서 움직이는",
+    },
+    "기": {
+        "headline": "사람과 조건을 함께 엮어 답을 찾는",
+        "daily": "무리가 덜한 선택지를 골라 정리하는",
+        "strength": "복잡한 상황에서도 조정안을 만들어 내는",
+        "risk": "모두를 맞추려다 내 우선순위가 흐려지는",
+        "action": "모두를 만족시키려 하기보다 기준 하나를 먼저 세우는",
+    },
+    "경": {
+        "headline": "기준과 결론을 빠르게 세우는",
+        "daily": "애매한 상태를 오래 두지 않고 정리하는",
+        "strength": "결론과 마감을 선명하게 밀어붙이는",
+        "risk": "기준이 빨라 유연성이 줄어드는",
+        "action": "기준을 세우되 반대 의견도 한 번은 확인하는",
+    },
+    "신": {
+        "headline": "작은 차이와 완성도를 오래 보는",
+        "daily": "디테일을 살피며 결과 품질을 끌어올리는",
+        "strength": "미세한 차이를 먼저 잡아내는",
+        "risk": "세부에 오래 머물러 큰 순서를 놓치는",
+        "action": "완성도와 멈출 시점을 함께 정하는",
+    },
+    "임": {
+        "headline": "큰 맥락과 다음 수순을 같이 보는",
+        "daily": "눈앞 반응보다 전체 흐름을 함께 읽는",
+        "strength": "성급한 선택을 줄이고 판 전체를 보는",
+        "risk": "큰 그림을 오래 보다가 즉시 대응이 늦어지는",
+        "action": "큰 방향은 보되 오늘 끝낼 일 하나를 같이 잡는",
+    },
+    "계": {
+        "headline": "겉말보다 숨은 맥락을 읽는",
+        "daily": "표면보다 분위기와 속뜻을 먼저 살피는",
+        "strength": "오판을 줄이고 흐름의 결을 읽는",
+        "risk": "맥락을 너무 오래 보다 결론이 길어지는",
+        "action": "분위기를 읽되 결론 시점은 따로 정해 두는",
+    },
+}
+
+MONTH_BRANCH_VARIANT_META = {
+    "자": {
+        "headline": "정보를 먼저 정리해 판단 피로를 줄이는",
+        "daily": "정보를 모으고 흐름의 방향을 읽는",
+        "strength": "여러 정보를 연결해 빈칸을 메우는",
+        "risk": "정보만 쌓고 결론이 늦어지는",
+        "action": "핵심 정보만 남기고 나머지는 과감히 넘기는",
+    },
+    "축": {
+        "headline": "버틸 수 있는 틀을 먼저 세우는",
+        "daily": "속도보다 기본 틀과 유지 범위를 먼저 보는",
+        "strength": "생활과 일정의 기본 구조를 금방 안정시키는",
+        "risk": "안정부터 잡으려다 대응 속도가 느려지는",
+        "action": "할 일 상한선을 먼저 정하고 움직이는",
+    },
+    "인": {
+        "headline": "새 방향을 열되 중심축을 잃지 않는",
+        "daily": "정체보다 확장 가능성을 먼저 보는",
+        "strength": "새 흐름을 여는 추진 방향을 잡는",
+        "risk": "방향이 많아 보여 에너지가 분산되는",
+        "action": "새 선택지는 하나만 고르고 나머지는 미루는",
+    },
+    "묘": {
+        "headline": "사람과 일정의 거리 조절을 먼저 보는",
+        "daily": "부드럽게 조율하며 판을 넓히는",
+        "strength": "사람 사이의 긴장을 낮추고 흐름을 부드럽게 잇는",
+        "risk": "조율을 오래 하다 내 결론이 밀리는",
+        "action": "관계와 일정의 간격을 여유 있게 잡는",
+    },
+    "진": {
+        "headline": "여러 일을 묶어 현실적으로 정리하는",
+        "daily": "조건을 한꺼번에 엮어 정리하는",
+        "strength": "복잡한 문제를 묶음으로 수습하는",
+        "risk": "한 번에 다 정리하려다 피로가 커지는",
+        "action": "묶음 하나씩 끊어 가며 처리하는",
+    },
+    "사": {
+        "headline": "반응 속도는 빠르되 수위를 조절해야 하는",
+        "daily": "에너지가 올라오면 존재감과 반응이 빨라지는",
+        "strength": "타이밍을 빠르게 붙잡는",
+        "risk": "말과 반응의 수위가 세지는",
+        "action": "반응은 살리되 수위는 미리 조절하는",
+    },
+    "오": {
+        "headline": "움직임이 많은 자리일수록 강약 조절이 중요한",
+        "daily": "드러나고 움직이는 자리에서 에너지가 붙는",
+        "strength": "존재감과 추진력으로 흐름을 직접 움직이는",
+        "risk": "과속과 과열이 빨라지는",
+        "action": "속도보다 끝내는 순서를 먼저 정하는",
+    },
+    "미": {
+        "headline": "유지 가능한 방식인지 먼저 확인해야 하는",
+        "daily": "겉보다 오래 갈 수 있는 방식을 먼저 보는",
+        "strength": "조용히 다져도 오래 가는 선택을 고르는",
+        "risk": "유지 가능성만 보다 실행이 늦어지는",
+        "action": "오래 갈 수 있는지부터 확인하고 움직이는",
+    },
+    "신": {
+        "headline": "정리와 마감 기준이 체감 차이를 만드는",
+        "daily": "정리, 마감, 우선순위를 먼저 세우는",
+        "strength": "흩어진 일을 빠르게 정리하는",
+        "risk": "기준이 강해질수록 융통성이 줄어드는",
+        "action": "마감 기준부터 적어 두고 움직이는",
+    },
+    "유": {
+        "headline": "작은 차이와 실수를 먼저 잡아야 하는",
+        "daily": "디테일과 완성도를 챙기며 결과를 다듬는",
+        "strength": "미세한 차이를 먼저 잡아 품질을 높이는",
+        "risk": "세부를 오래 보다 마감을 늦추는",
+        "action": "디테일을 보되 멈출 시점도 같이 정하는",
+    },
+    "술": {
+        "headline": "책임이 걸린 일일수록 더 무겁게 느껴지는",
+        "daily": "책임과 기준이 분명할수록 안정되는",
+        "strength": "책임이 걸린 자리에서 버티는 힘이 드러나는",
+        "risk": "남의 몫까지 떠안아 피로가 커지는",
+        "action": "책임이 큰 일부터 순서대로 끊어 처리하는",
+    },
+    "해": {
+        "headline": "결론을 서두르기보다 여지를 남겨두는",
+        "daily": "한 템포 늦춰 흐름을 읽고 가능성을 보는",
+        "strength": "서두르지 않고 흐름을 읽어 실수를 줄이는",
+        "risk": "여지를 너무 많이 남겨 결론이 흐려지는",
+        "action": "큰 결론은 하루를 다 본 뒤 다시 정리하는",
+    },
+}
+
+TIME_BRANCH_VARIANT_META = {
+    "자": {"action": "혼자 정리하는 시간을 짧게라도 확보하는", "risk": "생각이 길어져 반응이 늦어지는"},
+    "축": {"action": "바로 반응하지 말고 안에서 한 번 정리하고 움직이는", "risk": "마음속 정리가 길어져 타이밍을 놓치는"},
+    "인": {"action": "새 아이디어는 하나만 시험해 보고 나머지는 미루는", "risk": "확장 욕구가 커져 선택지가 한꺼번에 늘어나는"},
+    "묘": {"action": "사람과의 거리를 편한 선에서 먼저 맞추는", "risk": "분위기를 너무 오래 맞추다 내 결론이 늦어지는"},
+    "진": {"action": "여러 선택지보다 가장 현실적인 한 가지부터 정리하는", "risk": "한 번에 다 묶으려다 머리가 복잡해지는"},
+    "사": {"action": "빠르게 반응하더라도 말의 강약은 한 번 더 점검하는", "risk": "열기가 앞서 관계 수위가 세지는"},
+    "오": {"action": "속도보다 마감 순서를 먼저 잡아 두는", "risk": "에너지에 끌려 과속이 생기는"},
+    "미": {"action": "가까운 일일수록 오래 갈 수 있는지부터 확인하는", "risk": "유지 가능성만 보다가 결론이 늦어지는"},
+    "신": {"action": "기준을 말로 먼저 설명해 오해를 줄이는", "risk": "기준이 선명할수록 융통성이 약해지는"},
+    "유": {"action": "결과물을 다듬는 시간과 멈추는 시점을 함께 정하는", "risk": "완성도를 높이려다 끝나는 시점을 놓치는"},
+    "술": {"action": "책임이 큰 일에는 상한선을 먼저 정하는", "risk": "책임감이 커져 남의 몫까지 짊어지는"},
+    "해": {"action": "큰 결론은 하루를 다 보낸 뒤 다시 확인하는", "risk": "여지를 길게 보다가 즉시 대응이 늦어지는"},
+}
+
+
+def _with_base(base: str, *variants: str) -> list[str]:
+    return [base, *[item for item in variants if item]]
+
+
+def _profile_headline_options(profile: str) -> list[str]:
+    meta = PROFILE_VARIANT_META[profile]
+    base = DAILY_PROFILE_HEADLINES[profile]
+    return _with_base(
+        base,
+        f"오늘은 {meta['focus']}을 먼저 잡아야 체감이 또렷해지는 날입니다.",
+        f"오늘은 {meta['gain']} 흐름을 살릴수록 하루 운영이 편해질 수 있습니다.",
+        f"오늘은 {meta['risk']} 쪽으로 흐르지 않게 순서를 먼저 잡는 편이 좋습니다.",
+        f"오늘은 {meta['action']} 방식이 실제 체감 만족도를 높이기 쉽습니다.",
+    )
+
+
+def _profile_explanation_options(profile: str) -> list[str]:
+    meta = PROFILE_VARIANT_META[profile]
+    base = DAILY_PROFILE_EXPLANATIONS[profile]
+    return _with_base(
+        base,
+        f"원국에서는 {meta['focus']}이 먼저 작동하는 결이 있어, 오늘도 그 축을 살릴수록 판단이 비교적 선명해질 수 있습니다.",
+        f"오늘은 {meta['gain']} 방식이 맞을 가능성이 커서, 섣부른 확정보다 이 리듬을 살리는 편이 좋습니다.",
+        f"다만 {meta['risk']} 흐름이 함께 붙을 수 있어, 초반에 기준을 잡아 두는 편이 유리합니다.",
+        f"결국 오늘은 {meta['action']} 쪽으로 운영할수록 피로를 줄이면서 결과를 남기기 쉬울 수 있습니다.",
+    )
+
+
+def _profile_advice_options(profile: str) -> list[str]:
+    meta = PROFILE_VARIANT_META[profile]
+    base = DAILY_PROFILE_ADVICE[profile]
+    return _with_base(
+        base,
+        f"오늘은 {meta['focus']} 하나만 먼저 정해 두고 그 밖의 선택은 뒤로 미루는 편이 좋습니다.",
+        f"오늘은 {meta['gain']} 흐름을 살릴 수 있도록 할 일과 미룰 일을 분명히 나누는 편이 좋습니다.",
+        f"오늘은 {meta['risk']} 쪽으로 길어지지 않도록 마감 시점을 먼저 잡아 두는 편이 좋습니다.",
+        f"오늘은 {meta['action']} 방식으로 하루 구조를 단순하게 만드는 편이 실제 도움이 됩니다.",
+    )
+
+
+def _rule_explanation_options(ten_god: str) -> list[str]:
+    rule = DAILY_RULES[ten_god]
+    keyword_a, keyword_b, keyword_c = rule["keywords"]
+    return _with_base(
+        rule["explanation"],
+        f"오늘은 {keyword_a}과 {keyword_b} 축이 같이 움직여, 초반에 기준을 잡아 두면 체감 부담을 줄이기 쉬울 수 있습니다.",
+        f"{keyword_a} 쪽 자극이 올라와도 {keyword_b}를 먼저 챙기면 하루 흐름이 비교적 흔들리지 않기 쉽습니다.",
+        f"오늘은 {keyword_c} 문제까지 한꺼번에 보이기 쉬워, 하나씩 나눠 대응하는 편이 결과를 남기기 좋습니다.",
+    )
+
+
+def _rule_advice_options(ten_god: str) -> list[str]:
+    rule = DAILY_RULES[ten_god]
+    keyword_a, keyword_b, keyword_c = rule["keywords"]
+    return _with_base(
+        rule["advice"],
+        f"오늘은 {keyword_a}보다 {keyword_b}를 먼저 고정하는 편이 전체 흐름을 다루기 쉽습니다.",
+        f"{keyword_c}까지 한꺼번에 챙기려 하지 말고, 가장 체감이 큰 한 가지부터 처리하는 편이 좋습니다.",
+        f"오늘은 {keyword_a}, {keyword_b}, {keyword_c}를 다 잡기보다 우선순위 두 개만 남기는 편이 좋습니다.",
+    )
+
+
+def _day_stem_headline_options(day_stem: str) -> list[str]:
+    meta = DAY_STEM_VARIANT_META[day_stem]
+    base = DAY_STEM_HEADLINE_LINES[day_stem]
+    return _with_base(
+        base,
+        f"{meta['headline']} 쪽으로 판단이 모이기 쉬운 날입니다.",
+        f"{meta['daily']} 흐름을 먼저 잡아야 하루가 매끄럽게 풀리기 쉽습니다.",
+        f"{meta['strength']} 힘이 살아나지만, 동시에 강약 조절이 필요한 날입니다.",
+        f"{meta['risk']} 쪽으로 흐르지 않게 기준을 먼저 세우는 편이 좋은 날입니다.",
+        f"{meta['action']} 방식이 하루 품질을 좌우하기 쉬운 날입니다.",
+    )
+
+
+def _month_branch_headline_options(month_branch: str) -> list[str]:
+    meta = MONTH_BRANCH_VARIANT_META[month_branch]
+    base = MONTH_BRANCH_HEADLINE_LINES[month_branch]
+    return _with_base(
+        base,
+        f"{meta['headline']} 흐름이 하루 전반을 좌우할 수 있습니다.",
+        f"{meta['daily']} 결이 강하게 작동해 속도보다 순서가 중요해질 수 있습니다.",
+        f"{meta['strength']} 장점이 살아나지만, 동시에 균형 조절도 필요합니다.",
+        f"{meta['risk']} 쪽으로 흐르지 않게 페이스를 조절하는 편이 좋습니다.",
+    )
+
+
+def _day_stem_daily_options(day_stem: str) -> list[str]:
+    meta = DAY_STEM_VARIANT_META[day_stem]
+    stem_label = format_stem_label(day_stem)
+    base = DAY_STEM_DAILY_LINES[day_stem]
+    return _with_base(
+        base,
+        f"원국 일간이 {stem_label}이면 오늘도 {meta['daily']} 흐름이 먼저 살아나기 쉽습니다.",
+        f"{stem_label} 일간답게 오늘 자극도 {meta['headline']} 방식으로 받아들이는 편이 자연스럽습니다.",
+        f"오늘은 {stem_label} 일간 특유의 결 때문에 {meta['strength']} 쪽으로 힘이 모이기 쉽습니다.",
+        f"다만 {stem_label} 일간은 오늘처럼 자극이 강할수록 {meta['risk']} 흐름도 함께 의식하는 편이 좋습니다.",
+        f"결국 오늘은 {stem_label} 일간답게 {meta['action']} 운영이 더 잘 맞을 수 있습니다.",
+    )
+
+
+def _month_branch_daily_options(month_branch: str) -> list[str]:
+    meta = MONTH_BRANCH_VARIANT_META[month_branch]
+    branch_label = format_branch_label(month_branch)
+    base = MONTH_BRANCH_DAILY_LINES[month_branch]
+    return _with_base(
+        base,
+        f"월지가 {branch_label}이면 오늘도 {meta['daily']} 리듬이 먼저 작동할 가능성이 큽니다.",
+        f"{branch_label} 월지의 결이 살아나면 {meta['strength']} 쪽에서 체감 차이가 크게 날 수 있습니다.",
+        f"다만 {branch_label} 월지는 오늘 {meta['risk']} 흐름으로 기울지 않게 페이스를 조절하는 편이 좋습니다.",
+        f"오늘은 {branch_label} 월지답게 {meta['action']} 방식이 실제로 더 잘 맞을 수 있습니다.",
+    )
+
+
+def _day_branch_context_options(day_branch: str) -> list[str]:
+    meta = MONTH_BRANCH_VARIANT_META[day_branch]
+    branch_label = format_branch_label(day_branch)
+    base = DAY_BRANCH_CONTEXT_LINES[day_branch]
+    return _with_base(
+        base,
+        f"오늘 일지에 {branch_label}가 들어오면 {meta['daily']} 쪽 감각이 눈에 띄게 강해질 수 있습니다.",
+        f"{branch_label} 일지 영향이 들어온 날에는 {meta['strength']} 쪽으로 체감이 모이기 쉽습니다.",
+        f"반대로 오늘은 {branch_label} 기운 때문에 {meta['risk']} 흐름도 함께 주의하는 편이 좋습니다.",
+        f"결국 오늘 일지 {branch_label}는 {meta['action']} 방향으로 하루 운영을 이끌기 쉽습니다.",
+    )
+
+
+def _day_stem_action_options(day_stem: str) -> list[str]:
+    meta = DAY_STEM_VARIANT_META[day_stem]
+    stem_label = format_stem_label(day_stem)
+    base = f"오늘은 {stem_label} 일간 특유의 판단 순서를 지키되, 먼저 할 일 한두 가지만 눈에 보이게 정리하는 편이 좋습니다."
+    return _with_base(
+        base,
+        f"오늘은 {stem_label} 일간답게 {meta['action']} 방식으로 시작선을 먼저 잡는 편이 좋습니다.",
+        f"{stem_label} 일간이라면 오늘은 {meta['risk']} 흐름을 줄이기 위해 결정 시점을 미리 정해 두는 편이 좋습니다.",
+        f"오늘은 {stem_label} 일간의 장점을 살려 {meta['strength']} 쪽으로 힘을 모으는 편이 좋습니다.",
+        f"{stem_label} 일간에게 오늘은 {meta['headline']} 판단을 살리되, 실제 실행은 한 단계씩 나누는 편이 더 잘 맞습니다.",
+    )
+
+
+def _month_branch_action_options(month_branch: str) -> list[str]:
+    meta = MONTH_BRANCH_VARIANT_META[month_branch]
+    branch_label = format_branch_label(month_branch)
+    base = f"월지 {branch_label}의 생활 리듬을 기준으로 보면 {MONTH_BRANCH_DAILY_ACTIONS[month_branch]}"
+    return _with_base(
+        base,
+        f"오늘은 월지 {branch_label}의 결을 살려 {meta['action']} 방식으로 속도를 다루는 편이 좋습니다.",
+        f"월지 {branch_label}라면 오늘은 {meta['risk']} 흐름을 줄이기 위해 순서를 먼저 나누는 편이 좋습니다.",
+        f"{branch_label} 월지의 장점을 살리려면 오늘은 {meta['strength']} 쪽으로 에너지를 모으는 편이 좋습니다.",
+        f"오늘은 {branch_label} 월지답게 {meta['daily']} 흐름을 거스르지 않는 편이 실제 피로를 줄이는 데 도움이 됩니다.",
+    )
+
+
+def _time_branch_action_options(time_branch: str | None, keywords: list[str]) -> list[str]:
+    if not time_branch:
+        return [
+            f"오늘은 {keywords[0]}보다 {keywords[1]}를 먼저 정리하는 편이 좋습니다.",
+            f"오늘은 {keywords[2]}까지 한꺼번에 잡기보다 가장 체감이 큰 한 가지부터 끝내는 편이 좋습니다.",
+            "오늘은 내 페이스를 지키면서 마감 하나를 분명히 남기는 편이 좋습니다.",
+        ]
+    meta = TIME_BRANCH_VARIANT_META[time_branch]
+    branch_label = format_branch_label(time_branch)
+    base = TIME_BRANCH_DAILY_ACTIONS[time_branch]
+    return _with_base(
+        base,
+        f"시지 {branch_label}의 사적 리듬을 기준으로 보면 오늘은 {meta['action']} 편이 좋습니다.",
+        f"오늘은 시지 {branch_label} 영향으로 {meta['risk']} 흐름이 올라올 수 있어 경계를 먼저 세우는 편이 좋습니다.",
+        f"{branch_label} 시지의 결을 살리려면 오늘은 속도를 밀기보다 {meta['action']} 쪽이 더 잘 맞습니다.",
+        f"가까운 일일수록 시지 {branch_label}가 작동해 {meta['action']} 운영이 실제 부담을 줄이는 데 도움이 됩니다.",
+    )
+
+
+def _daily_strength_options(ten_god: str) -> list[str]:
+    base = DAILY_STRENGTH_LINES[ten_god]
+    keyword_a, keyword_b, keyword_c = DAILY_RULES[ten_god]["keywords"]
+    return _with_base(
+        base,
+        f"오늘은 {keyword_a}과 {keyword_b}이 서로 받쳐 주면 체감 성과를 만들기 쉬운 강점이 있습니다.",
+        f"{keyword_c} 문제까지 보여도 핵심만 남기면 오히려 흐름을 빠르게 정리할 수 있는 장점이 있습니다.",
+        f"오늘은 {keyword_a}을 앞세우되 {keyword_b}를 같이 챙기면 생각보다 안정적으로 결과를 남기기 좋습니다.",
+    )
+
+
+def _daily_risk_options(ten_god: str) -> list[str]:
+    base = DAILY_RISK_LINES[ten_god]
+    keyword_a, keyword_b, keyword_c = DAILY_RULES[ten_god]["keywords"]
+    return _with_base(
+        base,
+        f"오늘은 {keyword_a}만 앞세우면 {keyword_b}가 흔들려 체감 피로가 커질 수 있습니다.",
+        f"{keyword_c}까지 한꺼번에 잡으려 하면 오히려 집중이 흩어질 수 있습니다.",
+        f"오늘은 {keyword_a} 반응이 커질수록 {keyword_b} 기준을 먼저 고정하지 않으면 리듬이 흐려질 수 있습니다.",
+    )
+
+
+def _day_stem_strength_options(day_stem: str) -> list[str]:
+    meta = DAY_STEM_VARIANT_META[day_stem]
+    stem_label = format_stem_label(day_stem)
+    base = DAY_STEM_DAILY_STRENGTHS[day_stem]
+    return _with_base(
+        base,
+        f"오늘은 {stem_label} 일간답게 {meta['strength']} 힘이 비교적 또렷하게 살아날 수 있습니다.",
+        f"{stem_label} 일간은 오늘 {meta['headline']} 결을 잘 쓰면 생각보다 빠르게 주도권을 잡기 쉽습니다.",
+        f"오늘은 {stem_label} 일간의 장점이 살아나 {meta['daily']} 흐름을 실무로 연결하기 좋을 수 있습니다.",
+    )
+
+
+def _day_stem_risk_options(day_stem: str) -> list[str]:
+    meta = DAY_STEM_VARIANT_META[day_stem]
+    stem_label = format_stem_label(day_stem)
+    base = DAY_STEM_DAILY_RISKS[day_stem]
+    return _with_base(
+        base,
+        f"오늘은 {stem_label} 일간답게 {meta['risk']} 흐름이 올라올 수 있어 결정 시점을 정해 두는 편이 좋습니다.",
+        f"{stem_label} 일간은 오늘 {meta['headline']} 힘이 강해질수록 반대 조건도 같이 보는 편이 안전합니다.",
+        f"오늘은 {stem_label} 일간의 장점이 과해지면 {meta['risk']} 방향으로 기울 수 있습니다.",
+    )
+
+
+def _month_branch_strength_options(month_branch: str) -> list[str]:
+    meta = MONTH_BRANCH_VARIANT_META[month_branch]
+    branch_label = format_branch_label(month_branch)
+    base = MONTH_BRANCH_DAILY_STRENGTHS[month_branch]
+    return _with_base(
+        base,
+        f"오늘은 {branch_label} 월지의 장점이 살아나 {meta['strength']} 힘이 생각보다 또렷하게 드러날 수 있습니다.",
+        f"{branch_label} 월지라면 오늘 {meta['daily']} 리듬을 잘 타는 것만으로도 결과가 남기 쉬울 수 있습니다.",
+        f"오늘은 {branch_label} 월지의 결 덕분에 {meta['action']} 운영이 강점으로 연결되기 쉽습니다.",
+    )
+
+
+def _month_branch_risk_options(month_branch: str) -> list[str]:
+    meta = MONTH_BRANCH_VARIANT_META[month_branch]
+    branch_label = format_branch_label(month_branch)
+    base = MONTH_BRANCH_DAILY_RISKS[month_branch]
+    return _with_base(
+        base,
+        f"오늘은 {branch_label} 월지의 결이 강해질수록 {meta['risk']} 흐름을 특히 조심하는 편이 좋습니다.",
+        f"{branch_label} 월지는 오늘 {meta['daily']} 장점이 과해지면 리듬이 무거워질 수 있습니다.",
+        f"오늘은 {branch_label} 월지답게 {meta['action']} 방향을 놓치면 피로가 빨리 올라올 수 있습니다.",
+    )
+
 
 def calculate_daily_fortune(saju_result: dict, target_date: date) -> dict:
     """Return the fortune for a specific solar date."""
@@ -326,25 +857,30 @@ def calculate_daily_fortune(saju_result: dict, target_date: date) -> dict:
         day_pillar_kor=day_pillar["kor"],
         natal_day_stem=day_stem,
         natal_month_branch=month_branch,
+        seed=seed,
     )
+    rule_explanation = _pick(_rule_explanation_options(ten_god), seed + 1)
+    profile_explanation = _pick(_profile_explanation_options(daily_profile), seed + 3)
+    rule_advice = _pick(_rule_advice_options(ten_god), seed + 5)
+    profile_advice = _pick(_profile_advice_options(daily_profile), seed + 7)
     explanation = (
         f"{_strip_day_pillar_prefix(natal_day_pillar_line, natal_day_pillar_kor)} "
-        f"{DAY_STEM_DAILY_LINES[day_stem]} "
-        f"{rule['explanation']} "
-        f"{DAILY_PROFILE_EXPLANATIONS[daily_profile]}"
+        f"{_pick(_day_stem_daily_options(day_stem), seed + 9)} "
+        f"{rule_explanation} "
+        f"{profile_explanation}"
     )
-    advice = f"{rule['advice']} {DAILY_PROFILE_ADVICE[daily_profile]}"
+    advice = f"{rule_advice} {profile_advice}"
 
     context_easy_lines = [
         natal_day_pillar_line,
-        DAY_STEM_DAILY_LINES[day_stem],
-        MONTH_BRANCH_DAILY_LINES[month_branch],
+        _pick(_day_stem_daily_options(day_stem), seed + 11),
+        _pick(_month_branch_daily_options(month_branch), seed + 13),
         _pick(day_data["social_reaction"], seed + 3),
-        DAY_BRANCH_CONTEXT_LINES[day_pillar["branch"]],
+        _pick(_day_branch_context_options(day_pillar["branch"]), seed + 15),
     ]
     if month_ten_god_data:
         context_easy_lines.append(
-            f"월간 십성 기준으로 보면 {_pick(month_ten_god_data['personality_modifier'], seed + 5).lower()}"
+            f"월간 십성 기준으로 보면 {_pick(month_ten_god_data['personality_modifier'], seed + 17).lower()}"
         )
 
     context_real_lines = [
@@ -358,20 +894,20 @@ def calculate_daily_fortune(saju_result: dict, target_date: date) -> dict:
         context_real_lines.append(_pick(time_data["intimate_reaction"], seed + 19))
 
     context_action_lines = [
-        f"오늘은 {format_stem_label(day_stem)} 일간 특유의 판단 순서를 지키되, 먼저 할 일 한두 가지만 눈에 보이게 정리하는 편이 좋습니다.",
-        f"월지 {month_branch}의 생활 리듬을 기준으로 보면 {MONTH_BRANCH_DAILY_ACTIONS[month_branch]}",
-        TIME_BRANCH_DAILY_ACTIONS[time_branch] if time_branch else f"오늘은 {rule['keywords'][0]}보다 {rule['keywords'][1]}를 먼저 정리하는 편이 좋습니다.",
+        _pick(_day_stem_action_options(day_stem), seed + 21),
+        _pick(_month_branch_action_options(month_branch), seed + 23),
+        _pick(_time_branch_action_options(time_branch, rule["keywords"]), seed + 25),
     ]
 
     strength_lines = [
-        DAILY_STRENGTH_LINES[ten_god],
-        DAY_STEM_DAILY_STRENGTHS[day_stem],
-        MONTH_BRANCH_DAILY_STRENGTHS[month_branch],
+        _pick(_daily_strength_options(ten_god), seed + 27),
+        _pick(_day_stem_strength_options(day_stem), seed + 29),
+        _pick(_month_branch_strength_options(month_branch), seed + 31),
     ]
     risk_lines = [
-        DAILY_RISK_LINES[ten_god],
-        DAY_STEM_DAILY_RISKS[day_stem],
-        MONTH_BRANCH_DAILY_RISKS[month_branch],
+        _pick(_daily_risk_options(ten_god), seed + 33),
+        _pick(_day_stem_risk_options(day_stem), seed + 35),
+        _pick(_month_branch_risk_options(month_branch), seed + 37),
     ]
     if time_branch and time_data:
         risk_lines.append(_pick(time_data["intimate_reaction"], seed + 31))
@@ -388,6 +924,13 @@ def calculate_daily_fortune(saju_result: dict, target_date: date) -> dict:
         strength_lines=strength_lines,
         risk_lines=risk_lines,
     )
+    score = _build_daily_score(
+        ten_god=ten_god,
+        daily_profile=daily_profile,
+        month_branch=month_branch,
+        time_branch=time_branch,
+        keywords=rule["keywords"],
+    )
     return {
         "date": target_date.isoformat(),
         "pillar": day_pillar["kor"],
@@ -396,11 +939,17 @@ def calculate_daily_fortune(saju_result: dict, target_date: date) -> dict:
         "branch": day_pillar["branch"],
         "ten_god": ten_god,
         "headline": section["one_line"],
-        "summary": f"{natal_day_pillar_kor} 일주를 기준으로 보면 {DAY_STEM_HEADLINE_LINES[day_stem]} 오늘의 핵심은 {rule['keywords'][0]}과 {rule['keywords'][1]}입니다.",
+        "summary": (
+            f"{natal_day_pillar_kor} 일주를 기준으로 보면 "
+            f"{_pick(_day_stem_headline_options(day_stem), seed + 39)} "
+            f"오늘의 핵심은 {rule['keywords'][0]}과 {rule['keywords'][1]}이고, "
+            f"{_pick(_month_branch_headline_options(month_branch), seed + 41)}"
+        ),
         "explanation": " ".join(section["easy_explanation"]),
         "advice": " ".join(section["action_advice"]),
         "section": section,
         "keywords": rule["keywords"],
+        "score": score,
     }
 
 
@@ -422,6 +971,164 @@ def _resolve_daily_profile(day_stem: str, month_branch: str) -> str:
     return "observer"
 
 
+def _build_daily_score(
+    *,
+    ten_god: str,
+    daily_profile: str,
+    month_branch: str,
+    time_branch: str | None,
+    keywords: list[str],
+) -> dict:
+    factors = [
+        {
+            "name": "오늘 십성",
+            "value": ten_god,
+            "delta": TEN_GOD_SCORE[ten_god],
+        },
+        {
+            "name": "오늘 반응형",
+            "value": PROFILE_LABELS[daily_profile],
+            "delta": PROFILE_SCORE[daily_profile],
+        },
+        {
+            "name": "월지 보정",
+            "value": format_branch_label(month_branch),
+            "delta": MONTH_BRANCH_SCORE[month_branch],
+        },
+    ]
+    score = DAILY_SCORE_BASE + sum(item["delta"] for item in factors)
+
+    if time_branch:
+        time_delta = TIME_BRANCH_SCORE[time_branch]
+        factors.append(
+            {
+                "name": "시지 보정",
+                "value": format_branch_label(time_branch),
+                "delta": time_delta,
+            }
+        )
+        score += time_delta
+
+    keyword_delta = _keyword_adjustment(keywords)
+    factors.append(
+        {
+            "name": "키워드 보정",
+            "value": ", ".join(keywords[:3]),
+            "delta": keyword_delta,
+        }
+    )
+    score += keyword_delta
+
+    combo_delta, combo_label = _combo_adjustment(
+        ten_god=ten_god,
+        daily_profile=daily_profile,
+        month_branch=month_branch,
+        time_branch=time_branch,
+    )
+    if combo_delta or combo_label:
+        factors.append(
+            {
+                "name": "조합 보정",
+                "value": combo_label,
+                "delta": combo_delta,
+            }
+        )
+        score += combo_delta
+
+    bounded_score = max(1, min(100, score))
+    grade, label = _score_grade_and_label(bounded_score)
+    summary = _build_score_summary(
+        score=bounded_score,
+        label=label,
+        ten_god=ten_god,
+        daily_profile=daily_profile,
+        month_branch=month_branch,
+    )
+    return {
+        "title": "오늘의 운세 활용도",
+        "value": bounded_score,
+        "grade": grade,
+        "label": label,
+        "summary": summary,
+        "factors": factors,
+    }
+
+
+def _keyword_adjustment(keywords: list[str]) -> int:
+    score = 0
+    for keyword in keywords[:3]:
+        if keyword in POSITIVE_KEYWORDS:
+            score += 2
+        elif keyword in NEGATIVE_KEYWORDS:
+            score -= 2
+    return max(-4, min(4, score))
+
+
+def _combo_adjustment(
+    *,
+    ten_god: str,
+    daily_profile: str,
+    month_branch: str,
+    time_branch: str | None,
+) -> tuple[int, str]:
+    delta = 0
+    reasons: list[str] = []
+
+    if ten_god in {"식신", "정재", "정인"} and daily_profile in {"stabilizer", "precision", "planner"}:
+        delta += 4
+        reasons.append(f"{ten_god} + {PROFILE_LABELS[daily_profile]}")
+
+    if ten_god in {"겁재", "편관", "상관"} and daily_profile in {"driver", "connector"}:
+        delta -= 4
+        reasons.append(f"{ten_god} + {PROFILE_LABELS[daily_profile]}")
+
+    if month_branch in {"축", "진", "미", "술"} and ten_god in {"정재", "정관", "정인"}:
+        delta += 2
+        reasons.append(f"{format_branch_label(month_branch)}의 유지력")
+
+    if month_branch in {"사", "오"} and ten_god in {"상관", "겁재", "편관"}:
+        delta -= 2
+        reasons.append(f"{format_branch_label(month_branch)}의 과속성")
+
+    if time_branch in {"축", "진", "미", "술"} and ten_god in {"정재", "정인"}:
+        delta += 1
+        reasons.append(f"{format_branch_label(time_branch)}의 안정 보정")
+
+    if time_branch in {"사", "오"} and ten_god in {"상관", "편관"}:
+        delta -= 1
+        reasons.append(f"{format_branch_label(time_branch)}의 긴장 보정")
+
+    return max(-6, min(6, delta)), ", ".join(reasons)
+
+
+def _score_grade_and_label(score: int) -> tuple[str, str]:
+    for threshold, grade, label in SCORE_GRADE_RULES:
+        if score >= threshold:
+            return grade, label
+    return "D", "방어가 우선인 날"
+
+
+def _build_score_summary(
+    *,
+    score: int,
+    label: str,
+    ten_god: str,
+    daily_profile: str,
+    month_branch: str,
+) -> str:
+    month_label = format_branch_label(month_branch)
+    profile_label = PROFILE_LABELS[daily_profile]
+    if score >= 80:
+        return f"{ten_god} 기운과 {profile_label} 결이 잘 맞아, 오늘은 {month_label} 리듬 안에서 성과를 만들기 쉬운 편입니다."
+    if score >= 65:
+        return f"{ten_god} 기운이 무난하게 받쳐 주는 날이라, 오늘은 {month_label} 리듬을 지키면 결과가 비교적 잘 남습니다."
+    if score >= 50:
+        return f"오늘은 {profile_label} 쪽 판단을 살리면 무난하게 운영할 수 있지만, {month_label} 리듬을 벗어나면 피로가 빨리 올라올 수 있습니다."
+    if score >= 35:
+        return f"오늘은 {ten_god} 기운의 부담이 있어, {profile_label} 장점을 살리더라도 {month_label} 리듬 안에서 무리수를 줄이는 편이 좋습니다."
+    return f"오늘은 기회보다 방어가 우선인 날이라, {profile_label} 판단을 살리되 {month_label} 리듬 안에서 일정과 감정을 줄여 보는 편이 좋습니다."
+
+
 def _build_daily_headline(
     *,
     profile: str,
@@ -429,6 +1136,7 @@ def _build_daily_headline(
     day_pillar_kor: str,
     natal_day_stem: str,
     natal_month_branch: str,
+    seed: int,
 ) -> str:
     focus = {
         "비견": "내 페이스를 지키는 방식",
@@ -442,12 +1150,17 @@ def _build_daily_headline(
         "편인": "관점 전환",
         "정인": "정리와 준비",
     }[ten_god]
-    return (
-        f"{day_pillar_kor} 일의 기운이 들어온 오늘은 "
-        f"{DAY_STEM_HEADLINE_LINES[natal_day_stem]} "
-        f"오늘의 핵심은 {focus}이고, "
-        f"{MONTH_BRANCH_HEADLINE_LINES[natal_month_branch]}"
-    )
+    profile_line = _pick(_profile_headline_options(profile), seed + 43)
+    day_line = _pick(_day_stem_headline_options(natal_day_stem), seed + 47)
+    month_line = _pick(_month_branch_headline_options(natal_month_branch), seed + 53)
+    templates = [
+        f"{day_pillar_kor} 일의 기운이 들어온 오늘은 {profile_line} 특히 {day_line} 오늘의 핵심은 {focus}이고, {month_line}",
+        f"{day_pillar_kor} 일의 기운이 들어온 오늘은 {day_line} 이 흐름에서는 {focus}이 먼저 중요해지고, {month_line}",
+        f"{day_pillar_kor} 일의 기운이 들어온 오늘은 {month_line} 여기에 {day_line} 결이 겹쳐 {focus} 문제가 더 또렷해질 수 있습니다.",
+        f"{day_pillar_kor} 일의 기운이 들어온 오늘은 {profile_line} 결국 {focus}을 어떻게 다루느냐가 차이를 만들고, {month_line}",
+        f"{day_pillar_kor} 일의 기운이 들어온 오늘은 {day_line} 동시에 {month_line} 그래서 오늘은 {focus}을 한 번 더 의식하는 편이 좋습니다.",
+    ]
+    return _pick(templates, seed + 59)
 
 
 def _strip_day_pillar_prefix(sentence: str, day_pillar_kor: str) -> str:

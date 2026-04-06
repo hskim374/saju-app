@@ -2,12 +2,18 @@
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
 import logging
 import os
 import re
 import time
 from urllib.parse import urlencode
+
+try:
+    from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+except ImportError:  # pragma: no cover - Python < 3.9 fallback
+    ZoneInfo = None  # type: ignore[assignment]
+    ZoneInfoNotFoundError = Exception  # type: ignore[assignment]
 
 try:
     from dotenv import load_dotenv
@@ -48,9 +54,52 @@ EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 EMAIL_REQUEST_LOG: dict[str, float] = {}
 EMAIL_RATE_LIMIT_SECONDS = 60
 
+try:
+    SEOUL_TZ = ZoneInfo("Asia/Seoul") if ZoneInfo else timezone(timedelta(hours=9))
+except ZoneInfoNotFoundError:  # pragma: no cover - defensive timezone fallback
+    SEOUL_TZ = timezone(timedelta(hours=9))
+
+
+def _today_in_seoul() -> date:
+    return datetime.now(SEOUL_TZ).date()
+
+
+def _birth_year_options() -> list[int]:
+    current_year = _today_in_seoul().year
+    return list(range(current_year, 1899, -1))
+
+
+def _month_options() -> list[int]:
+    return list(range(1, 13))
+
+
+def _day_options() -> list[int]:
+    return list(range(1, 32))
+
+
+def _build_index_context(
+    *,
+    form_data: dict | None = None,
+    error_message: str | None = None,
+    email_form_data: dict | None = None,
+    email_error_message: str | None = None,
+    email_success_message: str | None = None,
+) -> dict:
+    return {
+        "form_data": form_data or _default_form_data(),
+        "email_form_data": email_form_data or _default_email_form_data(),
+        "error_message": error_message,
+        "email_error_message": email_error_message,
+        "email_success_message": email_success_message,
+        "time_slots": get_time_slot_options(),
+        "birth_year_options": _birth_year_options(),
+        "month_options": _month_options(),
+        "day_options": _day_options(),
+    }
+
 
 def _default_form_data() -> dict:
-    today = date.today()
+    today = _today_in_seoul()
     return {
         "calendar_type": "solar",
         "year": "",
@@ -60,7 +109,7 @@ def _default_form_data() -> dict:
         "is_leap_month": False,
         "gender": "",
         "target_year": str(today.year),
-        "target_month": "",
+        "target_month": str(today.month),
         "target_date": today.isoformat(),
     }
 
@@ -85,7 +134,7 @@ def _parse_optional_int(value: str | None, field_name: str) -> int | None:
 
 def _parse_target_date(value: str | None) -> date:
     if value is None or value == "":
-        return date.today()
+        return _today_in_seoul()
 
     try:
         return date.fromisoformat(value)
@@ -185,13 +234,13 @@ def _build_result_data(
         "time_slot": time_slot or "",
         "is_leap_month": _is_checked(is_leap_month),
         "gender": gender,
-        "target_year": target_year or str(date.today().year),
-        "target_month": target_month or "",
-        "target_date": target_date or date.today().isoformat(),
+        "target_year": target_year or str(_today_in_seoul().year),
+        "target_month": target_month or str(_today_in_seoul().month),
+        "target_date": target_date or _today_in_seoul().isoformat(),
         "premium": _is_checked(premium),
     }
 
-    parsed_target_year = _parse_optional_int(target_year, "기준 연도") or date.today().year
+    parsed_target_year = _parse_optional_int(target_year, "기준 연도") or _today_in_seoul().year
     parsed_target_month = _parse_optional_int(target_month, "기준 월")
     parsed_target_date = _parse_target_date(target_date)
 
@@ -240,7 +289,7 @@ def _build_result_data(
         }
     )
     result_data["normalized_solar_input"] = result_data["resolved_solar"]
-    result_data["report_generated_on"] = date.today().isoformat()
+    result_data["report_generated_on"] = _today_in_seoul().isoformat()
     result_data.update(element_analysis)
     result_data.update(ten_gods)
     result_data.update(interpretation)
@@ -294,14 +343,7 @@ async def index(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="index.html",
-        context={
-            "form_data": _default_form_data(),
-            "email_form_data": _default_email_form_data(),
-            "error_message": None,
-            "email_error_message": None,
-            "email_success_message": None,
-            "time_slots": get_time_slot_options(),
-        },
+        context=_build_index_context(),
     )
 
 
@@ -328,9 +370,9 @@ async def result(
         "time_slot": time_slot or "",
         "is_leap_month": _is_checked(is_leap_month),
         "gender": gender,
-        "target_year": target_year or str(date.today().year),
-        "target_month": target_month or "",
-        "target_date": target_date or date.today().isoformat(),
+        "target_year": target_year or str(_today_in_seoul().year),
+        "target_month": target_month or str(_today_in_seoul().month),
+        "target_date": target_date or _today_in_seoul().isoformat(),
     }
     try:
         form_data, result_data = _build_result_data(
@@ -349,14 +391,10 @@ async def result(
         return templates.TemplateResponse(
             request=request,
             name="index.html",
-            context={
-                "form_data": form_data,
-                "email_form_data": _default_email_form_data(),
-                "error_message": str(exc),
-                "email_error_message": None,
-                "email_success_message": None,
-                "time_slots": get_time_slot_options(),
-            },
+            context=_build_index_context(
+                form_data=form_data,
+                error_message=str(exc),
+            ),
             status_code=400,
         )
 
@@ -407,14 +445,7 @@ async def report_view(
         return templates.TemplateResponse(
             request=request,
             name="index.html",
-            context={
-                "form_data": _default_form_data(),
-                "email_form_data": _default_email_form_data(),
-                "error_message": str(exc),
-                "email_error_message": None,
-                "email_success_message": None,
-                "time_slots": get_time_slot_options(),
-            },
+            context=_build_index_context(error_message=str(exc)),
             status_code=400,
         )
 
@@ -465,11 +496,7 @@ async def report_pdf(
         return templates.TemplateResponse(
             request=request,
             name="index.html",
-            context={
-                "form_data": _default_form_data(),
-                "error_message": str(exc),
-                "time_slots": get_time_slot_options(),
-            },
+            context=_build_index_context(error_message=str(exc)),
             status_code=400,
         )
     try:
@@ -517,9 +544,9 @@ async def report_email(
         "time_slot": time_slot or "",
         "is_leap_month": _is_checked(is_leap_month),
         "gender": gender,
-        "target_year": target_year or str(date.today().year),
-        "target_month": target_month or "",
-        "target_date": target_date or date.today().isoformat(),
+        "target_year": target_year or str(_today_in_seoul().year),
+        "target_month": target_month or str(_today_in_seoul().month),
+        "target_date": target_date or _today_in_seoul().isoformat(),
     }
     email_form_data = {
         "email": email,
@@ -582,14 +609,11 @@ async def report_email(
             return templates.TemplateResponse(
                 request=request,
                 name="index.html",
-                context={
-                    "form_data": form_data,
-                    "email_form_data": email_form_data,
-                    "error_message": str(exc),
-                    "email_error_message": None,
-                    "email_success_message": None,
-                    "time_slots": get_time_slot_options(),
-                },
+                context=_build_index_context(
+                    form_data=form_data,
+                    error_message=str(exc),
+                    email_form_data=email_form_data,
+                ),
                 status_code=400,
             )
         email_success_message = None

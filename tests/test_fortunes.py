@@ -5,6 +5,7 @@ from datetime import date
 from data.month_ten_god_specialized import MONTH_TEN_GOD_CAREER_LINES, MONTH_TEN_GOD_RELATION_LINES
 import services.summary_card as summary_card_module
 from services.career_fortune import build_career_fortune
+import services.daily_fortune as daily_fortune_module
 from services.daily_fortune import calculate_daily_fortune
 from services.daewoon import calculate_daewoon
 from services.monthly_fortune import calculate_monthly_fortune
@@ -99,6 +100,42 @@ def test_daily_fortune_is_deterministic_for_specific_date():
     assert first["section"]["real_life"]
     assert first["section"]["strength_and_risk"]
     assert len(first["keywords"]) == 3
+    assert first["score"]["title"] == "오늘의 운세 활용도"
+    assert 1 <= first["score"]["value"] <= 100
+    assert first["score"]["grade"]
+    assert first["score"]["label"]
+    assert first["score"]["summary"]
+    assert len(first["score"]["factors"]) >= 5
+
+
+def test_daily_fortune_sentence_pools_are_significantly_expanded():
+    day_stem_headline_total = sum(
+        len(daily_fortune_module._day_stem_headline_options(stem))
+        for stem in ["갑", "을", "병", "정", "무", "기", "경", "신", "임", "계"]
+    )
+    month_branch_headline_total = sum(
+        len(daily_fortune_module._month_branch_headline_options(branch))
+        for branch in ["자", "축", "인", "묘", "진", "사", "오", "미", "신", "유", "술", "해"]
+    )
+    action_total = sum(
+        len(daily_fortune_module._day_stem_action_options(stem))
+        for stem in ["갑", "을", "병", "정", "무", "기", "경", "신", "임", "계"]
+    )
+    action_total += sum(
+        len(daily_fortune_module._month_branch_action_options(branch))
+        for branch in ["자", "축", "인", "묘", "진", "사", "오", "미", "신", "유", "술", "해"]
+    )
+    action_total += sum(
+        len(daily_fortune_module._time_branch_action_options(branch, ["기회", "정리", "실행"]))
+        for branch in ["자", "축", "인", "묘", "진", "사", "오", "미", "신", "유", "술", "해"]
+    )
+
+    assert day_stem_headline_total >= 60
+    assert month_branch_headline_total >= 60
+    assert action_total >= 170
+    assert len(daily_fortune_module._profile_headline_options("planner")) >= 5
+    assert len(daily_fortune_module._profile_explanation_options("planner")) >= 5
+    assert len(daily_fortune_module._profile_advice_options("planner")) >= 5
 
 
 def test_career_and_relationship_fortunes_return_expected_structure():
@@ -148,6 +185,7 @@ def test_daily_fortune_changes_with_same_date_for_different_natal_charts():
     assert first_daily["section"]["real_life"] != second_daily["section"]["real_life"]
     assert first_daily["section"]["strength_and_risk"] != second_daily["section"]["strength_and_risk"]
     assert first_daily["section"]["action_advice"] != second_daily["section"]["action_advice"]
+    assert first_daily["score"] != second_daily["score"]
 
 
 def test_daily_fortune_avoids_repeating_natal_day_prefix_in_real_life():

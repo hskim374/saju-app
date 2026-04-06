@@ -504,6 +504,25 @@
 
         <div class="section">
             <h2 class="section-title">특정 날짜 운세</h2>
+            <div class="mini" style="margin-bottom:3mm;">기준 날짜: {{ result.daily_fortune.date }}</div>
+            <div class="lead-box">
+                <div class="summary-label">{{ result.daily_fortune.score.title }}</div>
+                <div class="summary-value" style="margin-bottom:2mm;">{{ result.daily_fortune.score.value }}점</div>
+                <div class="mini" style="margin-bottom:2mm;">{{ result.daily_fortune.score.grade }} / {{ result.daily_fortune.score.label }}</div>
+                <div>{{ result.daily_fortune.score.summary }}</div>
+                <div class="sub-title">장점과 주의점</div>
+                <div style="margin-top:2mm;">
+                    {% for item in result.daily_fortune.section.strength_and_risk %}
+                    <div style="margin-bottom:2mm;">{{ item }}</div>
+                    {% endfor %}
+                </div>
+                <div class="sub-title">행동 조언</div>
+                <ul class="list" style="margin-top:3mm;">
+                    {% for item in result.daily_fortune.section.action_advice %}
+                    <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
             <div class="lead-box">{{ result.daily_fortune.section.one_line }}</div>
             <div class="highlight-box">{{ result.daily_fortune.section.highlight }}</div>
             <ul class="list">
@@ -513,15 +532,8 @@
                 {% for item in result.daily_fortune.section.real_life %}
                 <li>{{ item }}</li>
                 {% endfor %}
-                {% for item in result.daily_fortune.section.strength_and_risk %}
-                <li>{{ item }}</li>
-                {% endfor %}
-                {% for item in result.daily_fortune.section.action_advice %}
-                <li>{{ item }}</li>
-                {% endfor %}
             </ul>
             <ul class="list">
-                <li>기준 날짜: {{ result.daily_fortune.date }}</li>
                 <li>일운: {{ result.daily_fortune.pillar_display }} / {{ result.daily_fortune.ten_god }}</li>
                 <li>키워드: {{ result.daily_fortune.keywords | join(", ") }}</li>
             </ul>

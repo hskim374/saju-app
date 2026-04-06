@@ -91,6 +91,19 @@
             text-align: left;
         }
 
+        .persist-note {
+            margin-top: 12px;
+            color: #666;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 4px;
+        }
+
         button {
             width: 100%;
             padding: 14px;
@@ -105,6 +118,16 @@
 
         button:hover {
             background: #7e3f25;
+        }
+
+        .secondary-button {
+            background: #e6ddd2;
+            color: #5b4636;
+            box-shadow: none;
+        }
+
+        .secondary-button:hover {
+            background: #d9cebf;
         }
 
         .ad-block {
@@ -170,7 +193,7 @@
         <div class="error">{{ error_message }}</div>
         {% endif %}
 
-        <form action="/result" method="post">
+        <form id="saju-form" action="/result" method="post">
             <label>달력 종류</label>
             <div class="radio-row">
                 <label>
@@ -193,16 +216,34 @@
             </div>
 
             <label for="year">출생년도</label>
-            <input id="year" name="year" type="number" min="1000" max="2200" placeholder="예: 2006"
-                value="{{ form_data.year }}" required>
+            <select id="year" name="year" required>
+                <option value="">출생년도를 선택하세요</option>
+                {% for option_year in birth_year_options %}
+                <option value="{{ option_year }}" {% if form_data.year|string == option_year|string %}selected{% endif %}>
+                    {{ option_year }}년
+                </option>
+                {% endfor %}
+            </select>
 
             <label for="month">출생월</label>
-            <input id="month" name="month" type="number" min="1" max="12" placeholder="예: 8"
-                value="{{ form_data.month }}" required>
+            <select id="month" name="month" required>
+                <option value="">출생월을 선택하세요</option>
+                {% for option_month in month_options %}
+                <option value="{{ option_month }}" {% if form_data.month|string == option_month|string %}selected{% endif %}>
+                    {{ option_month }}월
+                </option>
+                {% endfor %}
+            </select>
 
             <label for="day">출생일</label>
-            <input id="day" name="day" type="number" min="1" max="31" placeholder="예: 1" value="{{ form_data.day }}"
-                required>
+            <select id="day" name="day" required>
+                <option value="">출생일을 선택하세요</option>
+                {% for option_day in day_options %}
+                <option value="{{ option_day }}" {% if form_data.day|string == option_day|string %}selected{% endif %}>
+                    {{ option_day }}일
+                </option>
+                {% endfor %}
+            </select>
 
             <label for="time_slot">출생시간 구간</label>
             <select id="time_slot" name="time_slot">
@@ -228,18 +269,15 @@
             </div>
             <div class="hint">대운 방향과 관계운 기준이 달라지므로 성별 입력은 필수입니다.</div>
 
-            <label for="target_year">운세 기준 연도</label>
-            <input id="target_year" name="target_year" type="number" min="1000" max="2200" placeholder="예: 2026"
-                value="{{ form_data.target_year }}">
+            <input type="hidden" name="target_year" value="{{ form_data.target_year }}">
+            <input type="hidden" name="target_month" value="{{ form_data.target_month }}">
+            <input type="hidden" name="target_date" value="{{ form_data.target_date }}">
 
-            <label for="target_month">확인할 월 (선택)</label>
-            <input id="target_month" name="target_month" type="number" min="1" max="12" placeholder="예: 3"
-                value="{{ form_data.target_month }}">
-
-            <label for="target_date">확인할 날짜 (선택)</label>
-            <input id="target_date" name="target_date" type="date" value="{{ form_data.target_date }}">
-
-            <button type="submit">사주 보기</button>
+            <div class="button-row">
+                <button type="submit">사주 보기</button>
+                <button type="button" id="clear-saved-form" class="secondary-button">입력 초기화</button>
+            </div>
+            <div class="persist-note">출생 정보와 성별은 이 브라우저에만 저장되어 다음 방문 때 자동으로 채워집니다.</div>
         </form>
 
         <div class="affiliate-box">
@@ -255,6 +293,121 @@
             <p class="affiliate-note">쿠팡파트너스 활동을 통해 일정액의 수수료를 제공받습니다.</p>
         </div>
     </div>
+    <script>
+        (function () {
+            const STORAGE_KEY = "saju_mvp_index_form_v1";
+            const PERSIST_FIELD_NAMES = [
+                "calendar_type",
+                "is_leap_month",
+                "year",
+                "month",
+                "day",
+                "time_slot",
+                "gender"
+            ];
+            const form = document.getElementById("saju-form");
+            const clearButton = document.getElementById("clear-saved-form");
+
+            if (!form) {
+                return;
+            }
+
+            function getFieldValue(field) {
+                if (field.type === "checkbox") {
+                    return field.checked;
+                }
+                if (field.type === "radio") {
+                    return field.checked ? field.value : null;
+                }
+                return field.value;
+            }
+
+            function collectFormState() {
+                const state = {};
+
+                PERSIST_FIELD_NAMES.forEach((name) => {
+                    const fields = form.querySelectorAll(`[name="${name}"]`);
+                    if (!fields.length) {
+                        return;
+                    }
+
+                    const firstField = fields[0];
+                    if (firstField.type === "radio") {
+                        const checkedField = Array.from(fields).find((field) => field.checked);
+                        state[name] = checkedField ? checkedField.value : "";
+                        return;
+                    }
+
+                    state[name] = getFieldValue(firstField);
+                });
+
+                return state;
+            }
+
+            function saveFormState() {
+                try {
+                    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(collectFormState()));
+                } catch (error) {
+                    console.warn("입력값 자동 저장에 실패했습니다.", error);
+                }
+            }
+
+            function applySavedState() {
+                try {
+                    const raw = window.localStorage.getItem(STORAGE_KEY);
+                    if (!raw) {
+                        return;
+                    }
+
+                    const savedState = JSON.parse(raw);
+                    PERSIST_FIELD_NAMES.forEach((name) => {
+                        const fields = form.querySelectorAll(`[name="${name}"]`);
+                        if (!fields.length || !(name in savedState)) {
+                            return;
+                        }
+
+                        const firstField = fields[0];
+                        if (firstField.type === "radio") {
+                            Array.from(fields).forEach((field) => {
+                                field.checked = field.value === savedState[name];
+                            });
+                            return;
+                        }
+
+                        if (firstField.type === "checkbox") {
+                            firstField.checked = Boolean(savedState[name]);
+                            return;
+                        }
+
+                        if (savedState[name] !== "" && savedState[name] !== null && savedState[name] !== undefined) {
+                            firstField.value = String(savedState[name]);
+                        }
+                    });
+                } catch (error) {
+                    console.warn("저장된 입력값 복원에 실패했습니다.", error);
+                }
+            }
+
+            function clearSavedState() {
+                try {
+                    window.localStorage.removeItem(STORAGE_KEY);
+                } catch (error) {
+                    console.warn("저장된 입력값 삭제에 실패했습니다.", error);
+                }
+
+                form.reset();
+            }
+
+            applySavedState();
+
+            form.addEventListener("change", saveFormState);
+            form.addEventListener("submit", saveFormState);
+
+            if (clearButton) {
+                clearButton.addEventListener("click", clearSavedState);
+            }
+        })();
+    </script>
 </body>
 
 </html>

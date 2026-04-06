@@ -236,8 +236,25 @@
         </div>
 
         <div style="margin-bottom:22px;">
-            <div style="font-size:18px; font-weight:700; color:#2f5d50; margin:0 0 10px;">특정 날짜 운세</div>
+            <div style="display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:10px; margin:0 0 10px;">
+                <div style="font-size:18px; font-weight:700; color:#2f5d50;">특정 날짜 운세</div>
+                <div style="font-size:13px; color:#6b7280;">기준 날짜 {{ result.daily_fortune.date }}</div>
+            </div>
             <div style="margin-bottom:12px; padding:14px; background:#f7f8f7; border-left:4px solid #2f5d50;">
+                <div style="margin-bottom:12px; padding:12px 14px; border:1px solid #d8ddd8; border-radius:12px; background:#eef5f0;">
+                    <div style="font-size:13px; font-weight:700; color:#2f5d50; margin-bottom:6px;">{{ result.daily_fortune.score.title }}</div>
+                    <div style="font-size:28px; font-weight:800; color:#1f2937; line-height:1; margin-bottom:8px;">{{ result.daily_fortune.score.value }}점</div>
+                    <div style="display:inline-block; padding:4px 10px; border-radius:999px; background:rgba(47, 93, 80, 0.12); color:#2f5d50; font-size:13px; font-weight:700; margin-bottom:8px;">{{ result.daily_fortune.score.grade }} / {{ result.daily_fortune.score.label }}</div>
+                    <div style="margin-bottom:8px;">{{ result.daily_fortune.score.summary }}</div>
+                    <div style="margin-top:10px; font-size:13px; font-weight:700; color:#2f5d50;">장점과 주의점</div>
+                    {% for item in result.daily_fortune.section.strength_and_risk %}
+                    <div style="font-size:13px; color:#6b7280; margin-bottom:6px;">{{ item }}</div>
+                    {% endfor %}
+                    <div style="margin-top:10px; font-size:13px; font-weight:700; color:#2f5d50;">행동 조언</div>
+                    {% for item in result.daily_fortune.section.action_advice %}
+                    <div style="font-size:13px; color:#6b7280; margin-bottom:3px;">{{ item }}</div>
+                    {% endfor %}
+                </div>
                 <div style="font-weight:bold; margin-bottom:6px;">한 줄 요약</div>
                 <div>{{ result.daily_fortune.section.one_line }}</div>
                 <div style="margin-top:10px; padding:10px 12px; background:#eef5f0; border-left:4px solid #2f5d50; font-weight:600;">{{ result.daily_fortune.section.highlight }}</div>
@@ -249,16 +266,8 @@
                 {% for item in result.daily_fortune.section.real_life %}
                 <div style="margin-bottom:4px;">{{ item }}</div>
                 {% endfor %}
-                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">장점과 주의점</div>
-                {% for item in result.daily_fortune.section.strength_and_risk %}
-                <div style="margin-bottom:4px;">{{ item }}</div>
-                {% endfor %}
-                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">행동 조언</div>
-                {% for item in result.daily_fortune.section.action_advice %}
-                <div style="margin-bottom:4px;">{{ item }}</div>
-                {% endfor %}
             </div>
-            <div style="font-size:13px; color:#6b7280;">기준 날짜 {{ result.daily_fortune.date }} / 일운 {{ result.daily_fortune.pillar_display }} / 키워드 {{ result.daily_fortune.keywords | join(", ") }}</div>
+            <div style="font-size:13px; color:#6b7280;">일운 {{ result.daily_fortune.pillar_display }} / 키워드 {{ result.daily_fortune.keywords | join(", ") }}</div>
         </div>
 
         <div style="margin-bottom:22px;">

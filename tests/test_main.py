@@ -8,7 +8,7 @@ import pytest
 
 from jinja2 import Environment, FileSystemLoader
 
-from main import _build_pdf_response, _build_result_data, _default_form_data, _validate_gender
+from main import _build_pdf_response, _build_result_data, _default_form_data, _today_in_seoul, _validate_gender
 from services import premium_report
 from services.report_display import build_display_result
 from services.saju_calculator import SajuCalculationError
@@ -16,9 +16,13 @@ from services.saju_calculator import SajuCalculationError
 
 def test_default_form_requires_gender_selection():
     form_data = _default_form_data()
+    today = _today_in_seoul()
 
     assert form_data["gender"] == ""
     assert form_data["time_slot"] == ""
+    assert form_data["target_year"] == str(today.year)
+    assert form_data["target_month"] == str(today.month)
+    assert form_data["target_date"] == today.isoformat()
 
 
 def test_validate_gender_rejects_missing_or_unknown_values():
@@ -55,6 +59,7 @@ def test_pdf_template_is_separated_and_renders_document_layout():
     assert "현재 작동 중인 대운" in html
     assert "프리미엄 사주 리포트" in html
     assert "최종 정리" in html
+    assert "오늘의 운세 활용도" in html
     assert "(" in display_result["saju"]["year"]["display"]
     assert "Action Plan" not in html
     assert "@page" in template_text
@@ -82,6 +87,7 @@ def test_display_result_formats_pillars_and_stems_in_hangul_hanja():
     assert "(" in display_result["saju"]["day"]["display"]
     assert "(" in display_result["daewoon"]["active_cycle_summary"]["pillar_display"]
     assert "(" in display_result["daily_fortune"]["pillar_display"]
+    assert display_result["daily_fortune"]["score"]["title"] == "오늘의 운세 활용도"
     assert "Action Plan" not in display_result["premium_report"]["sections"][-1]["title"]
 
 

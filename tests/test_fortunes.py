@@ -12,6 +12,7 @@ from services.monthly_fortune import calculate_monthly_fortune
 from services.relationship_fortune import build_relationship_fortune
 from services.saju_calculator import get_basic_saju_result
 from services.summary_card import build_summary_card
+import services.weekly_fortune as weekly_fortune_module
 from services.weekly_fortune import build_weekly_fortune
 from services.yearly_fortune import calculate_yearly_fortune
 
@@ -139,6 +140,74 @@ def test_daily_fortune_sentence_pools_are_significantly_expanded():
     assert len(daily_fortune_module._profile_advice_options("planner")) >= 5
 
 
+def test_daily_score_can_reach_top_and_defense_grades():
+    top_score = daily_fortune_module._build_daily_score(
+        ten_god="정재",
+        daily_profile="stabilizer",
+        month_branch="축",
+        time_branch="축",
+        keywords=["축적", "관리", "실무"],
+    )
+    low_score = daily_fortune_module._build_daily_score(
+        ten_god="겁재",
+        daily_profile="driver",
+        month_branch="사",
+        time_branch="사",
+        keywords=["주의", "경쟁", "분산"],
+    )
+
+    assert top_score["value"] == 99
+    assert top_score["grade"] == "S"
+    assert low_score["value"] == 9
+    assert low_score["grade"] == "D"
+
+
+def test_daily_action_advice_uses_score_based_execution_language():
+    high_lines = daily_fortune_module._daily_execution_action_lines(
+        score=99,
+        ten_god="정재",
+        keywords=["축적", "관리", "실무"],
+        seed=1,
+    )
+    low_lines = daily_fortune_module._daily_execution_action_lines(
+        score=9,
+        ten_god="겁재",
+        keywords=["주의", "경쟁", "분산"],
+        seed=1,
+    )
+    joined = " ".join([*high_lines, *low_lines])
+
+    assert len(high_lines) == 3
+    assert len(low_lines) == 3
+    assert all(len(line) <= 35 for line in [*high_lines, *low_lines])
+    assert not any(term in joined for term in ["일간", "월지", "시지"])
+    assert any(word in " ".join(high_lines) for word in ["확정", "제안", "마감", "실행", "성과"])
+    assert any(word in " ".join(low_lines) for word in ["휴식", "내일", "줄이세요", "피하고", "무리"])
+
+
+def test_daily_action_advice_pools_are_doubled_without_duplicates():
+    score_total = sum(len(pool) for pool in daily_fortune_module.ACTION_BY_SCORE_BUCKET.values())
+    ten_god_total = sum(len(pool) for pool in daily_fortune_module.ACTION_BY_TEN_GOD.values())
+    keyword_total = sum(len(pool) for pool in daily_fortune_module.ACTION_BY_KEYWORD.values())
+    all_lines = [
+        line
+        for data in [
+            daily_fortune_module.ACTION_BY_SCORE_BUCKET,
+            daily_fortune_module.ACTION_BY_TEN_GOD,
+            daily_fortune_module.ACTION_BY_KEYWORD,
+        ]
+        for pool in data.values()
+        for line in pool
+    ]
+
+    assert score_total == 72
+    assert ten_god_total == 60
+    assert keyword_total == 112
+    assert len(all_lines) == 244
+    assert len(set(all_lines)) == 244
+    assert all(len(line) <= 35 for line in all_lines)
+
+
 def test_weekly_fortune_returns_seven_score_cards_from_start_date():
     saju_result = get_basic_saju_result("solar", 2006, 8, 1, 10, 0)
 
@@ -154,6 +223,25 @@ def test_weekly_fortune_returns_seven_score_cards_from_start_date():
     assert all(item["summary"] for item in weekly)
     assert all(len(item["summary"]) <= 20 for item in weekly)
     assert len({item["date"] for item in weekly}) == 7
+
+
+def test_weekly_fortune_short_summary_pool_has_very_high_bucket():
+    summary_count = sum(len(pool) for pool in weekly_fortune_module.SHORT_SUMMARY_POOLS.values())
+
+    assert summary_count == 144
+    assert len(weekly_fortune_module.SHORT_SUMMARY_POOLS["very_high"]) == 24
+    assert weekly_fortune_module._summary_bucket(90) == "very_high"
+    assert weekly_fortune_module._summary_bucket(89) == "high"
+    assert weekly_fortune_module._score_class(90) == "score-very-high"
+    assert all(
+        len(set(pool)) == len(pool)
+        for pool in weekly_fortune_module.SHORT_SUMMARY_POOLS.values()
+    )
+    assert all(
+        len(summary) <= 20
+        for pool in weekly_fortune_module.SHORT_SUMMARY_POOLS.values()
+        for summary in pool
+    )
 
 
 def test_career_and_relationship_fortunes_return_expected_structure():

@@ -356,6 +356,19 @@
             line-height: 1.45;
         }
 
+        .weekly-card.score-very-high .weekly-score,
+        .weekly-card.score-very-high .weekly-grade {
+            color: #174f32;
+        }
+
+        .weekly-card.score-very-high .weekly-grade {
+            background: #cfeada;
+        }
+
+        .weekly-card.score-very-high {
+            background: linear-gradient(180deg, #f3fbf6 0%, #e4f3ea 100%);
+        }
+
         .weekly-card.score-high .weekly-score,
         .weekly-card.score-high .weekly-grade {
             color: #1f5f3c;
@@ -823,7 +836,7 @@
                                         <li>65점 이상: A / 활용하기 좋은 날</li>
                                         <li>50점 이상: B / 관리형 보통의 날</li>
                                         <li>35점 이상: C / 주의가 필요한 날</li>
-                                        <li>1점 이상: D / 방어가 우선인 날</li>
+                                        <li>9점 이상: D / 방어가 우선인 날</li>
                                     </ul>
                                 </div>
                                 <strong class="score-block-title">장점과 주의점</strong>
@@ -864,6 +877,18 @@
                                     <p class="weekly-summary">{{ item.summary }}</p>
                                 </div>
                                 {% endfor %}
+                            </div>
+                            <div class="affiliate-box">
+                                <div class="affiliate-banner-slot"></div>
+                                <script src="https://ads-partners.coupang.com/g.js"></script>
+                                <script>
+                                    (function () {
+                                        var bannerSlot = document.currentScript.previousElementSibling;
+                                        var bannerWidth = Math.max(320, Math.floor(bannerSlot.clientWidth || bannerSlot.parentElement.clientWidth || 350));
+                                        new PartnersCoupang.G({ "id": 933121, "trackingCode": "AF3819787", "subId": null, "template": "carousel", "width": String(bannerWidth), "height": "120" });
+                                    })();
+                                </script>
+                                <p class="affiliate-note">쿠팡파트너스 활동을 통해 일정액의 수수료를 제공받습니다.</p>
                             </div>
                         </div>
                         <div class="card">

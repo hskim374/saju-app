@@ -183,56 +183,60 @@ DAILY_PROFILE_ADVICE = {
 }
 
 DAILY_SCORE_BASE = 55
+DAILY_SCORE_MIN = 9
+DAILY_SCORE_MAX = 99
+DAILY_SCORE_RAW_MIN = 31
+DAILY_SCORE_RAW_MAX = 97
 
 TEN_GOD_SCORE = {
-    "비견": 2,
-    "겁재": -6,
-    "식신": 10,
-    "상관": -2,
-    "편재": 7,
-    "정재": 8,
-    "편관": -7,
-    "정관": 4,
-    "편인": 0,
-    "정인": 5,
+    "비견": 3,
+    "겁재": -9,
+    "식신": 12,
+    "상관": -4,
+    "편재": 9,
+    "정재": 11,
+    "편관": -10,
+    "정관": 6,
+    "편인": 1,
+    "정인": 8,
 }
 
 PROFILE_SCORE = {
-    "planner": 3,
-    "connector": 2,
-    "driver": 1,
-    "stabilizer": 5,
-    "precision": 4,
-    "observer": 0,
+    "planner": 5,
+    "connector": 3,
+    "driver": 2,
+    "stabilizer": 7,
+    "precision": 6,
+    "observer": 1,
 }
 
 MONTH_BRANCH_SCORE = {
     "자": 1,
-    "축": 3,
-    "인": 1,
-    "묘": 1,
-    "진": 3,
+    "축": 5,
+    "인": 2,
+    "묘": 2,
+    "진": 5,
     "사": 0,
     "오": 0,
-    "미": 3,
-    "신": 2,
-    "유": 2,
-    "술": 3,
+    "미": 5,
+    "신": 3,
+    "유": 3,
+    "술": 5,
     "해": 1,
 }
 
 TIME_BRANCH_SCORE = {
     "자": 1,
-    "축": 2,
+    "축": 3,
     "인": 1,
     "묘": 1,
-    "진": 2,
-    "사": -1,
-    "오": -1,
-    "미": 2,
-    "신": 1,
-    "유": 1,
-    "술": 2,
+    "진": 3,
+    "사": -2,
+    "오": -2,
+    "미": 3,
+    "신": 2,
+    "유": 2,
+    "술": 3,
     "해": 1,
 }
 
@@ -254,8 +258,209 @@ SCORE_GRADE_RULES = [
     (65, "A", "활용하기 좋은 날"),
     (50, "B", "관리형 보통의 날"),
     (35, "C", "주의가 필요한 날"),
-    (1, "D", "방어가 우선인 날"),
+    (DAILY_SCORE_MIN, "D", "방어가 우선인 날"),
 ]
+
+ACTION_BY_SCORE_BUCKET = {
+    "very_high": [
+        "중요한 일 하나를 오늘 확정하세요.",
+        "미룬 제안은 오늘 먼저 보내세요.",
+        "마감할 일을 오전에 끝내세요.",
+        "핵심 기회는 바로 일정에 넣으세요.",
+        "준비한 일은 오늘 실행하세요.",
+        "성과가 보이는 일부터 밀어붙이세요.",
+        "중요한 연락은 오늘 먼저 잡으세요.",
+        "결정할 일은 오늘 안에 끝내세요.",
+        "성과가 큰 일에 시간을 몰아주세요.",
+        "좋은 흐름은 바로 행동으로 옮기세요.",
+        "오늘은 핵심 목표 하나를 밀어붙이세요.",
+        "제안과 마감은 오늘 처리하세요.",
+    ],
+    "high": [
+        "우선순위 첫 번째 일부터 실행하세요.",
+        "오늘은 제안 하나를 구체화하세요.",
+        "마감 가능한 일부터 끝내세요.",
+        "좋은 연락은 오늘 먼저 이어가세요.",
+        "정리한 계획을 바로 실행하세요.",
+        "성과가 남는 일에 시간을 쓰세요.",
+        "미뤄 둔 연락은 오늘 보내세요.",
+        "작은 결정을 오늘 확정하세요.",
+        "실행 가능한 일부터 시작하세요.",
+        "중요한 일정은 먼저 고정하세요.",
+        "성과가 보이는 쪽에 집중하세요.",
+        "해야 할 일 하나를 끝까지 밀어주세요.",
+    ],
+    "good": [
+        "할 일 세 가지를 먼저 고르세요.",
+        "진행할 일과 넘길 일을 나누세요.",
+        "작은 마감 하나를 남기세요.",
+        "필요한 연락은 낮에 끝내세요.",
+        "돈과 일정을 함께 점검하세요.",
+        "확정 전 조건을 한 번 확인하세요.",
+        "오늘 할 일의 순서를 먼저 정하세요.",
+        "가능한 일부터 가볍게 처리하세요.",
+        "제안은 조건을 보고 움직이세요.",
+        "시간표를 정리한 뒤 실행하세요.",
+        "필요한 대화는 짧게 마무리하세요.",
+        "작은 성과 하나를 남기세요.",
+    ],
+    "normal": [
+        "새 일보다 기존 일을 정리하세요.",
+        "큰 결정은 한 번 더 확인하세요.",
+        "오늘은 할 일을 절반으로 줄이세요.",
+        "지출 기준을 숫자로 정하세요.",
+        "답장은 보내기 전 다시 읽으세요.",
+        "중요하지 않은 약속은 미루세요.",
+        "오늘은 확인한 일만 진행하세요.",
+        "새 약속보다 일정 정리를 먼저 하세요.",
+        "해야 할 일은 두 개만 남기세요.",
+        "돈 쓰는 일은 한 번 더 보세요.",
+        "결론보다 점검을 먼저 하세요.",
+        "가벼운 마감 하나만 끝내세요.",
+    ],
+    "caution": [
+        "오늘은 큰 결정을 보류하세요.",
+        "새 제안은 메모만 남기세요.",
+        "감정적인 답장은 늦게 보내세요.",
+        "지출 한도를 먼저 정하세요.",
+        "할 일을 줄이고 한 가지만 끝내세요.",
+        "불필요한 대화는 짧게 정리하세요.",
+        "급한 반응은 한 번 멈추세요.",
+        "확정은 늦추고 조건만 보세요.",
+        "논쟁이 될 말은 줄이세요.",
+        "오늘은 약속을 늘리지 마세요.",
+        "무리한 일정은 바로 조정하세요.",
+        "돈과 시간을 동시에 아끼세요.",
+    ],
+    "defense": [
+        "오늘은 확장보다 휴식을 택하세요.",
+        "중요 결정은 내일로 넘기세요.",
+        "돈 쓰는 일은 최대한 줄이세요.",
+        "논쟁은 피하고 기록만 남기세요.",
+        "무리한 약속은 잡지 마세요.",
+        "몸과 일정을 먼저 회복하세요.",
+        "새 일을 시작하지 마세요.",
+        "오늘은 손실 방지만 생각하세요.",
+        "대화보다 거리를 먼저 두세요.",
+        "급한 지출은 멈추세요.",
+        "일정을 줄이고 쉬는 시간을 만드세요.",
+        "무리한 부탁은 거절하세요.",
+    ],
+}
+
+ACTION_BY_TEN_GOD = {
+    "비견": [
+        "내 기준만 고집하지 말고 확인하세요.",
+        "상대 일정도 같이 맞춰 보세요.",
+        "혼자 정하기 전 한 번 묻세요.",
+        "내 몫과 상대 몫을 나누세요.",
+        "주도하되 확인 절차를 넣으세요.",
+        "결정 전 상대 조건을 들어보세요.",
+    ],
+    "겁재": [
+        "오늘 쓸 돈의 한도를 정하세요.",
+        "경쟁심이 오르면 잠시 멈추세요.",
+        "나눌 일과 잡을 일을 구분하세요.",
+        "비교보다 내 기준을 먼저 보세요.",
+        "무리한 승부는 오늘 피하세요.",
+        "지출과 감정의 선을 정하세요.",
+    ],
+    "식신": [
+        "결과물이 남는 일부터 끝내세요.",
+        "작은 산출물을 오늘 제출하세요.",
+        "미룬 작업 하나를 마감하세요.",
+        "보이는 결과 하나를 만들어두세요.",
+        "작업 시간은 짧게 끊어 쓰세요.",
+        "완료 기준을 먼저 적으세요.",
+    ],
+    "상관": [
+        "중요한 말은 한 번 더 다듬으세요.",
+        "메시지는 짧고 분명하게 보내세요.",
+        "불만은 결론보다 근거부터 쓰세요.",
+        "강한 표현은 한 단계 낮추세요.",
+        "보내기 전 문장을 다시 읽으세요.",
+        "말보다 문서로 정리하세요.",
+    ],
+    "편재": [
+        "새 제안은 조건표로 비교하세요.",
+        "만남은 하나만 선별해 잡으세요.",
+        "기회는 바로 확정하지 마세요.",
+        "외부 제안은 우선순위를 매기세요.",
+        "새 연락은 목적부터 확인하세요.",
+        "넓히기보다 하나만 고르세요.",
+    ],
+    "정재": [
+        "지출과 일정을 한 번에 정리하세요.",
+        "고정비 하나를 오늘 점검하세요.",
+        "결제와 약속 시간을 확인하세요.",
+        "계좌와 일정표를 같이 보세요.",
+        "오늘 쓸 금액을 먼저 정하세요.",
+        "생활비 항목 하나를 줄이세요.",
+    ],
+    "편관": [
+        "압박 큰 일은 순서를 나누세요.",
+        "급한 일 하나만 먼저 처리하세요.",
+        "무리한 책임은 바로 줄이세요.",
+        "부담 큰 요청은 범위를 정하세요.",
+        "긴장되는 일은 작게 쪼개세요.",
+        "버티기보다 도움을 요청하세요.",
+    ],
+    "정관": [
+        "중요 약속은 먼저 확인하세요.",
+        "보고와 마감 시간을 지키세요.",
+        "작은 책임도 기록으로 남기세요.",
+        "평가받을 자료를 미리 챙기세요.",
+        "오늘 약속은 늦지 않게 처리하세요.",
+        "맡은 범위를 분명히 적으세요.",
+    ],
+    "편인": [
+        "새 정보는 비교만 하고 보류하세요.",
+        "다른 선택지는 시험만 해보세요.",
+        "자료를 모으되 결론은 늦추세요.",
+        "아이디어는 메모만 남기세요.",
+        "낯선 선택은 작게 테스트하세요.",
+        "정보 수집 시간을 제한하세요.",
+    ],
+    "정인": [
+        "공부와 자료 정리를 먼저 하세요.",
+        "필요한 문서를 오늘 정리하세요.",
+        "새 일보다 준비 시간을 확보하세요.",
+        "읽을 자료 하나를 끝내세요.",
+        "정리한 내용을 짧게 기록하세요.",
+        "준비할 항목만 먼저 체크하세요.",
+    ],
+}
+
+ACTION_BY_KEYWORD = {
+    "주도": ["직접 할 일 하나만 정하세요.", "먼저 움직일 일만 고르세요.", "내가 정할 범위만 잡으세요.", "주도할 일의 끝을 정하세요."],
+    "균형": ["일과 관계의 균형을 맞추세요.", "한쪽으로 치우치지 마세요.", "시간 배분을 다시 맞추세요.", "무리한 쪽은 바로 줄이세요."],
+    "협업": ["함께할 사람을 먼저 확인하세요.", "협업 조건을 짧게 맞추세요.", "역할을 한 줄로 나누세요.", "협업 전 마감부터 정하세요."],
+    "주의": ["확정 전 한 번 더 확인하세요.", "오늘은 속도를 낮추세요.", "중요한 선택은 늦추세요.", "확인 없는 답은 피하세요."],
+    "경쟁": ["승부보다 한도를 먼저 정하세요.", "비교는 줄이고 기준을 보세요.", "경쟁심은 숫자로 관리하세요.", "무리한 대응은 멈추세요."],
+    "분산": ["할 일을 세 개 이하로 줄이세요.", "잡을 일과 버릴 일을 나누세요.", "한 가지 일에만 집중하세요.", "열린 일을 먼저 닫으세요."],
+    "성과": ["성과가 남는 일부터 마감하세요.", "결과물 하나를 오늘 끝내세요.", "보여줄 결과부터 챙기세요.", "작은 완료 표시를 남기세요."],
+    "실행": ["작은 실행부터 바로 시작하세요.", "계획 하나를 행동으로 옮기세요.", "첫 단계만 바로 진행하세요.", "시작 시간을 먼저 정하세요."],
+    "안정": ["기본 루틴을 먼저 지키세요.", "무리보다 유지에 집중하세요.", "흔들리는 일정을 고정하세요.", "안정적인 선택을 남기세요."],
+    "문서": ["보낼 문서는 한 번 더 보세요.", "중요 문구를 다시 확인하세요.", "문서 제목부터 정리하세요.", "기록으로 남기고 움직이세요."],
+    "표현": ["말의 세기를 낮춰 전달하세요.", "표현은 짧고 부드럽게 하세요.", "감정 표현은 한 번 늦추세요.", "결론보다 설명을 붙이세요."],
+    "기회": ["좋은 제안은 조건부터 보세요.", "기회는 하나만 선별하세요.", "기회는 일정표에 옮기세요.", "잡을 기회만 따로 적으세요."],
+    "대외활동": ["외부 연락은 오후 전에 끝내세요.", "만남은 목적을 정하고 잡으세요.", "대외 일정은 하나만 잡으세요.", "연락 전 조건을 확인하세요."],
+    "선별": ["잡을 일과 넘길 일을 나누세요.", "오늘은 하나만 선택하세요.", "버릴 일을 먼저 정하세요.", "선택 기준을 짧게 적으세요."],
+    "축적": ["쌓을 수 있는 일에 집중하세요.", "기록과 저축을 함께 챙기세요.", "작게 모을 항목을 정하세요.", "오늘 남길 기록을 만드세요."],
+    "관리": ["돈과 일정을 같이 정리하세요.", "관리표를 오늘 갱신하세요.", "관리할 항목을 세 개로 줄이세요.", "점검 시간을 먼저 확보하세요."],
+    "실무": ["실무 마감 하나를 끝내세요.", "작은 업무부터 처리하세요.", "반복 업무를 먼저 정리하세요.", "처리할 순서를 번호로 적으세요."],
+    "긴장": ["긴장 큰 일은 순서를 나누세요.", "압박이 오면 먼저 쉬세요.", "부담 큰 일은 쪼개세요.", "긴장되는 대화는 늦추세요."],
+    "원칙": ["원칙 밖의 일은 보류하세요.", "기준에 맞는지만 확인하세요.", "예외는 오늘 만들지 마세요.", "원칙부터 문장으로 적으세요."],
+    "대응": ["바로 반응하지 말고 정리하세요.", "급한 대응만 먼저 하세요.", "답하기 전 사실을 확인하세요.", "대응 순서를 먼저 나누세요."],
+    "책임": ["맡은 일의 범위를 적어두세요.", "남의 몫까지 떠안지 마세요.", "책임 범위를 다시 확인하세요.", "약속한 일만 먼저 끝내세요."],
+    "평가": ["보여줄 결과만 정리하세요.", "평가받을 자료를 챙기세요.", "결과물을 보기 쉽게 묶으세요.", "평가 기준을 먼저 확인하세요."],
+    "신뢰": ["약속 시간을 다시 확인하세요.", "답변은 늦지 않게 보내세요.", "작은 약속부터 지키세요.", "확인 문자를 먼저 보내세요."],
+    "탐색": ["새 정보는 비교만 해두세요.", "탐색은 하되 결정은 미루세요.", "찾은 정보는 하나로 묶으세요.", "새 선택은 시험만 하세요."],
+    "전환": ["바꿀 것 하나만 정하세요.", "큰 전환은 단계로 나누세요.", "전환 전 손실을 계산하세요.", "바꾸기 전 기준을 적으세요."],
+    "통찰": ["떠오른 생각을 메모하세요.", "결론보다 관찰을 남기세요.", "느낀 점은 짧게 기록하세요.", "아이디어는 바로 확정하지 마세요."],
+    "학습": ["공부할 시간을 먼저 확보하세요.", "자료 한 묶음을 정리하세요.", "배울 항목 하나만 고르세요.", "읽은 내용은 짧게 요약하세요."],
+    "정리": ["미룬 정리 하나를 끝내세요.", "책상과 일정부터 정리하세요.", "정리할 파일 하나를 고르세요.", "오늘 닫을 일을 먼저 정하세요."],
+}
 
 DAY_STEM_HEADLINE_LINES = {
     "갑": "방향을 먼저 정할수록 판단이 빨라지는 날입니다.",
@@ -861,15 +1066,19 @@ def calculate_daily_fortune(saju_result: dict, target_date: date) -> dict:
     )
     rule_explanation = _pick(_rule_explanation_options(ten_god), seed + 1)
     profile_explanation = _pick(_profile_explanation_options(daily_profile), seed + 3)
-    rule_advice = _pick(_rule_advice_options(ten_god), seed + 5)
-    profile_advice = _pick(_profile_advice_options(daily_profile), seed + 7)
     explanation = (
         f"{_strip_day_pillar_prefix(natal_day_pillar_line, natal_day_pillar_kor)} "
         f"{_pick(_day_stem_daily_options(day_stem), seed + 9)} "
         f"{rule_explanation} "
         f"{profile_explanation}"
     )
-    advice = f"{rule_advice} {profile_advice}"
+    score = _build_daily_score(
+        ten_god=ten_god,
+        daily_profile=daily_profile,
+        month_branch=month_branch,
+        time_branch=time_branch,
+        keywords=rule["keywords"],
+    )
 
     context_easy_lines = [
         natal_day_pillar_line,
@@ -893,11 +1102,13 @@ def calculate_daily_fortune(saju_result: dict, target_date: date) -> dict:
     if time_data:
         context_real_lines.append(_pick(time_data["intimate_reaction"], seed + 19))
 
-    context_action_lines = [
-        _pick(_day_stem_action_options(day_stem), seed + 21),
-        _pick(_month_branch_action_options(month_branch), seed + 23),
-        _pick(_time_branch_action_options(time_branch, rule["keywords"]), seed + 25),
-    ]
+    context_action_lines = _daily_execution_action_lines(
+        score=score["value"],
+        ten_god=ten_god,
+        keywords=rule["keywords"],
+        seed=seed + 21,
+    )
+    advice = context_action_lines[0]
 
     strength_lines = [
         _pick(_daily_strength_options(ten_god), seed + 27),
@@ -924,13 +1135,6 @@ def calculate_daily_fortune(saju_result: dict, target_date: date) -> dict:
         strength_lines=strength_lines,
         risk_lines=risk_lines,
     )
-    score = _build_daily_score(
-        ten_god=ten_god,
-        daily_profile=daily_profile,
-        month_branch=month_branch,
-        time_branch=time_branch,
-        keywords=rule["keywords"],
-    )
     return {
         "date": target_date.isoformat(),
         "pillar": day_pillar["kor"],
@@ -955,6 +1159,55 @@ def calculate_daily_fortune(saju_result: dict, target_date: date) -> dict:
 
 def _pick(options: list[str], seed: int) -> str:
     return options[seed % len(options)]
+
+
+def _daily_execution_action_lines(*, score: int, ten_god: str, keywords: list[str], seed: int) -> list[str]:
+    """Return concrete action advice without repeating natal-pillar explanations."""
+    bucket = _score_action_bucket(score)
+    lines = [
+        _pick(ACTION_BY_SCORE_BUCKET[bucket], seed),
+        _pick(ACTION_BY_TEN_GOD[ten_god], seed + 3),
+    ]
+    keyword_options = _keyword_action_options(keywords)
+    lines.append(_pick(keyword_options, seed + 7))
+
+    unique_lines: list[str] = []
+    seen: set[str] = set()
+    for line in lines:
+        if line in seen:
+            continue
+        unique_lines.append(line)
+        seen.add(line)
+    fallback_options = [*ACTION_BY_SCORE_BUCKET[bucket], *ACTION_BY_TEN_GOD[ten_god], *keyword_options]
+    offset = 11
+    while len(unique_lines) < 3:
+        fallback = _pick(fallback_options, seed + offset)
+        offset += 1
+        if fallback not in seen:
+            unique_lines.append(fallback)
+            seen.add(fallback)
+    return unique_lines[:3]
+
+
+def _score_action_bucket(score: int) -> str:
+    if score >= 90:
+        return "very_high"
+    if score >= 80:
+        return "high"
+    if score >= 65:
+        return "good"
+    if score >= 50:
+        return "normal"
+    if score >= 35:
+        return "caution"
+    return "defense"
+
+
+def _keyword_action_options(keywords: list[str]) -> list[str]:
+    options: list[str] = []
+    for keyword in keywords:
+        options.extend(ACTION_BY_KEYWORD.get(keyword, []))
+    return options or ACTION_BY_SCORE_BUCKET["normal"]
 
 
 def _resolve_daily_profile(day_stem: str, month_branch: str) -> str:
@@ -1035,7 +1288,7 @@ def _build_daily_score(
         )
         score += combo_delta
 
-    bounded_score = max(1, min(100, score))
+    bounded_score = _normalize_daily_score(score)
     grade, label = _score_grade_and_label(bounded_score)
     summary = _build_score_summary(
         score=bounded_score,
@@ -1058,10 +1311,19 @@ def _keyword_adjustment(keywords: list[str]) -> int:
     score = 0
     for keyword in keywords[:3]:
         if keyword in POSITIVE_KEYWORDS:
-            score += 2
+            score += 3
         elif keyword in NEGATIVE_KEYWORDS:
-            score -= 2
-    return max(-4, min(4, score))
+            score -= 3
+    return max(-6, min(6, score))
+
+
+def _normalize_daily_score(raw_score: int) -> int:
+    raw_range = DAILY_SCORE_RAW_MAX - DAILY_SCORE_RAW_MIN
+    if raw_range <= 0:
+        return DAILY_SCORE_MIN
+    ratio = (raw_score - DAILY_SCORE_RAW_MIN) / raw_range
+    normalized = round(DAILY_SCORE_MIN + ratio * (DAILY_SCORE_MAX - DAILY_SCORE_MIN))
+    return max(DAILY_SCORE_MIN, min(DAILY_SCORE_MAX, normalized))
 
 
 def _combo_adjustment(
@@ -1075,30 +1337,30 @@ def _combo_adjustment(
     reasons: list[str] = []
 
     if ten_god in {"식신", "정재", "정인"} and daily_profile in {"stabilizer", "precision", "planner"}:
-        delta += 4
+        delta += 6
         reasons.append(f"{ten_god} + {PROFILE_LABELS[daily_profile]}")
 
     if ten_god in {"겁재", "편관", "상관"} and daily_profile in {"driver", "connector"}:
-        delta -= 4
+        delta -= 6
         reasons.append(f"{ten_god} + {PROFILE_LABELS[daily_profile]}")
 
     if month_branch in {"축", "진", "미", "술"} and ten_god in {"정재", "정관", "정인"}:
-        delta += 2
+        delta += 3
         reasons.append(f"{format_branch_label(month_branch)}의 유지력")
 
     if month_branch in {"사", "오"} and ten_god in {"상관", "겁재", "편관"}:
-        delta -= 2
+        delta -= 3
         reasons.append(f"{format_branch_label(month_branch)}의 과속성")
 
     if time_branch in {"축", "진", "미", "술"} and ten_god in {"정재", "정인"}:
-        delta += 1
+        delta += 2
         reasons.append(f"{format_branch_label(time_branch)}의 안정 보정")
 
     if time_branch in {"사", "오"} and ten_god in {"상관", "편관"}:
-        delta -= 1
+        delta -= 2
         reasons.append(f"{format_branch_label(time_branch)}의 긴장 보정")
 
-    return max(-6, min(6, delta)), ", ".join(reasons)
+    return max(-10, min(10, delta)), ", ".join(reasons)
 
 
 def _score_grade_and_label(score: int) -> tuple[str, str]:

@@ -43,6 +43,7 @@ from services.saju_calculator import (
 )
 from services.summary_card import build_summary_card
 from services.ten_gods import calculate_ten_gods
+from services.weekly_fortune import build_weekly_fortune
 from services.yearly_fortune import calculate_yearly_fortune
 
 load_dotenv()
@@ -262,6 +263,7 @@ def _build_result_data(
     year_fortune = calculate_yearly_fortune(result_data, daewoon, parsed_target_year)
     monthly_fortune = calculate_monthly_fortune(result_data, parsed_target_year)
     daily_fortune = calculate_daily_fortune(result_data, parsed_target_date)
+    weekly_fortune = build_weekly_fortune(result_data, parsed_target_date)
     career_fortune = build_career_fortune(result_data, year_fortune)
     relationship_fortune = build_relationship_fortune(gender, year_fortune, result_data)
     interpretation = build_interpretation(
@@ -302,6 +304,7 @@ def _build_result_data(
         else None
     )
     result_data["daily_fortune"] = daily_fortune
+    result_data["weekly_fortune"] = weekly_fortune
     result_data["career_fortune"] = career_fortune
     result_data["relationship_fortune"] = relationship_fortune
     result_data["summary_card"] = summary_card

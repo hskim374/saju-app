@@ -306,6 +306,123 @@
             font-weight: 600;
         }
 
+        .weekly-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .weekly-card {
+            padding: 14px;
+            border-radius: 16px;
+            background: #f7fbf8;
+            border: 1px solid var(--line-soft);
+            box-shadow: 0 8px 18px rgba(33, 70, 60, 0.06);
+        }
+
+        .weekly-card.is-today {
+            border: 2px solid var(--deep);
+            box-shadow: 0 10px 22px rgba(47, 93, 80, 0.14);
+        }
+
+        .weekly-date {
+            color: var(--text-soft);
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .weekly-score {
+            font-size: 26px;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .weekly-grade {
+            display: inline-block;
+            margin-bottom: 8px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .weekly-summary {
+            margin: 0;
+            color: var(--deep-3);
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        .weekly-card.score-high .weekly-score,
+        .weekly-card.score-high .weekly-grade {
+            color: #1f5f3c;
+        }
+
+        .weekly-card.score-high .weekly-grade {
+            background: #dff1e7;
+        }
+
+        .weekly-card.score-good .weekly-score,
+        .weekly-card.score-good .weekly-grade {
+            color: var(--deep);
+        }
+
+        .weekly-card.score-good .weekly-grade {
+            background: var(--chip-bg);
+        }
+
+        .weekly-card.score-normal .weekly-score,
+        .weekly-card.score-normal .weekly-grade {
+            color: #7a5a24;
+        }
+
+        .weekly-card.score-normal .weekly-grade {
+            background: #f2ead7;
+        }
+
+        .weekly-card.score-caution .weekly-score,
+        .weekly-card.score-caution .weekly-grade {
+            color: #9a4a35;
+        }
+
+        .weekly-card.score-caution .weekly-grade {
+            background: #f7e4de;
+        }
+
+        .score-guide {
+            margin: 12px 0 0;
+            padding: 12px 14px;
+            border-radius: 14px;
+            background: #fbfdfb;
+            border: 1px solid var(--line-soft);
+        }
+
+        .score-guide-title {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--deep);
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .score-guide-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 6px 12px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            color: var(--text-soft);
+            font-size: 13px;
+        }
+
+        .score-guide-grid li {
+            margin: 0;
+        }
+
         .stack {
             display: flex;
             flex-wrap: wrap;
@@ -698,6 +815,17 @@
                                     <div class="score-grade">{{ result.daily_fortune.score.grade }}/ {{ result.daily_fortune.score.label }}</div>
                                 </div>
                                 <p class="score-summary">{{ result.daily_fortune.score.summary }}</p>
+                                <div class="score-guide">
+                                    <strong class="score-guide-title">활용도 등급 기준</strong>
+                                    <ul class="score-guide-grid">
+                                        <li>90점 이상: S / 활용도가 매우 높은 날</li>
+                                        <li>80점 이상: A+ / 활용도가 높은 날</li>
+                                        <li>65점 이상: A / 활용하기 좋은 날</li>
+                                        <li>50점 이상: B / 관리형 보통의 날</li>
+                                        <li>35점 이상: C / 주의가 필요한 날</li>
+                                        <li>1점 이상: D / 방어가 우선인 날</li>
+                                    </ul>
+                                </div>
                                 <strong class="score-block-title">장점과 주의점</strong>
                                 <div class="score-paragraphs">
                                     {% for item in result.daily_fortune.section.strength_and_risk %}
@@ -723,6 +851,20 @@
                                 <li>일운: {{ result.daily_fortune.pillar_display }} / {{ result.daily_fortune.ten_god }}</li>
                                 <li>키워드: {{ result.daily_fortune.keywords | join(", ") }}</li>
                             </ul>
+                        </div>
+                        <div class="card">
+                            <h2>주간 운세</h2>
+                            <p class="muted">오늘부터 7일간의 활용도만 빠르게 볼 수 있게 정리했습니다.</p>
+                            <div class="weekly-grid">
+                                {% for item in result.weekly_fortune %}
+                                <div class="weekly-card {{ item.score_class }}{% if item.is_today %} is-today{% endif %}">
+                                    <div class="weekly-date">{{ item.date_label }} {{ item.weekday }}</div>
+                                    <div class="weekly-score">{{ item.score }}점</div>
+                                    <div class="weekly-grade">{{ item.grade }}/ {{ item.label }}</div>
+                                    <p class="weekly-summary">{{ item.summary }}</p>
+                                </div>
+                                {% endfor %}
+                            </div>
                         </div>
                         <div class="card">
                             <h2>{{ result.year_fortune.year }}년 운세</h2>

@@ -12,6 +12,7 @@ from services.monthly_fortune import calculate_monthly_fortune
 from services.relationship_fortune import build_relationship_fortune
 from services.saju_calculator import get_basic_saju_result
 from services.summary_card import build_summary_card
+from services.weekly_fortune import build_weekly_fortune
 from services.yearly_fortune import calculate_yearly_fortune
 
 
@@ -136,6 +137,23 @@ def test_daily_fortune_sentence_pools_are_significantly_expanded():
     assert len(daily_fortune_module._profile_headline_options("planner")) >= 5
     assert len(daily_fortune_module._profile_explanation_options("planner")) >= 5
     assert len(daily_fortune_module._profile_advice_options("planner")) >= 5
+
+
+def test_weekly_fortune_returns_seven_score_cards_from_start_date():
+    saju_result = get_basic_saju_result("solar", 2006, 8, 1, 10, 0)
+
+    weekly = build_weekly_fortune(saju_result, date(2026, 4, 8))
+
+    assert len(weekly) == 7
+    assert weekly[0]["date"] == "2026-04-08"
+    assert weekly[-1]["date"] == "2026-04-14"
+    assert weekly[0]["is_today"] is True
+    assert all(item["score"] for item in weekly)
+    assert all(item["grade"] for item in weekly)
+    assert all(item["label"] for item in weekly)
+    assert all(item["summary"] for item in weekly)
+    assert all(len(item["summary"]) <= 20 for item in weekly)
+    assert len({item["date"] for item in weekly}) == 7
 
 
 def test_career_and_relationship_fortunes_return_expected_structure():

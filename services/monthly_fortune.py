@@ -8,77 +8,77 @@ from services.ten_gods import calculate_ten_god_for_stem
 
 MONTHLY_OPENERS = {
     "비견": [
-        "자기 기준을 세워야 흐름이 흔들리지 않는 달입니다.",
-        "주도권을 잡되 협업 선을 분명히 하는 편이 좋은 달입니다.",
-        "내 방식이 강해지는 만큼 역할 조율이 필요한 달입니다.",
+        "내 일과 남의 일을 나눠야 편한 달입니다.",
+        "주도권은 잡되 역할 선을 분명히 해야 편한 달입니다.",
+        "내 기준이 강해져 협업 규칙도 같이 챙겨야 하는 달입니다.",
     ],
     "겁재": [
-        "경쟁과 분산이 동시에 들어와 선택을 줄여야 하는 달입니다.",
-        "주변 변수보다 내 우선순위를 먼저 정리해야 하는 달입니다.",
-        "대인 흐름이 넓어지지만 지출과 에너지 분산을 조심할 달입니다.",
+        "약속과 지출이 함께 늘 수 있어 선택을 줄여야 하는 달입니다.",
+        "사람 문제에 에너지가 퍼지기 쉬워 우선순위가 중요한 달입니다.",
+        "주변 흐름이 넓어져도 내 한도를 먼저 정해야 하는 달입니다.",
     ],
     "식신": [
-        "실행과 결과물을 꾸준히 쌓기 좋은 달입니다.",
-        "실무 감각을 살리면 성과가 차곡차곡 남는 달입니다.",
-        "생산성과 루틴이 맞물리며 손에 잡히는 결과가 나기 쉬운 달입니다.",
+        "미뤄 둔 일과 결과물을 차곡차곡 끝내기 좋은 달입니다.",
+        "루틴을 잡고 손에 남는 결과를 만들기 좋은 달입니다.",
+        "실무를 꾸준히 밀면 성과가 눈에 보이기 쉬운 달입니다.",
     ],
     "상관": [
-        "변화 대응과 표현 조절이 중요한 달입니다.",
-        "말의 힘이 커지는 만큼 조율과 순서가 필요한 달입니다.",
-        "아이디어는 살아나지만 강한 표현은 다듬을 필요가 있는 달입니다.",
+        "말과 반응 속도를 조금만 조절하면 훨씬 편한 달입니다.",
+        "아이디어는 많아지지만 표현 순서를 다듬어야 하는 달입니다.",
+        "답을 빨리 내고 싶어져도 한 번 더 정리하는 편이 좋은 달입니다.",
     ],
     "편재": [
-        "기회 포착과 외부 움직임이 늘어나는 달입니다.",
-        "사람과 정보가 넓게 들어와 선택력이 중요해지는 달입니다.",
-        "외부 제안이 늘 수 있어 선별 기준이 필요한 달입니다.",
+        "제안과 약속이 늘 수 있어 잡을 일부터 골라야 하는 달입니다.",
+        "사람과 기회가 넓게 들어와 선별력이 중요한 달입니다.",
+        "바깥 움직임이 많아질수록 기준이 있어야 덜 흔들리는 달입니다.",
     ],
     "정재": [
-        "예산 관리와 안정 축적이 잘 맞는 달입니다.",
-        "생활 재무를 정리할수록 안정감이 커지는 달입니다.",
-        "무리한 확장보다 관리와 유지가 더 빛나는 달입니다.",
+        "예산과 생활 관리를 정리하면 바로 편해지는 달입니다.",
+        "무리한 확장보다 지키고 쌓는 쪽이 잘 맞는 달입니다.",
+        "돈과 일정 기준을 숫자로 잡아 두면 안정감이 커지는 달입니다.",
     ],
     "편관": [
-        "압박 대응과 일정 관리가 필요한 달입니다.",
-        "도전 과제가 늘 수 있어 체력과 규율을 같이 챙겨야 하는 달입니다.",
-        "긴장감이 올라와도 원칙을 세우면 흐름을 잡기 좋은 달입니다.",
+        "일정과 체력 상한선을 먼저 챙겨야 버틸 수 있는 달입니다.",
+        "해야 할 일이 갑자기 늘 수 있어 범위를 줄여야 하는 달입니다.",
+        "압박이 느껴져도 원칙과 순서를 세우면 덜 흔들리는 달입니다.",
     ],
     "정관": [
-        "책임감과 평가 대응이 강조되는 달입니다.",
-        "조직 안에서 신뢰를 쌓기 좋은 달입니다.",
-        "기준과 역할이 또렷해져 공적인 흐름이 강해지는 달입니다.",
+        "약속, 마감, 역할 기준을 잘 지키면 신뢰가 쌓이는 달입니다.",
+        "공적인 일에서 책임감이 더 크게 보이는 달입니다.",
+        "기준과 역할이 분명해질수록 흐름이 편해지는 달입니다.",
     ],
     "편인": [
-        "방향 전환과 탐색을 병행하기 좋은 달입니다.",
-        "새 관점이 열리지만 너무 많은 선택지는 줄이는 편이 좋은 달입니다.",
-        "익숙한 방식보다 다른 접근이 통할 가능성이 있는 달입니다.",
+        "새 방식을 시험해 보되 바로 갈아타지는 않는 편이 좋은 달입니다.",
+        "낯선 선택지가 보여도 비교해 보고 움직이는 쪽이 맞는 달입니다.",
+        "다른 접근이 통할 수 있지만 범위는 좁게 잡는 편이 좋은 달입니다.",
     ],
     "정인": [
-        "정리, 공부, 지원 기반을 다지기 좋은 달입니다.",
-        "배움과 준비가 실제 안정감으로 이어지기 쉬운 달입니다.",
-        "안쪽 기반을 단단히 만들면 다음 흐름이 부드러워지는 달입니다.",
+        "정리, 공부, 준비를 해 두면 다음 달이 훨씬 편해지는 달입니다.",
+        "기반을 다지고 배워 두는 시간이 실제 도움으로 돌아오는 달입니다.",
+        "안쪽 준비를 해 두면 흐름이 한결 부드러워지는 달입니다.",
     ],
 }
 
 ELEMENT_TAILS = {
     "wood": [
-        "목 기운이 붙어 새로운 방향과 확장성이 함께 들어옵니다.",
-        "목 기운이 실려 관계와 계획을 넓히는 움직임이 살아납니다.",
+        "새 계획이나 방향 전환 이야기가 자주 들어올 수 있습니다.",
+        "답을 미루던 일도 다시 꺼내 보게 될 수 있습니다.",
     ],
     "fire": [
-        "화 기운이 얹혀 표현과 속도가 동시에 강해집니다.",
-        "화 기운이 살아 반응과 실행 타이밍이 빨라지기 쉽습니다.",
+        "사람을 만나거나 답을 빨리 정해야 하는 일이 늘 수 있습니다.",
+        "반응과 속도가 함께 올라와 하루가 바쁘게 느껴질 수 있습니다.",
     ],
     "earth": [
-        "토 기운이 받쳐 현실 점검과 생활 기준을 잡기 좋습니다.",
-        "토 기운이 실려 일상 리듬과 관리력이 안정적으로 붙습니다.",
+        "예산, 일정, 생활 기준을 다시 잡아야 할 일이 생기기 쉽습니다.",
+        "현실 조건과 버틸 범위를 따져야 마음이 놓이는 흐름입니다.",
     ],
     "metal": [
-        "금 기운이 겹쳐 기준 정리와 마감 능력이 돋보입니다.",
-        "금 기운이 살아 판단과 정리의 선명도가 높아집니다.",
+        "기준, 문서, 마감, 정리 같은 일이 눈에 띄게 늘 수 있습니다.",
+        "흩어진 일을 정리하고 끝내는 쪽에서 차이가 날 수 있습니다.",
     ],
     "water": [
-        "수 기운이 더해져 상황을 읽고 유연하게 조정하기 좋습니다.",
-        "수 기운이 흐르며 정보 파악과 타이밍 조절이 중요해집니다.",
+        "상황을 조금 더 보고 결정해야 하는 일이 늘 수 있습니다.",
+        "사람과 일정 사이에서 조율이 필요한 장면이 잦아질 수 있습니다.",
     ],
 }
 
@@ -104,7 +104,11 @@ MONTHLY_ADVICE = {
 }
 
 
-def calculate_monthly_fortune(saju_result: dict, target_year: int) -> list[dict]:
+def calculate_monthly_fortune(
+    saju_result: dict,
+    target_year: int,
+    analysis_context: dict | None = None,
+) -> list[dict]:
     """Return 12 monthly fortunes for the given year."""
     day_stem = saju_result["saju"]["day"]["stem"]
     fortunes = []
@@ -114,7 +118,13 @@ def calculate_monthly_fortune(saju_result: dict, target_year: int) -> list[dict]
         month_pillar = get_year_month_pillars_for_datetime(reference_moment)["month"]
         ten_god = calculate_ten_god_for_stem(day_stem, month_pillar["stem"])
         branch_element = BRANCHES_BY_KOR[month_pillar["branch"]]["element"]
-        interpretation = _build_monthly_interpretation(ten_god, branch_element, month, used_summaries)
+        interpretation = _build_monthly_interpretation(
+            ten_god,
+            branch_element,
+            month,
+            used_summaries,
+            analysis_context=analysis_context,
+        )
         fortunes.append(
             {
                 "month": month,
@@ -138,25 +148,60 @@ def _build_monthly_interpretation(
     branch_element: str,
     month: int,
     used_summaries: set[str],
+    analysis_context: dict | None = None,
 ) -> dict:
     opener_options = MONTHLY_OPENERS[ten_god]
     tail_options = ELEMENT_TAILS[branch_element]
     for step in range(len(opener_options) * len(tail_options)):
         opener = opener_options[(month + step) % len(opener_options)]
-        bridge = MONTHLY_BRIDGES[(month + step) % len(MONTHLY_BRIDGES)]
         tail = tail_options[(month + step) % len(tail_options)]
         headline = f"{opener}"
         if headline not in used_summaries:
+            advanced = _analysis_context_monthly_lines(analysis_context, month)
             return {
                 "headline": headline,
-                "summary": f"{opener} {bridge} {tail}",
-                "explanation": f"{bridge} {tail}",
-                "advice": MONTHLY_ADVICE[ten_god],
+                "summary": f"{opener} {tail} {advanced['summary']}".strip(),
+                "explanation": f"{tail} {advanced['explanation']}".strip(),
+                "advice": f"{MONTHLY_ADVICE[ten_god]} {advanced['advice']}".strip(),
             }
     headline = opener_options[month % len(opener_options)]
+    advanced = _analysis_context_monthly_lines(analysis_context, month)
     return {
         "headline": headline,
-        "summary": f"{headline} {MONTHLY_BRIDGES[month % len(MONTHLY_BRIDGES)]} {tail_options[month % len(tail_options)]}",
-        "explanation": f"{MONTHLY_BRIDGES[month % len(MONTHLY_BRIDGES)]} {tail_options[month % len(tail_options)]}",
-        "advice": MONTHLY_ADVICE[ten_god],
+        "summary": f"{headline} {tail_options[month % len(tail_options)]} {advanced['summary']}".strip(),
+        "explanation": f"{tail_options[month % len(tail_options)]} {advanced['explanation']}".strip(),
+        "advice": f"{MONTHLY_ADVICE[ten_god]} {advanced['advice']}".strip(),
     }
+
+
+def _analysis_context_monthly_lines(analysis_context: dict | None, month: int) -> dict:
+    if not analysis_context:
+        return {"summary": "", "explanation": "", "advice": ""}
+
+    strength = analysis_context["strength"]
+    yongshin = analysis_context["yongshin"]
+    flags = analysis_context["flags"]
+    primary_phrase = {
+        "wood": "막힌 일을 조금씩 열어 두는",
+        "fire": "필요한 말과 표현을 분명히 하는",
+        "earth": "생활 기준과 예산 범위를 먼저 잡는",
+        "metal": "순서와 기준을 먼저 정리하는",
+        "water": "바로 확정하지 않고 한 번 더 살피는",
+    }.get(yongshin["primary_candidate"], "먼저 기준을 세우는")
+    summary = f"{month}월에는 {primary_phrase} 쪽으로 움직일수록 덜 흔들릴 가능성이 큽니다."
+    if strength["label"] in {"weak", "slightly_weak"}:
+        explanation = "한 번에 많은 일을 벌이기보다, 먼저 끝낼 일과 미룰 일을 나누는 편이 훨씬 편합니다."
+    elif strength["label"] in {"strong", "slightly_strong"}:
+        explanation = "처음부터 너무 세게 밀기보다 중간 점검을 한 번 넣는 편이 흐름을 덜 흔듭니다."
+    else:
+        explanation = "일정, 돈, 사람 문제를 한 덩어리로 잡기보다 나눠 다루는 편이 월운을 더 편하게 쓸 수 있습니다."
+
+    if flags["needs_resource_support"]:
+        advice = "새 일보다 준비와 정리를 먼저 챙기는 편이 좋습니다."
+    elif flags["needs_output_release"]:
+        advice = "미뤄 둔 일 하나라도 눈에 보이게 끝내는 편이 좋습니다."
+    elif flags["has_luck_pressure"]:
+        advice = "사람, 일정, 돈 문제가 겹치면 한 번에 다 처리하려 하지 않는 편이 좋습니다."
+    else:
+        advice = "욕심나는 일이 많아도 하나씩 끊어 가는 편이 좋습니다."
+    return {"summary": summary, "explanation": explanation, "advice": advice}

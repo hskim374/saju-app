@@ -104,6 +104,10 @@
             color: #fff;
         }
 
+        .summary-grid > .card:not(.summary-card) {
+            border: 1px solid var(--line-soft);
+        }
+
         .active-daewoon {
             border: 2px solid var(--deep-2);
             background: linear-gradient(135deg, #f7fbf8 0%, #e8f2ec 100%);
@@ -125,6 +129,12 @@
             color: var(--deep);
         }
 
+        .summary-label-light {
+            background: transparent;
+            color: var(--deep);
+            border: 1px solid var(--line-soft);
+        }
+
         .summary-title {
             font-size: 14px;
             opacity: 0.88;
@@ -134,6 +144,17 @@
         .summary-value {
             font-size: 22px;
             font-weight: bold;
+        }
+
+        .summary-card .summary-value {
+            font-size: 16px;
+            line-height: 1.45;
+        }
+
+        .summary-grid>.card:not(.summary-card) .summary-value {
+            font-size: 16px;
+            line-height: 1.45;
+            color: var(--deep-3);
         }
 
         .summary-box {
@@ -289,6 +310,111 @@
             color: var(--deep);
             font-size: 13px;
             font-weight: 700;
+        }
+
+        .balance-card {
+            margin-top: 16px;
+            background: linear-gradient(180deg, #f6faf7 0%, #edf5f0 100%);
+            border: 1px solid var(--line-soft);
+        }
+
+        .balance-summary {
+            margin-bottom: 14px;
+            padding: 14px 16px;
+            border-radius: 14px;
+            background: #e7f0ea;
+            color: var(--deep-3);
+            font-weight: 700;
+        }
+
+        .balance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+        }
+
+        .balance-item {
+            padding: 14px;
+            border-radius: 14px;
+            background: #fbfdfb;
+            border: 1px solid var(--line-soft);
+        }
+
+        .balance-item strong {
+            display: inline-block;
+            margin-bottom: 4px;
+            color: var(--deep);
+            font-size: 13px;
+        }
+
+        .evidence-toggle {
+            margin-top: 14px;
+            border: 1px solid var(--line-soft);
+            border-radius: 14px;
+            background: #fbfdfb;
+            overflow: hidden;
+        }
+
+        .evidence-toggle summary {
+            cursor: pointer;
+            list-style: none;
+            padding: 14px 16px;
+            font-weight: 700;
+            color: var(--deep-3);
+            background: #f4f8f5;
+        }
+
+        .evidence-toggle summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .evidence-toggle[open] summary {
+            border-bottom: 1px solid var(--line-soft);
+            background: #eef5f0;
+        }
+
+        .evidence-panel {
+            padding: 14px 16px 16px;
+        }
+
+        .evidence-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+        }
+
+        .evidence-item {
+            padding: 14px;
+            border-radius: 14px;
+            background: #ffffff;
+            border: 1px solid var(--line-soft);
+        }
+
+        .evidence-item strong {
+            display: inline-block;
+            margin-bottom: 6px;
+            color: var(--deep);
+            font-size: 13px;
+        }
+
+        .evidence-note {
+            margin-top: 12px;
+            color: var(--text-soft);
+            font-size: 13px;
+        }
+
+        .context-caution {
+            margin: 12px 0 0;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: #f4f8f5;
+            border: 1px solid var(--line-soft);
+            color: var(--deep-3);
+            font-size: 14px;
+        }
+
+        .context-caution strong {
+            color: var(--deep);
         }
 
         .section-head {
@@ -614,15 +740,42 @@
         }
 
         .back-link {
-            display: inline-block;
-            margin-top: 12px;
-            color: var(--deep);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: fit-content;
+            min-width: 220px;
+            margin: 18px auto 0;
+            padding: 14px 22px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--deep) 0%, var(--deep-2) 100%);
+            color: #fff;
             text-decoration: none;
             font-weight: bold;
+            box-shadow: 0 10px 18px rgba(47, 93, 80, 0.22);
+            transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+        }
+
+        .back-link:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 14px 24px rgba(47, 93, 80, 0.24);
+        }
+
+        .back-link:active,
+        .back-link.is-pressed {
+            transform: translateY(1px) scale(0.992);
+            box-shadow: 0 4px 10px rgba(47, 93, 80, 0.2);
+            filter: saturate(0.96);
         }
 
         .ad-block {
             margin: 20px 0;
+            text-align: center;
+        }
+
+        .ad-block .adsbygoogle {
+            display: inline-block !important;
+            margin: 0 auto;
         }
 
         .tab-shell {
@@ -719,8 +872,18 @@
             height: 100px;
         }
 
+        .saju_responsive_2 {
+            width: 320px;
+            height: 100px;
+        }
+
         @media(min-width: 500px) {
             .saju_responsive_1 {
+                width: 468px;
+                height: 60px;
+            }
+
+            .saju_responsive_2 {
                 width: 468px;
                 height: 60px;
             }
@@ -728,6 +891,11 @@
 
         @media(min-width: 800px) {
             .saju_responsive_1 {
+                width: 728px;
+                height: 90px;
+            }
+
+            .saju_responsive_2 {
                 width: 728px;
                 height: 90px;
             }
@@ -749,58 +917,14 @@
 </head>
 
 <body>
+    <div class="ad-block">
+        <ins class="adsbygoogle saju_responsive_2" style="display:block" data-ad-client="ca-pub-3984376475463185"
+            data-ad-slot="6065156606"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
     <div class="container">
-        <div class="hero">
-            <div class="section-label">입력 정보</div>
-            <h1>사주 결과</h1>
-            <p class="hero-meta">
-                {% if result.raw_input.calendar_type == "solar" %}양력{% else %}음력{% endif %}
-                {{ result.raw_input.year }}년 {{ result.raw_input.month }}월 {{ result.raw_input.day }}일
-                {% if result.raw_input.is_leap_month %}(윤달){% endif %}
-                /
-                {% if result.time_basis %}
-                입력 시간: {{ result.time_basis.input_label }}
-                {% else %}
-                시간 미상
-                {% endif %}
-                /
-                성별 기준: {% if result.raw_input.gender == "male" %}남성{% else %}여성{% endif %}
-            </p>
-            <p class="hero-meta">양력 환산 기준일: {{ result.resolved_solar.iso }}</p>
-            {% if result.time_basis %}
-            <p class="hero-meta">사주 기준 시간: {{ result.time_basis.saju_time_kor }} / 적용 구간: {{
-                result.time_basis.time_range }}</p>
-            {% endif %}
-
-            <div class="ad-block">
-                <ins class="adsbygoogle saju_responsive_1" style="display:block"
-                    data-ad-client="ca-pub-3984376475463185" data-ad-slot="7453825128"></ins>
-                <script>
-                    (adsbygoogle = window.adsbygoogle || []).push({});
-                </script>
-            </div>
-
-            <div class="summary-grid">
-                <div class="card summary-card">
-                    <div class="summary-label">핵심 요약</div>
-                    <div class="summary-title">올해 흐름</div>
-                    <div class="summary-value">{{ result.summary_card.year_trend }}</div>
-                </div>
-                <div class="card">
-                    <div class="summary-title">재물 기조</div>
-                    <div class="summary-value">{{ result.summary_card.wealth }}</div>
-                </div>
-                <div class="card">
-                    <div class="summary-title">직장운</div>
-                    <div class="summary-value">{{ result.summary_card.career }}</div>
-                </div>
-                <div class="card">
-                    <div class="summary-title">관계운</div>
-                    <div class="summary-value">{{ result.summary_card.relationship }}</div>
-                </div>
-            </div>
-        </div>
-
         <div class="tab-shell">
             <div class="tab-nav" role="tablist" aria-label="결과 탭">
                 <button class="tab-button active" type="button" role="tab" aria-selected="true"
@@ -828,6 +952,12 @@
                                     <div class="score-grade">{{ result.daily_fortune.score.grade }}/ {{ result.daily_fortune.score.label }}</div>
                                 </div>
                                 <p class="score-summary">{{ result.daily_fortune.score.summary }}</p>
+                                {% if result.sensitivity.notes or result.analysis_context.uncertainty_notes %}
+                                <div class="context-caution">
+                                    <strong>해석 유의점</strong>
+                                    {{ (result.sensitivity.notes[0] if result.sensitivity.notes else result.analysis_context.uncertainty_notes[0]) }}
+                                </div>
+                                {% endif %}
                                 <div class="score-guide">
                                     <strong class="score-guide-title">활용도 등급 기준</strong>
                                     <ul class="score-guide-grid">
@@ -1009,6 +1139,55 @@
 
             <div id="tab-saju" class="tab-panel" data-tab-panel="saju">
                 <div class="section">
+                    <div class="hero">
+                        <div class="section-label">입력 정보</div>
+                        <h1>사주 결과</h1>
+                        <p class="hero-meta">
+                            {% if result.raw_input.calendar_type == "solar" %}양력{% else %}음력{% endif %}
+                            {{ result.raw_input.year }}년 {{ result.raw_input.month }}월 {{ result.raw_input.day }}일
+                            {% if result.raw_input.is_leap_month %}(윤달){% endif %}
+                            /
+                            {% if result.time_basis %}
+                            입력 시간: {{ result.time_basis.input_label }}
+                            {% else %}
+                            시간 미상
+                            {% endif %}
+                        </p>
+                        <p class="hero-meta">성별 기준: {% if result.raw_input.gender == "male" %}남성{% else %}여성{% endif %}</p>
+                        <p class="hero-meta">양력 환산 기준일: {{ result.resolved_solar.iso }}</p>
+                        {% if result.time_basis %}
+                        <p class="hero-meta">사주 기준 시간: {{ result.time_basis.saju_time_kor }} / 적용 구간: {{
+                            result.time_basis.time_range }}</p>
+                        {% endif %}
+
+                        <div class="ad-block">
+                            <ins class="adsbygoogle saju_responsive_1" style="display:block"
+                                data-ad-client="ca-pub-3984376475463185" data-ad-slot="7453825128"></ins>
+                            <script>
+                                (adsbygoogle = window.adsbygoogle || []).push({});
+                            </script>
+                        </div>
+
+                        <div class="summary-grid">
+                            <div class="card summary-card">
+                                <div class="summary-label">핵심 요약</div>
+                                <div class="summary-title">올해 흐름</div>
+                                <div class="summary-value">{{ result.summary_card.year_trend }}</div>
+                            </div>
+                            <div class="card">
+                                <div class="summary-label summary-label-light">재물 기조</div>
+                                <div class="summary-value">{{ result.summary_card.wealth }}</div>
+                            </div>
+                            <div class="card">
+                                <div class="summary-label summary-label-light">직장운</div>
+                                <div class="summary-value">{{ result.summary_card.career }}</div>
+                            </div>
+                            <div class="card">
+                                <div class="summary-label summary-label-light">관계운</div>
+                                <div class="summary-value">{{ result.summary_card.relationship }}</div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="section-label">사주</div>
                     <p class="tab-context">원국 구조와 4주 해석, 오행·십성, 대운과 기본 풀이를 한 흐름으로 정리했습니다.</p>
                     <div class="summary-box">{{ result.interpretation_sections.overall.headline }}</div>
@@ -1065,6 +1244,97 @@
                             <div class="saju-sub">출생시간이 없어 시주는 생략했습니다.</div>
                             {% endif %}
                         </div>
+                    </div>
+                    <div class="card balance-card">
+                        <div class="section-head">
+                            <h2>균형 해석</h2>
+                            <div class="section-date">용신 확신도 {{ result.analysis_context.yongshin.confidence_display }}</div>
+                        </div>
+                        <div class="balance-summary">
+                            {{ result.analysis_context.strength.display_label }} 구조이며, 용신 후보는
+                            {{ result.analysis_context.yongshin.display.primary }}, 보조 후보는
+                            {{ result.analysis_context.yongshin.display.secondary }}입니다.
+                        </div>
+                        <div class="balance-grid">
+                            <div class="balance-item">
+                                <strong>핵심 이유</strong>
+                                <div>{{ result.analysis_context.yongshin.reasons[0] }}</div>
+                            </div>
+                            <div class="balance-item">
+                                <strong>중심 근거</strong>
+                                <div>{{ result.analysis_context.strength.key_reasons[0] }}</div>
+                            </div>
+                            <div class="balance-item">
+                                <strong>숨은 흐름</strong>
+                                <div>
+                                    {% if result.analysis_context.flags.hidden_group_focus %}
+                                    숨은 십성은 {{ result.analysis_context.flags.hidden_group_focus }} 쪽이 먼저 깔려 있습니다.
+                                    {% else %}
+                                    숨은 십성의 편중은 비교적 단순한 편입니다.
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="balance-item">
+                                <strong>원국 상호작용</strong>
+                                <div>
+                                    {% if result.analysis_context.interactions.natal %}
+                                    {{ result.analysis_context.interactions.natal[0].target }}
+                                    {{ result.analysis_context.interactions.natal[0].type }} 흐름이 있어
+                                    {{ result.analysis_context.interactions.natal[0].meaning }}
+                                    {% else %}
+                                    원국 내부 상호작용은 비교적 단순한 편입니다.
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="balance-item">
+                                <strong>불확실성</strong>
+                                <div>{{ result.analysis_context.uncertainty_notes | join(" ") }}</div>
+                            </div>
+                        </div>
+                        <details class="evidence-toggle">
+                            <summary>근거 보기</summary>
+                            <div class="evidence-panel">
+                                <div class="evidence-grid">
+                                    <div class="evidence-item">
+                                        <strong>판정 근거</strong>
+                                        <div>강한 오행은 {{ result.analysis_context.elements.dominant_kor | join(", ") }}이고, 약한 오행은 {{ result.analysis_context.elements.weak_kor | join(", ") }}입니다.</div>
+                                    </div>
+                                    <div class="evidence-item">
+                                        <strong>신강/신약 점수</strong>
+                                        <div>{{ result.analysis_context.strength.score }}점 / {{ result.analysis_context.strength.display_label }}</div>
+                                    </div>
+                                    <div class="evidence-item">
+                                        <strong>용신 후보</strong>
+                                        <div>{{ result.analysis_context.yongshin.display.primary }}, {{ result.analysis_context.yongshin.display.secondary }}</div>
+                                    </div>
+                                    <div class="evidence-item">
+                                        <strong>숨은 십성</strong>
+                                        <div>
+                                            {% if result.analysis_context.ten_gods.hidden_ten_god_groups %}
+                                            {{ result.analysis_context.ten_gods.hidden_ten_god_groups | join(", ") }} 흐름이 안쪽에 깔려 있습니다.
+                                            {% else %}
+                                            숨은 십성의 편중은 비교적 단순한 편입니다.
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="evidence-item">
+                                        <strong>적용 규칙</strong>
+                                        <div>가중 오행, 신강·신약, 용신 후보, 합충형파해를 함께 반영했습니다.</div>
+                                    </div>
+                                    {% if result.sensitivity.notes %}
+                                    <div class="evidence-item">
+                                        <strong>민감도 메모</strong>
+                                        <div>{{ result.sensitivity.notes | join(" ") }}</div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% if result.analysis_context.evidence.overall %}
+                                <div class="evidence-note">
+                                    핵심 결론: {{ result.analysis_context.evidence.overall[0].conclusion }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </details>
                     </div>
                     <div class="pillar-interpretation-grid">
                         {% for pillar_key in ["year", "month", "day", "time"] %}
@@ -1278,6 +1548,20 @@
                     <p class="tab-context">결정 포인트와 실행 전략을 한 번에 읽는 심화 리포트입니다.</p>
                     <h2>{{ result.premium_report.header }}</h2>
                     <p class="lead"><strong>{{ result.premium_report.intro }}</strong></p>
+                    {% if result.premium_report.analysis_brief.brief %}
+                    <div class="narrative-box" style="margin-bottom: 14px;">
+                        <div class="narrative-step"><strong>핵심 근거</strong></div>
+                        {% for item in result.premium_report.analysis_brief.brief %}
+                        <div>{{ item }}</div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    {% if result.analysis_context.uncertainty_notes %}
+                    <div class="context-caution" style="margin-bottom: 14px;">
+                        <strong>해석 유의점</strong>
+                        {{ result.analysis_context.uncertainty_notes[0] }}
+                    </div>
+                    {% endif %}
                     <div class="narrative-box" style="margin-bottom: 14px;">
                         <div class="narrative-step"><strong>핵심 요약</strong></div>
                         {% for item in result.premium_report.overview %}
@@ -1291,7 +1575,6 @@
                             (adsbygoogle = window.adsbygoogle || []).push({});
                         </script>
                     </div>
-                    {% if result.premium_report.enabled %}
                     <div class="premium-grid">
                         {% for section in result.premium_report.sections %}
                         <div class="premium-card">
@@ -1323,28 +1606,6 @@
                         <strong>{{ result.premium_report.final_summary.headline }}</strong><br>
                         {{ result.premium_report.final_summary.text }}
                     </div>
-                    {% else %}
-                    <div class="premium-shell premium-blur">
-                        <div class="premium-grid">
-                            {% for item in result.premium_report.teaser_items %}
-                            <div class="premium-card">
-                                <h3>{{ item.title }}</h3>
-                                <p><strong>{{ item.teaser }}</strong></p>
-                                <p>결정 포인트, 리스크, 실행 전략까지 이어지는 심층 분석이 포함됩니다.</p>
-                            </div>
-                            {% endfor %}
-                        </div>
-                        <div class="premium-overlay">
-                            <div class="premium-overlay-box">
-                                <h3 style="margin-top:0;">{{ result.premium_report.cta_title }}</h3>
-                                <p class="premium-intro">{{ result.premium_report.cta_description }}</p>
-                                <div class="cta-row" style="justify-content:center;">
-                                    <a class="cta-button" href="{{ premium_upgrade_link }}">프리미엄 리포트 보기</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
                     <div class="affiliate-box">
                         <div class="affiliate-banner-slot"></div>
                         <script src="https://ads-partners.coupang.com/g.js"></script>
@@ -1389,6 +1650,17 @@
                         activateTab(button.getAttribute("data-tab-target"), true);
                     });
                 });
+
+                var backLink = document.querySelector(".back-link");
+                if (backLink) {
+                    backLink.addEventListener("click", function (event) {
+                        event.preventDefault();
+                        backLink.classList.add("is-pressed");
+                        window.setTimeout(function () {
+                            window.location.href = backLink.href;
+                        }, 120);
+                    });
+                }
 
                 var validTabs = ["today", "saju", "premium"];
                 var initialHash = window.location.hash.replace("#", "");

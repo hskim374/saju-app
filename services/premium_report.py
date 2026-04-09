@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from functools import lru_cache
 import random
 
 from services.interpretation_rules import build_seed
@@ -475,6 +476,29 @@ TIMELINE_TRANSITIONS = [
     "일상 언어로 바꾸면",
 ]
 
+
+def _expand_premium_short_pool(pool: dict[str, list[str]]) -> dict[str, list[str]]:
+    expanded: dict[str, list[str]] = {}
+    for user_type, sentences in pool.items():
+        items: list[str] = []
+        seen: set[str] = set()
+        for sentence in sentences:
+            candidates = [
+                sentence,
+                sentence.replace("입니다.", "인 구간입니다."),
+                sentence.replace("중요합니다.", "더 중요해지는 시기입니다."),
+                sentence.replace("필요합니다.", "우선 필요한 시기입니다."),
+                f"결국 {sentence[0].lower() + sentence[1:]}" if len(sentence) > 1 else sentence,
+            ]
+            for candidate in candidates:
+                cleaned = candidate.strip()
+                if not cleaned or cleaned in seen:
+                    continue
+                items.append(cleaned)
+                seen.add(cleaned)
+        expanded[user_type] = items
+    return expanded
+
 action_intro_pool = {
     "stable": [
         "지금은 확장보다 유지가 결과를 만드는 흐름입니다.",
@@ -587,6 +611,7 @@ action_intro_pool = {
         "지금은 순간 판단이 중요합니다.",
     ],
 }
+action_intro_pool = _expand_premium_short_pool(action_intro_pool)
 
 final_summary_pool = {
     "stable": [
@@ -881,14 +906,15 @@ def build_premium_report(
     relationship_fortune: dict,
     interpretation: dict,
     premium_enabled: bool,
+    analysis_context: dict | None = None,
 ) -> dict:
     """Build premium-only report sections and teaser metadata."""
     seed = build_seed(
         saju_result["saju"]["year"]["kor"],
         saju_result["saju"]["month"]["kor"],
         saju_result["saju"]["day"]["kor"],
-        saju_result["raw_input"]["target_year"],
-        saju_result["raw_input"]["gender"],
+        saju_result.get("raw_input", {}).get("target_year", ""),
+        saju_result.get("raw_input", {}).get("gender", ""),
     )
     used_lines: set[str] = set()
     user_type = map_day_stem_to_user_type(saju_result["saju"]["day"]["stem"])
@@ -906,7 +932,7 @@ def build_premium_report(
     month_ten_god = ten_gods["ten_gods"]["month"]
     year_ten_god = year_fortune["ten_god"]
     daewoon_ten_god = year_fortune["daewoon_ten_god"]
-    gender = saju_result["raw_input"]["gender"]
+    gender = saju_result.get("raw_input", {}).get("gender", "male")
     day_stem = saju_result["saju"]["day"]["stem"]
     month_branch = saju_result["saju"]["month"]["branch"]
 
@@ -923,6 +949,7 @@ def build_premium_report(
     daewoon_ten_god_line = _ten_god_line(daewoon_ten_god)
     career_signal = _career_signal_line(daewoon_ten_god if daewoon_ten_god else year_ten_god)
     relationship_signal = _relationship_signal_line(year_ten_god)
+    analysis_profile = _build_premium_analysis_profile(analysis_context, seed + 61, used_lines)
     action_plan_profile = _build_action_plan_profile(
         day_stem=day_stem,
         month_branch=month_branch,
@@ -934,8 +961,23 @@ def build_premium_report(
         daewoon_ten_god=daewoon_ten_god,
         career_fortune=career_fortune,
         relationship_fortune=relationship_fortune,
+        analysis_context=analysis_context,
+        action_force_line=action_force_line,
         seed=seed + 300,
         used_lines=used_lines,
+    )
+
+    wealth_summary = saju_result.get("summary_card", {}).get(
+        "wealth",
+        _pick(
+            [
+                "벌기보다 쌓는 전략",
+                "관리 기준이 결과를 좌우하는 흐름",
+                "지출 구조 정리가 먼저 필요한 흐름",
+            ],
+            seed + 58,
+            used_lines,
+        ),
     )
 
     overview = [
@@ -943,210 +985,997 @@ def build_premium_report(
         f"약한 오행은 {', '.join(weak_kor)}이라 확장 타이밍과 우선순위 설정에서 의식적인 관리가 필요합니다.",
         f"{_pick(TIMELINE_TRANSITIONS, seed + 59, used_lines)} 지금은 빠르게 넓히기보다 오래 유지할 수 있는 선택을 고르는 편이 더 중요합니다.",
     ]
+    clean_decision_line = _clean_action_plan_line(decision_line)
+    clean_support_line = _clean_action_plan_line(support_line or dominant_line)
+    clean_action_force_line = _clean_action_plan_line(action_force_line)
+    clean_career_highlight = _clean_action_plan_line(career_fortune["section"]["highlight"])
+    clean_relationship_action = _clean_action_plan_line(_relationship_action_line(gender, seed + 41, used_lines))
+    timeline_pattern_one = _pick(
+        [
+            "지금은 결과를 억지로 키우기보다 어디에 힘을 실을지 정하는 편이 더 중요합니다.",
+            "당장 보이는 성과보다 에너지를 어디에 묶을지 정하는 편이 더 중요한 시기입니다.",
+            "지금은 판을 넓히는 것보다 어떤 축을 남길지 먼저 정하는 편이 더 실속 있습니다.",
+            "현재 흐름에서는 무엇을 더할지보다 어디에 힘을 모을지 정하는 태도가 더 중요합니다.",
+        ],
+        seed + 101,
+        used_lines,
+        expand=False,
+    )
+    timeline_pattern_two = _pick(
+        [
+            f"현재 3년은 방향 설정 구간이고, 이후에는 {next_cycle['pillar']}라는 다음 10년 흐름을 거치며 결과 형식이 더 뚜렷해질 가능성이 큽니다.",
+            f"지금 몇 년은 준비와 기준 정리에 가깝고, 이후 {next_cycle['pillar']} 흐름으로 넘어가며 결과 형식이 더 선명해질 수 있습니다.",
+            f"현재 구간은 축을 세우는 시기에 가깝고, 다음 {next_cycle['pillar']} 흐름에서 결과의 모양이 더 또렷해질 가능성이 큽니다.",
+            f"지금은 방향을 고르는 시기이고, 이후 {next_cycle['pillar']} 운으로 넘어가며 실행 결과가 더 분명하게 드러날 수 있습니다.",
+        ],
+        seed + 102,
+        used_lines,
+        expand=False,
+    )
+    timeline_pattern_three = _pick(
+        [
+            "당장 성과를 크게 만들기보다 다음 흐름에서 쓸 기준을 정리해 두는 쪽이 훨씬 남습니다.",
+            "지금 서두르면 결과는 보여도 다음 흐름 준비가 약해질 수 있습니다.",
+            "이 시기는 버틸 축을 세워 놓을수록 다음 10년 운영이 쉬워집니다.",
+            "지금 몇 년은 성과 경쟁보다 다음 흐름에서 바로 쓸 구조를 미리 정리해 두는 편이 더 중요합니다.",
+        ],
+        seed + 103,
+        used_lines,
+        expand=False,
+    )
+    timeline_action_one = _pick(
+        [
+            "큰 결정은 준비, 실행, 확정 단계로 나눠서 접근합니다.",
+            "중요한 결정일수록 준비와 실행 시점을 따로 나눠 적어 두는 편이 좋습니다.",
+            "결정은 한 번에 끝내지 말고 검토 단계와 확정 단계를 분리해 가져가는 편이 좋습니다.",
+            "큰 판단일수록 서두르지 말고 준비 단계와 실행 단계를 따로 관리합니다.",
+        ],
+        seed + 104,
+        used_lines,
+        expand=False,
+    )
+    timeline_action_two = _pick(
+        [
+            f"지금은 {active_cycle['pillar']} 구간에서 무엇을 키울지보다 무엇을 고정할지 먼저 정합니다.",
+            f"현재 {active_cycle['pillar']} 흐름에서는 늘릴 것보다 유지할 기준을 먼저 고정하는 편이 좋습니다.",
+            f"지금 {active_cycle['pillar']} 구간에서는 속도보다 버틸 구조를 먼저 정하는 편이 더 맞습니다.",
+            f"현재 {active_cycle['pillar']} 흐름에서는 새 시도보다 흔들리지 않을 기준을 먼저 세우는 편이 좋습니다.",
+        ],
+        seed + 105,
+        used_lines,
+        expand=False,
+    )
+    timeline_action_three = _pick(
+        [
+            f"다음 10년 운 {next_cycle['pillar']}로 넘어가기 전에 생활과 일의 기본 틀을 먼저 정비합니다.",
+            "지금 3년 안에 방향과 기준을 문장으로 고정합니다.",
+            "기회가 오기 전에 버릴 것부터 정하는 연습을 합니다.",
+            f"다음 흐름 {next_cycle['pillar']}을 준비하는 마음으로 생활 리듬과 일의 축부터 정리합니다.",
+        ],
+        seed + 106,
+        used_lines,
+        expand=False,
+    )
+    decision_pattern_one = _pick(
+        [
+            "기회가 와도 바로 움직이지 않고 조건을 먼저 따져보는 편입니다.",
+            "선택지가 보이면 바로 달려가기보다 유지 조건부터 확인하는 편입니다.",
+            "결정 앞에서는 속도보다 조건 점검이 먼저 작동하는 구조입니다.",
+            "좋아 보여도 먼저 조건과 부담을 함께 따져보는 성향이 강합니다.",
+        ],
+        seed + 107,
+        used_lines,
+        expand=False,
+    )
+    decision_pattern_two = _pick(
+        [
+            "감정보다 구조를 먼저 고려하고, 한 번 결정하면 오래 유지하는 경향이 있습니다.",
+            "좋고 싫음보다 구조가 맞는지를 먼저 보며, 결론을 내리면 오래 끌고 가는 편입니다.",
+            "선택에서는 감정보다 운영 가능성을 먼저 보고, 결론 이후에는 쉽게 흔들리지 않는 편입니다.",
+            "마음보다 구조를 먼저 보는 편이라, 결정 이후 유지력은 비교적 강한 편입니다.",
+        ],
+        seed + 108,
+        used_lines,
+        expand=False,
+    )
+    decision_pattern_three = _pick(
+        [
+            "결정을 미루는 것이 아니라, 납득 가능한 기준이 생길 때까지 보는 쪽에 가깝습니다.",
+            "겉으로는 늦어 보여도 결론을 내린 뒤에는 방향을 잘 바꾸지 않는 편입니다.",
+            "선택지가 많을수록 속도보다 비교 기준부터 먼저 세우려는 경향이 있습니다.",
+            "판단이 느린 것이 아니라, 유지 기준이 선명해질 때까지 시간을 쓰는 구조에 가깝습니다.",
+        ],
+        seed + 109,
+        used_lines,
+        expand=False,
+    )
+    decision_action_one = _pick(
+        [
+            "모든 큰 결정은 계속 유지 가능한지를 기준으로 판단합니다.",
+            "중요한 선택일수록 오래 유지할 수 있는지부터 먼저 체크합니다.",
+            "선택 전에는 설렘보다 유지 가능성을 먼저 점검합니다.",
+            "큰 결정을 할 때는 결과보다 지속 가능성을 첫 기준으로 둡니다.",
+        ],
+        seed + 110,
+        used_lines,
+        expand=False,
+    )
+    decision_action_two = _pick(
+        [
+            clean_decision_line,
+            f"이번 결정에서는 이 비교 기준을 그대로 적용합니다. {clean_decision_line}",
+            f"이번 구간에서는 이 선택 원칙을 반복해서 씁니다. {clean_decision_line}",
+            f"큰 선택일수록 이 판단 기준을 먼저 꺼내 봅니다. {clean_decision_line}",
+        ],
+        seed + 111,
+        used_lines,
+        expand=False,
+    )
+    decision_action_three = _pick(
+        [
+            "감정이 큰 날에는 결정 대신 조건표부터 만듭니다.",
+            "기준 없는 비교를 줄이기 위해 판단 항목을 세 줄로 고정합니다.",
+            "선택 전에는 기대보다 유지 비용부터 확인합니다.",
+            "결정을 내리기 전에는 기대 이익과 유지 부담을 나란히 적어 둡니다.",
+        ],
+        seed + 112,
+        used_lines,
+        expand=False,
+    )
+    wealth_pattern_one = _pick(
+        [
+            "수입 규모보다 지출 구조가 결과를 좌우합니다.",
+            "돈은 얼마나 들어오느냐보다 어디로 새는지가 체감 차이를 더 크게 만듭니다.",
+            "재물 흐름은 수입 속도보다 지출 구조가 정리돼 있는지에서 차이가 납니다.",
+            "버는 속도보다 새는 지점을 얼마나 빨리 정리하는지가 더 중요합니다.",
+        ],
+        seed + 113,
+        used_lines,
+        expand=False,
+    )
+    wealth_pattern_two = _pick(
+        [
+            "기준이 없으면 흐름이 쉽게 흔들리지만, 관리 체계가 잡히면 빠르게 안정됩니다.",
+            "돈 문제는 감으로 둘수록 흔들리고, 기준이 생기면 생각보다 빠르게 안정됩니다.",
+            "관리 체계가 없으면 흔들리기 쉽고, 숫자 기준이 생기면 흐름이 빨리 차분해집니다.",
+            "재무 기준이 없으면 기회도 분산되지만, 관리 틀이 잡히면 체감 안정이 빨라집니다.",
+        ],
+        seed + 114,
+        used_lines,
+        expand=False,
+    )
+    wealth_pattern_three = _pick(
+        [
+            "돈은 감각보다 반복 관리에서 실력이 드러나는 편입니다.",
+            "생활비와 고정비가 정리되면 마음 안정도 같이 올라가는 편입니다.",
+            "수입 확장보다 새는 흐름을 줄일 때 체감 결과가 더 빨리 나타날 수 있습니다.",
+            "돈은 큰 승부보다 반복되는 관리 습관에서 더 분명한 차이가 납니다.",
+        ],
+        seed + 115,
+        used_lines,
+        expand=False,
+    )
+    wealth_action_one = _pick(
+        [
+            "고정비 점검 기준을 먼저 세웁니다.",
+            "고정 지출부터 점검하는 규칙을 먼저 만듭니다.",
+            "매달 빠져나가는 고정비를 먼저 확인하는 루틴을 둡니다.",
+            "돈 점검은 수입보다 고정 지출 구조부터 확인하는 방식으로 시작합니다.",
+        ],
+        seed + 116,
+        used_lines,
+        expand=False,
+    )
+    wealth_action_two = _pick(
+        [
+            "계좌를 분리하고 월 단위 현금 흐름을 체크합니다.",
+            "생활비와 여유 자금을 나눠서 월 단위 흐름을 확인합니다.",
+            "계좌 역할을 나누고 월별 현금 흐름표를 함께 봅니다.",
+            "월 단위 자금 흐름을 확인할 수 있게 계좌 구조를 먼저 나눕니다.",
+        ],
+        seed + 117,
+        used_lines,
+        expand=False,
+    )
+    wealth_action_three = _pick(
+        [
+            clean_action_force_line,
+            f"재물 전략에도 이 강제 기준을 그대로 적용합니다. {clean_action_force_line}",
+            f"돈 문제를 다룰 때는 이 실행 기준을 먼저 붙입니다. {clean_action_force_line}",
+            "이번 달 지출과 축적 계획은 반드시 숫자로 적어 두고 확인합니다.",
+        ],
+        seed + 118,
+        used_lines,
+        expand=False,
+    )
+    risk_pattern_one = _pick(
+        [
+            "선택 기준이 흔들리면 좋은 기회도 쉽게 분산됩니다.",
+            "기준이 흐려지는 순간부터 기회도 소모로 바뀌기 쉬운 구조입니다.",
+            "선택 기준이 약해질수록 같은 기회도 피로로 남을 가능성이 큽니다.",
+            "좋은 흐름이 와도 기준이 없으면 결과보다 분산이 먼저 커질 수 있습니다.",
+        ],
+        seed + 119,
+        used_lines,
+        expand=False,
+    )
+    risk_pattern_two = _pick(
+        [
+            "기회가 많아질수록 오히려 무엇을 버릴지 정하지 못해 피로가 커질 수 있습니다.",
+            "선택지가 늘어날수록 다 잡으려는 태도가 더 큰 피로를 만들 수 있습니다.",
+            "기회가 많을수록 버릴 기준이 없으면 피로와 분산이 함께 올라갈 수 있습니다.",
+            "좋은 조건이 많아질수록 오히려 무엇을 내려놓을지 정하는 힘이 더 중요해집니다.",
+        ],
+        seed + 120,
+        used_lines,
+        expand=False,
+    )
+    risk_pattern_three = _pick(
+        [
+            "감정이 앞서 결정하면 속도는 빨라지지만 유지력이 약해질 수 있습니다.",
+            "지금은 못하는 것보다 너무 많이 잡는 것이 더 큰 문제일 수 있습니다.",
+            "불안해서 판단을 서두르면 방향 수정 비용이 더 커질 수 있습니다.",
+            "급한 마음으로 선택하면 출발은 빨라도 유지 비용이 더 커질 수 있습니다.",
+        ],
+        seed + 121,
+        used_lines,
+        expand=False,
+    )
+    risk_action_one = _pick(
+        [
+            "일정 상한선을 정합니다.",
+            "일정은 늘리기 전에 상한선을 먼저 정합니다.",
+            "업무와 약속은 상한선을 정해 두고 관리합니다.",
+            "시간이 새지 않도록 일정 상한부터 먼저 고정합니다.",
+        ],
+        seed + 122,
+        used_lines,
+        expand=False,
+    )
+    risk_action_two = _pick(
+        [
+            "지출 상한선을 정합니다.",
+            "돈은 쓰기 전에 상한선을 먼저 정합니다.",
+            "지출은 감정 따라 움직이지 않게 한도를 먼저 정합니다.",
+            "예상 밖 지출이 커지지 않게 금액 한도를 먼저 적어 둡니다.",
+        ],
+        seed + 123,
+        used_lines,
+        expand=False,
+    )
+    risk_action_three = _pick(
+        [
+            "관계 거리 기준을 정합니다.",
+            "사람 문제는 가까워지는 속도와 거리 기준을 먼저 정합니다.",
+            "관계에서 소모되지 않도록 거리 기준을 문장으로 적어 둡니다.",
+            "누구와 어디까지 얽힐지 경계를 먼저 정합니다.",
+        ],
+        seed + 124,
+        used_lines,
+        expand=False,
+    )
+    risk_action_four = _pick(
+        [
+            "중요한 선택에는 하루 이상의 검토 시간을 둡니다.",
+            "무조건 해야 하는 일과 해도 되는 일을 분리합니다.",
+            "이번 달에는 줄일 것을 먼저 정합니다.",
+            "결정 전 하루의 검토 시간을 두고, 줄일 항목을 먼저 적습니다.",
+        ],
+        seed + 125,
+        used_lines,
+        expand=False,
+    )
+    career_pattern_one = _pick(
+        [
+            "역할이 명확할수록 강점이 더 잘 드러납니다.",
+            "직장에서는 역할과 책임이 선명할수록 실력이 더 빨리 보이는 편입니다.",
+            "일의 경계가 분명할수록 강점도 훨씬 또렷하게 드러나는 구조입니다.",
+            "무엇을 맡고 어디까지 책임질지 선명할수록 직업 흐름이 더 안정됩니다.",
+        ],
+        seed + 126,
+        used_lines,
+        expand=False,
+    )
+    career_pattern_two = _pick(
+        [
+            "관리와 실적이 같이 필요하고, 선택이 많아질수록 분산 위험이 커집니다.",
+            "성과와 운영이 함께 굴러가야 하므로, 일이 많아질수록 분산 관리가 더 중요합니다.",
+            "실적만 보는 방식보다 운영 기준을 같이 세울 때 직장 흐름이 더 안정됩니다.",
+            "할 일이 많아질수록 무엇을 줄일지 먼저 정해야 성과가 흩어지지 않습니다.",
+        ],
+        seed + 127,
+        used_lines,
+        expand=False,
+    )
+    career_pattern_three = _pick(
+        [
+            "사업으로 넓히더라도 수익 구조를 먼저 확인한 뒤 확장하는 편이 좋습니다.",
+            "직장에서는 잘하는 일을 더 선명하게 보이게 만드는 쪽이 먼저입니다.",
+            "일이 늘어날수록 직접 다 쥐기보다 기준과 우선순위를 먼저 세우는 편이 좋습니다.",
+            "확장보다 운영 기준을 앞에 둘수록 직업 흐름이 훨씬 안정적으로 남습니다.",
+        ],
+        seed + 128,
+        used_lines,
+        expand=False,
+    )
+    career_action_one = _pick(
+        [
+            "직장에서는 평가 기준을 눈에 보이게 정리합니다.",
+            "업무 평가 기준을 문장으로 정리해 두고 반복해서 확인합니다.",
+            "직장에서는 무엇이 점수로 남는지 먼저 정리해 두는 편이 좋습니다.",
+            "평가받는 항목을 눈에 보이게 적어 두고 그 기준에 맞춰 움직입니다.",
+        ],
+        seed + 129,
+        used_lines,
+        expand=False,
+    )
+    career_action_two = _pick(
+        [
+            "사업은 수익 구조를 먼저 검증한 뒤 확장합니다.",
+            "사업이나 부업은 수익이 남는 구조를 먼저 확인한 뒤 키웁니다.",
+            "새로운 사업 흐름은 수익 구조를 점검한 뒤 넓히는 편이 좋습니다.",
+            "사업 쪽 선택은 속도보다 남는 구조를 먼저 검증하는 편이 맞습니다.",
+        ],
+        seed + 130,
+        used_lines,
+        expand=False,
+    )
+    career_action_three = _pick(
+        [
+            "업무는 늘리기 전에 버릴 것부터 정합니다.",
+            "성과는 숫자로 남기고, 운영 기준은 문장으로 남깁니다.",
+            "이직이나 확장은 충동 대신 조건 비교표로 판단합니다.",
+            "일이 늘어날수록 우선순위와 버릴 일을 먼저 정해 둡니다.",
+        ],
+        seed + 131,
+        used_lines,
+        expand=False,
+    )
+    relationship_pattern_one = _pick(
+        [
+            "관계 시작은 느릴 수 있지만, 깊어지면 오래 유지하는 편입니다.",
+            "처음에는 천천히 가더라도 신뢰가 붙으면 오래 가는 편입니다.",
+            "관계는 빠른 확정보다 느린 신뢰 축적 쪽이 더 잘 맞는 구조입니다.",
+            "가까워지는 속도는 느려도 신뢰가 생기면 오래 유지하는 편입니다.",
+        ],
+        seed + 132,
+        used_lines,
+        expand=False,
+    )
+    relationship_pattern_two = _pick(
+        [
+            "감정 표현은 늦을 수 있어 타이밍이 어긋날 가능성을 같이 봐야 합니다.",
+            "마음은 있어도 표현 시점이 늦어지면 거리감으로 읽힐 수 있습니다.",
+            "관계에서 중요한 것은 감정 크기보다 표현 타이밍일 가능성이 큽니다.",
+            "표현이 늦어질수록 오해가 커질 수 있어 타이밍 관리가 특히 중요합니다.",
+        ],
+        seed + 133,
+        used_lines,
+        expand=False,
+    )
+    relationship_pattern_three = _pick(
+        [
+            "좋아도 빨리 확정하기보다 서로의 생활 리듬과 현실 조건을 함께 보는 편이 좋습니다.",
+            "관계는 감정보다 거리와 속도 조절이 맞을 때 훨씬 편안해질 수 있습니다.",
+            "처음에는 느려 보여도 신뢰가 생기면 오래 가는 편이라 초반 리듬이 중요합니다.",
+            "호감이 있어도 속도보다 리듬과 현실 조건을 맞추는 편이 더 안정적입니다.",
+        ],
+        seed + 134,
+        used_lines,
+        expand=False,
+    )
+    relationship_action_one = _pick(
+        [
+            "관계 속도를 조절합니다.",
+            "가까워지는 속도부터 조절하면서 흐름을 봅니다.",
+            "호감이 있어도 속도를 먼저 낮춰서 확인합니다.",
+            "관계는 빠르게 결론내기보다 속도를 조절하며 가져갑니다.",
+        ],
+        seed + 135,
+        used_lines,
+        expand=False,
+    )
+    relationship_action_two = _pick(
+        [
+            "현실 조건을 함께 확인합니다.",
+            "감정과 함께 생활 리듬, 거리, 조건도 같이 확인합니다.",
+            "좋아도 현실 조건이 맞는지 먼저 살펴봅니다.",
+            "관계에서는 감정만 보지 말고 현실 조건도 나란히 확인합니다.",
+        ],
+        seed + 136,
+        used_lines,
+        expand=False,
+    )
+    relationship_action_three = _pick(
+        [
+            "결론을 서두르지 않습니다.",
+            "호감이 커도 결론은 천천히 가져갑니다.",
+            "좋아 보여도 결론 시점은 늦춰서 확인합니다.",
+            "관계의 결론은 서두르지 말고 리듬이 맞는지 먼저 봅니다.",
+        ],
+        seed + 137,
+        used_lines,
+        expand=False,
+    )
+    timeline_strength = _pick(
+        [
+            "긴 호흡으로 흐름을 읽고 준비를 나눠 가져갈 수 있다는 점이 강점입니다.",
+            "지금 당장 흔들리지 않고 다음 구간까지 고려해 움직일 수 있다는 점이 강점입니다.",
+            "현재 선택이 다음 흐름에 미치는 영향을 같이 보는 감각이 살아 있다는 점이 장점입니다.",
+            "지금 결과보다 다음 흐름의 준비를 함께 보는 시야가 강점으로 작동합니다.",
+        ],
+        seed + 138,
+        used_lines,
+        expand=False,
+    )
+    timeline_risk = _pick(
+        [
+            "지금 당장 결과를 만들려는 조급함이 들어오면 다음 흐름 준비가 느슨해질 수 있습니다.",
+            "현재 성과 압박에 끌리면 다음 10년을 위한 축이 약해질 수 있습니다.",
+            "눈앞 결과를 급하게 만들려 할수록 흐름 전체를 읽는 힘이 흐려질 수 있습니다.",
+            "당장 체감 성과를 키우려는 마음이 커질수록 다음 흐름의 준비가 약해질 수 있습니다.",
+        ],
+        seed + 139,
+        used_lines,
+        expand=False,
+    )
+    timeline_action_note = _pick(
+        [
+            "지금은 성과보다 방향을 틀리지 않는 쪽이 더 중요합니다.",
+            "이 시기에는 빠른 확정보다 다음 흐름에 맞는 자리를 고르는 편이 낫습니다.",
+            "지금 구간은 결과보다 축을 세우는 데 집중할수록 뒤가 편해집니다.",
+            "현재 흐름에서는 빠르게 끝내기보다 오래 갈 축을 먼저 세우는 편이 더 맞습니다.",
+        ],
+        seed + 140,
+        used_lines,
+        expand=False,
+    )
+    decision_strength = _pick(
+        [
+            "기준이 있어 큰 실수를 줄이는 구조입니다.",
+            "결정 자체보다 결정 이후 유지 가능성을 같이 본다는 점이 강점입니다.",
+            "한 번 결론을 내리면 쉽게 흔들리지 않는 점이 장점입니다.",
+            "겉으로는 느려 보여도 기준이 잡히면 오래 밀고 갈 수 있는 힘이 장점입니다.",
+        ],
+        seed + 141,
+        used_lines,
+        expand=False,
+    )
+    decision_risk = _pick(
+        [
+            "판단 시간이 길어지면 타이밍을 놓칠 수 있습니다.",
+            "기회를 보고도 안전성부터 확인하느라 출발 시점이 늦어질 수 있습니다.",
+            "조건 비교가 길어지면 결론이 늦고 피로감이 쌓일 수 있습니다.",
+            "기준을 세우는 시간은 강점이지만, 길어질수록 출발 타이밍은 늦어질 수 있습니다.",
+        ],
+        seed + 142,
+        used_lines,
+        expand=False,
+    )
+    decision_action_note = _pick(
+        [
+            "결정은 빠른 승부보다 조건 검증형으로 가져가는 편이 좋습니다.",
+            "중요한 판단일수록 마음보다 유지 조건을 먼저 보는 편이 맞습니다.",
+            "선택 속도보다 선택 이후를 버틸 수 있는지가 더 중요합니다.",
+            "크게 흔들리는 선택일수록 설렘보다 유지 기준을 먼저 보는 편이 더 정확합니다.",
+        ],
+        seed + 143,
+        used_lines,
+        expand=False,
+    )
+    wealth_strength = _pick(
+        [
+            "꾸준히 쌓는 구조에서 강점을 보입니다.",
+            "작게 누적하는 구조를 만들면 안정성이 빠르게 살아납니다.",
+            "재정 흐름을 숫자로 관리할 때 장점이 더 크게 드러납니다.",
+            "지속적으로 남기는 구조를 만들수록 재물 감각이 더 안정적으로 살아납니다.",
+        ],
+        seed + 144,
+        used_lines,
+        expand=False,
+    )
+    wealth_risk = _pick(
+        [
+            "확장 타이밍이 늦어지면 기회 활용 속도가 떨어질 수 있습니다.",
+            "수입보다 구조를 정리하느라 확장 출발이 늦어질 수 있습니다.",
+            "기회가 와도 기준이 없으면 들어온 돈이 체감 결과로 잘 남지 않을 수 있습니다.",
+            "관리 기준은 강점이지만, 확장 시점을 지나치게 늦추면 체감 수익이 줄 수 있습니다.",
+        ],
+        seed + 145,
+        used_lines,
+        expand=False,
+    )
+    wealth_action_note = _pick(
+        [
+            "재물은 벌기보다 남기는 체계에서 결과가 갈립니다.",
+            "지금은 수입보다 관리 틀을 만드는 쪽이 훨씬 중요합니다.",
+            "돈 흐름은 감으로 두지 말고 숫자로 고정해야 체감 안정이 빨라집니다.",
+            "이번 구간에서는 얼마나 버느냐보다 어떻게 남길지를 먼저 설계하는 편이 더 중요합니다.",
+        ],
+        seed + 146,
+        used_lines,
+        expand=False,
+    )
+    career_strength = _pick(
+        [
+            "지속 가능한 구조에서 성과를 유지하는 힘이 있습니다.",
+            "운영 기준과 실무를 함께 챙길 수 있다는 점이 강점입니다.",
+            "누적형 성과를 만들 때 흔들림이 비교적 적다는 점이 장점입니다.",
+            "성과와 운영을 함께 보는 시야가 있어 일의 흐름을 안정적으로 끌고 갈 수 있습니다.",
+        ],
+        seed + 147,
+        used_lines,
+        expand=False,
+    )
+    career_risk = _pick(
+        [
+            "기회가 많을수록 우선순위가 흐려져 분산이 생길 수 있습니다.",
+            "성과 욕심으로 일을 늘리면 관리가 느슨해질 수 있습니다.",
+            "직장과 사업 모두 선택이 많을수록 에너지가 흩어질 가능성을 조심해야 합니다.",
+            "할 수 있는 일이 늘어날수록 무엇을 줄일지 먼저 정하지 않으면 운영 피로가 커질 수 있습니다.",
+        ],
+        seed + 148,
+        used_lines,
+        expand=False,
+    )
+    career_action_note = _pick(
+        [
+            "지금은 성과보다 운영 기준을 세우는 편이 더 중요합니다.",
+            "직업 흐름은 확장보다 관리가 받쳐야 체감 결과가 남습니다.",
+            "역할이 많아질수록 운영 기준을 먼저 세우는 편이 맞습니다.",
+            "이번 구간에서는 많이 하는 사람보다 기준을 먼저 세운 사람이 더 오래 버틸 가능성이 큽니다.",
+        ],
+        seed + 149,
+        used_lines,
+        expand=False,
+    )
+    relationship_strength = _pick(
+        [
+            "신뢰 기반 관계를 오래 유지하는 힘이 있습니다.",
+            "한 번 신뢰가 생기면 관계를 쉽게 가볍게 다루지 않는 점이 장점입니다.",
+            "관계를 빠르게 소비하지 않고 깊이 있게 보는 힘이 있습니다.",
+            "시간을 들여도 제대로 신뢰를 쌓는 편이라 관계의 유지력은 비교적 강한 편입니다.",
+        ],
+        seed + 150,
+        used_lines,
+        expand=False,
+    )
+    relationship_risk = _pick(
+        [
+            "타이밍이 어긋나면 감정보다 거리감 문제로 관계가 흔들릴 수 있습니다.",
+            "표현이 늦어지면 마음보다 차갑게 읽힐 가능성을 조심해야 합니다.",
+            "좋아도 결론을 미루는 시간이 길어지면 흐름이 엇갈릴 수 있습니다.",
+            "관계의 깊이는 강점이지만, 표현 시점이 늦어지면 오해가 커질 수 있습니다.",
+        ],
+        seed + 151,
+        used_lines,
+        expand=False,
+    )
+    relationship_action_note = _pick(
+        [
+            "관계는 감정보다 리듬이 맞을 때 더 오래 갑니다.",
+            "호감이 커도 속도를 낮추는 편이 오히려 관계를 안정시킬 수 있습니다.",
+            "좋은 흐름이 와도 타이밍을 천천히 맞추는 편이 더 잘 맞습니다.",
+            "좋아 보여도 리듬과 현실 조건을 같이 맞추는 편이 결국 더 오래 갑니다.",
+        ],
+        seed + 152,
+        used_lines,
+        expand=False,
+    )
+    risk_strength = _pick(
+        [
+            "한 번 기준을 잡으면 리스크를 빠르게 줄이는 편입니다.",
+            "문제를 감보다 기준으로 다룰 수 있어 회복이 빠른 편입니다.",
+            "흐름이 꼬여도 다시 정리할 축을 만드는 힘은 비교적 강한 편입니다.",
+            "한 번 선을 정하면 피로를 줄이며 다시 흐름을 정돈하는 힘이 살아 있습니다.",
+        ],
+        seed + 153,
+        used_lines,
+        expand=False,
+    )
+    risk_risk = _pick(
+        [
+            "기준 없이 움직이면 분산과 결정 피로가 동시에 올라올 수 있습니다.",
+            "좋아 보여도 전부 잡으려 하면 체감 안정이 빠르게 무너질 수 있습니다.",
+            "선택 구조가 흐려지면 사람, 일정, 돈이 같이 엉킬 수 있습니다.",
+            "선택 기준이 느슨해질수록 일정, 사람, 돈 문제가 한꺼번에 흔들릴 수 있습니다.",
+        ],
+        seed + 154,
+        used_lines,
+        expand=False,
+    )
+    risk_action_note = _pick(
+        [
+            "리스크는 감으로 다루지 말고 숫자와 선으로 관리해야 합니다.",
+            "지금은 감정 정리가 아니라 기준 정리가 더 큰 보호 장치가 됩니다.",
+            "정리된 기준 하나가 여러 문제를 같이 줄여줄 수 있습니다.",
+            "이번 구간에서는 많이 참는 것보다 기준을 먼저 정리하는 편이 훨씬 강한 방어가 됩니다.",
+        ],
+        seed + 155,
+        used_lines,
+        expand=False,
+    )
+    active_cycle_meaning = TEN_GOD_PLAIN_MEANINGS.get(active_cycle["ten_god"], active_cycle["ten_god"])
+    next_cycle_meaning = TEN_GOD_PLAIN_MEANINGS.get(next_cycle["ten_god"], next_cycle["ten_god"])
+    later_cycle_meaning = TEN_GOD_PLAIN_MEANINGS.get(later_cycle["ten_god"], later_cycle["ten_god"])
+    year_ten_god_meaning = TEN_GOD_PLAIN_MEANINGS.get(year_ten_god, year_ten_god_line)
+    daewoon_ten_god_meaning = TEN_GOD_PLAIN_MEANINGS.get(daewoon_ten_god, daewoon_ten_god_line)
+    action_month_focus = _clean_action_plan_line(action_plan_profile["month_focus"])
+    action_year_focus = _clean_action_plan_line(action_plan_profile["year_focus"])
+
+    timeline_headline = _pick(
+        [
+            "지금은 현재 흐름만 읽지 말고 다음 대운까지 같이 봐야 하는 구간입니다.",
+            "이 시기는 지금 10년의 성격과 다음 10년의 방향을 함께 읽을 때 훨씬 정확합니다.",
+            "당장 보이는 흐름보다 다음 대운으로 어떻게 넘어가는지가 더 중요해지는 구간입니다.",
+            "현재 10년 운만 붙잡기보다 다음 흐름의 준비까지 같이 봐야 실수가 줄어듭니다.",
+        ],
+        seed + 156,
+        used_lines,
+        expand=False,
+    )
+    timeline_summary_one = _cycle_plain_sentence(active_cycle["pillar"], active_cycle["ten_god"], "current")
+    timeline_summary_two = _pick(
+        [
+            _next_cycle_plain_sentence(next_cycle["pillar"], next_cycle["ten_god"], later_cycle["pillar"]),
+            f"다음 10년 운은 {next_cycle['pillar']}로 넘어갑니다. 이 흐름에서는 {next_cycle_meaning}이 더 강해질 가능성이 있고, 그다음 {later_cycle['pillar']} 구간에서는 {later_cycle_meaning}을 결과로 정리하는 쪽이 더 중요해질 수 있습니다.",
+            f"이후에는 {next_cycle['pillar']}라는 다음 10년 흐름이 들어오며, {next_cycle_meaning} 쪽 압력이 더 커질 수 있습니다. 이어지는 {later_cycle['pillar']} 구간에서는 이미 잡은 축을 결과로 정리하는 문제가 더 또렷해질 가능성이 큽니다.",
+            f"다음 대운은 {next_cycle['pillar']}입니다. 여기서는 {next_cycle_meaning}이 더 선명해질 수 있고, 그다음 {later_cycle['pillar']} 흐름에서는 {later_cycle_meaning} 쪽으로 결과를 묶는 힘이 더 중요해질 가능성이 있습니다.",
+        ],
+        seed + 158,
+        used_lines,
+        expand=False,
+    )
+    timeline_summary_three = _pick(
+        [
+            timing_line,
+            f"{timing_line} 그래서 지금은 성과를 크게 만들기보다 다음 흐름에서 흔들리지 않을 기준을 세우는 편이 더 중요합니다.",
+            f"{timing_line} 지금 몇 년은 무엇을 더할지보다 어떤 축을 남길지 먼저 정하는 편이 더 실속 있습니다.",
+            f"{timing_line} 이 시기에는 판을 넓히기보다 오래 갈 방향을 먼저 고정하는 편이 더 맞습니다.",
+        ],
+        seed + 159,
+        used_lines,
+        expand=False,
+    )
+
+    decision_headline = _pick(
+        [
+            "이 구조에서는 감정보다 유지 가능성이 더 중요한 결정 기준이 됩니다.",
+            "좋은 선택인지보다 오래 유지할 수 있는 선택인지가 먼저 작동하는 구조입니다.",
+            "결정은 속도보다 유지 조건과 부담을 함께 볼 때 훨씬 정확해집니다.",
+            "선택 자체보다 선택 이후를 버틸 수 있는지가 더 중요한 구조입니다.",
+        ],
+        seed + 160,
+        used_lines,
+        expand=False,
+    )
+    decision_summary_one = _pick(
+        [
+            dominant_line,
+            f"원국의 중심 기조를 먼저 읽으면 {dominant_line}",
+            f"판단 구조를 한 줄로 압축하면 {dominant_line}",
+            f"타고난 선택 방식의 큰 축은 {dominant_line}",
+        ],
+        seed + 161,
+        used_lines,
+        expand=False,
+    )
+    decision_summary_two = _pick(
+        [
+            f"월간 십성은 {month_ten_god}입니다. 이는 태어날 때부터 반복해서 작동하는 바깥 환경의 역할 감각으로, 쉽게 말하면 {TEN_GOD_PLAIN_MEANINGS.get(month_ten_god, month_ten_god_line)}입니다.",
+            f"태어날 때부터 반복해서 만나는 바깥 역할 감각은 {month_ten_god} 쪽입니다. 쉽게 말하면 {TEN_GOD_PLAIN_MEANINGS.get(month_ten_god, month_ten_god_line)}이 익숙하게 작동하는 구조입니다.",
+            f"월간 십성 {month_ten_god}은 바깥 조건을 읽는 기본 시선을 보여줍니다. 쉽게 말하면 {TEN_GOD_PLAIN_MEANINGS.get(month_ten_god, month_ten_god_line)} 쪽 감각이 먼저 반응하는 편입니다.",
+            f"기본 결정 리듬을 바깥 역할 기준으로 읽으면 {month_ten_god} 기조가 반복됩니다. 쉽게 말하면 {TEN_GOD_PLAIN_MEANINGS.get(month_ten_god, month_ten_god_line)}이 자연스럽게 끼어드는 구조입니다.",
+        ],
+        seed + 162,
+        used_lines,
+        expand=False,
+    )
+    decision_summary_three = _pick(
+        [
+            weak_line,
+            clean_decision_line,
+            f"결정이 흔들릴 때는 특히 {', '.join(weak_kor)} 약점이 같이 건드려질 수 있어 {clean_decision_line}",
+            f"선택이 복잡해질수록 {weak_line} 그래서 큰 결정일수록 {clean_decision_line}",
+        ],
+        seed + 163,
+        used_lines,
+        expand=False,
+    )
+
+    wealth_headline = _pick(
+        [
+            "이 사주의 재물은 얼마나 버느냐보다 어떻게 남기느냐에서 차이가 납니다.",
+            "돈은 크게 움직이는 순간보다 관리 체계가 있는지에서 더 큰 차이가 납니다.",
+            "재물 흐름은 수입 규모보다 지출 구조와 관리 기준에서 갈리는 편입니다.",
+            "돈 문제는 기회 자체보다 남기는 구조를 만들었는지가 더 중요합니다.",
+        ],
+        seed + 164,
+        used_lines,
+        expand=False,
+    )
+    wealth_summary_one = _pick(
+        [
+            f"올해 재물 기조는 '{wealth_summary}'입니다. 올해 들어오는 십성은 {year_ten_god}이고, 이는 올해 돈 문제를 다루는 분위기가 {year_ten_god_meaning} 쪽으로 흐르기 쉽다는 뜻입니다.",
+            f"올해 돈 흐름을 한 줄로 읽으면 '{wealth_summary}'입니다. 들어오는 십성은 {year_ten_god}이라, 재물 판단도 {year_ten_god_meaning} 쪽 분위기가 강해질 가능성이 큽니다.",
+            f"재물 문제를 보는 올해 핵심 문장은 '{wealth_summary}'입니다. 세운 십성 {year_ten_god}이 들어와 있어 돈 문제도 {year_ten_god_meaning} 쪽으로 기울기 쉽습니다.",
+            f"올해 재물 흐름은 '{wealth_summary}'로 읽힙니다. 지금 들어오는 {year_ten_god} 기조 때문에 돈 문제도 {year_ten_god_meaning} 쪽 해석이 더 강하게 붙기 쉽습니다.",
+        ],
+        seed + 165,
+        used_lines,
+        expand=False,
+    )
+    wealth_summary_two = _pick(
+        [
+            year_ten_god_line,
+            f"올해 돈 문제를 다룰 때는 특히 {year_ten_god_line}",
+            f"세운 분위기를 재물 쪽으로 옮기면 {year_ten_god_line}",
+            f"올해 재무 판단에서는 {year_ten_god_line}",
+        ],
+        seed + 166,
+        used_lines,
+        expand=False,
+    )
+    wealth_summary_three = _pick(
+        [
+            "지금은 확장보다 축적과 관리에 더 무게가 실립니다.",
+            "벌 기회가 있어도 남는 체계를 같이 만들지 않으면 체감 안정은 늦습니다.",
+            "지금 돈 흐름은 속도보다 반복 관리에서 차이가 벌어지기 쉽습니다.",
+            f"지금은 {clean_support_line} 다만 재물은 속도보다 관리 기준을 붙일 때 체감 차이가 더 크게 납니다.",
+        ],
+        seed + 167,
+        used_lines,
+        expand=False,
+    )
+
+    career_headline = _pick(
+        [
+            "이 구조는 빠른 성과형보다 관리와 누적형에서 더 강점을 보입니다.",
+            "성과를 낼 힘은 있지만, 더 큰 차이는 운영 능력에서 벌어지는 구조입니다.",
+            "직업과 사업 모두 확장보다 유지 가능한 형식을 만들 때 강점이 더 잘 보입니다.",
+            "일의 흐름은 실적만이 아니라 운영 기준을 먼저 세울 때 더 안정적으로 남습니다.",
+        ],
+        seed + 168,
+        used_lines,
+        expand=False,
+    )
+    career_summary_one = _pick(
+        [
+            f"현재 직장운은 '{career_fortune['headline']}'로 읽히며, 지금은 성과보다 운영 능력이 더 중요하게 작동합니다.",
+            f"직장 흐름을 한 줄로 읽으면 '{career_fortune['headline']}'입니다. 지금은 실적을 키우는 것보다 운영 기준을 세우는 힘이 더 중요하게 작동합니다.",
+            f"현재 커리어 기조는 '{career_fortune['headline']}'로 잡힙니다. 지금은 많이 하는 것보다 운영 구조를 정리하는 힘이 더 중요합니다.",
+            f"지금 직장운의 핵심 문장은 '{career_fortune['headline']}'입니다. 성과 자체보다 역할과 운영 기준이 더 중요하게 드러나는 구간입니다.",
+        ],
+        seed + 169,
+        used_lines,
+        expand=False,
+    )
+    career_summary_two = _pick(
+        [
+            f"올해 십성은 {year_ten_god}, 현재 10년 운의 십성은 {daewoon_ten_god}입니다. 즉 단기 분위기는 {year_ten_god_meaning} 쪽으로 움직이고, 더 긴 10년 흐름은 {daewoon_ten_god_meaning} 쪽 압력을 같이 주는 구간입니다.",
+            f"세운은 {year_ten_god}, 대운은 {daewoon_ten_god} 기조입니다. 짧게는 {year_ten_god_meaning}, 길게는 {daewoon_ten_god_meaning} 쪽 압력이 같이 들어오는 구조입니다.",
+            f"올해는 {year_ten_god} 흐름, 현재 10년은 {daewoon_ten_god} 흐름으로 읽힙니다. 그래서 단기적으로는 {year_ten_god_meaning}, 장기적으로는 {daewoon_ten_god_meaning}이 같이 작동합니다.",
+            f"단기 직장 분위기는 {year_ten_god} 쪽, 긴 10년 흐름은 {daewoon_ten_god} 쪽입니다. 쉽게 말하면 짧게는 {year_ten_god_meaning}, 길게는 {daewoon_ten_god_meaning}이 같이 눌러오는 구간입니다.",
+        ],
+        seed + 170,
+        used_lines,
+        expand=False,
+    )
+    career_summary_three = _pick(
+        [
+            career_signal,
+            f"지금 커리어 결을 압축하면 {career_signal}",
+            f"현재 역할과 운영 기준을 함께 읽으면 {career_signal}",
+            f"직업 흐름의 체감 포인트를 한 줄로 정리하면 {career_signal}",
+        ],
+        seed + 171,
+        used_lines,
+        expand=False,
+    )
+
+    relationship_headline = _pick(
+        [
+            "이 구조에서는 감정보다 관계의 속도와 리듬이 더 중요합니다.",
+            "관계가 들어와도 빨리 가까워지는 것보다 천천히 안정되는 쪽이 더 잘 맞습니다.",
+            "호감 자체보다 관계가 유지될 수 있는 리듬을 맞추는 일이 더 중요합니다.",
+            "관계는 열려 있어도 결론을 서두르지 않을 때 훨씬 안정적으로 남습니다.",
+        ],
+        seed + 172,
+        used_lines,
+        expand=False,
+    )
+    relationship_summary_one = _pick(
+        [
+            relationship_fortune["summary"],
+            f"현재 관계 흐름을 한 줄로 읽으면 {relationship_fortune['summary']}",
+            f"관계운의 핵심 요약은 {relationship_fortune['summary']}",
+            f"지금 관계 문제를 압축하면 {relationship_fortune['summary']}",
+        ],
+        seed + 173,
+        used_lines,
+        expand=False,
+    )
+    relationship_summary_two = _pick(
+        [
+            relationship_signal,
+            f"지금 관계 리듬을 더 분명히 풀면 {relationship_signal}",
+            f"올해 관계운의 체감 포인트는 {relationship_signal}",
+            f"관계 흐름을 생활 쪽으로 옮기면 {relationship_signal}",
+        ],
+        seed + 174,
+        used_lines,
+        expand=False,
+    )
+    relationship_summary_three = _pick(
+        [
+            "관계가 틀어지는 이유는 감정보다 타이밍 문제인 경우가 더 많습니다.",
+            "좋아도 속도가 너무 빠르면 오히려 부담이 먼저 올라올 수 있습니다.",
+            "관계는 열려 있어도 결론을 빨리 내릴수록 피로가 커질 수 있습니다.",
+            f"관계에서는 {clean_relationship_action} 그래서 감정 크기보다 속도와 리듬 관리가 더 중요합니다.",
+        ],
+        seed + 175,
+        used_lines,
+        expand=False,
+    )
+
+    risk_headline = _pick(
+        [
+            "이 사주의 리스크는 운이 아니라 선택 구조에서 발생합니다.",
+            "문제는 외부 상황보다, 흔들릴 때 어떤 기준으로 고르는지에서 커질 수 있습니다.",
+            "리스크는 기회가 없는 데서보다 기준이 흐려질 때 더 크게 만들어집니다.",
+            "실제 위험은 환경보다 선택 기준이 느슨해질 때 더 빨리 커지는 구조입니다.",
+        ],
+        seed + 176,
+        used_lines,
+        expand=False,
+    )
+    risk_summary_one = _pick(
+        [
+            f"특히 약한 오행 {', '.join(weak_kor)}이 흔들릴 때는 방향이 흐려지고 선택이 여러 갈래로 분산되는 문제가 같이 나타날 수 있습니다.",
+            f"약한 오행 {', '.join(weak_kor)}이 자극받는 시기에는 방향과 기준이 동시에 흔들리며 선택이 분산될 가능성이 큽니다.",
+            f"이 구조에서는 약한 오행 {', '.join(weak_kor)}이 흔들릴 때 판단 기준도 같이 약해져 분산 위험이 커질 수 있습니다.",
+            f"약한 오행 {', '.join(weak_kor)} 쪽이 건드려질수록 무엇을 버릴지 정하는 힘이 약해져 선택이 여러 갈래로 흩어질 수 있습니다.",
+        ],
+        seed + 177,
+        used_lines,
+        expand=False,
+    )
+    risk_summary_two = _pick(
+        [
+            risk_line,
+            f"리스크 관점에서 가장 먼저 잡아야 할 건 {risk_line}",
+            f"이번 구간의 위험 신호를 한 줄로 압축하면 {risk_line}",
+            f"실제 방어 포인트를 먼저 읽으면 {risk_line}",
+        ],
+        seed + 178,
+        used_lines,
+        expand=False,
+    )
+    risk_summary_three = _pick(
+        [
+            "문제는 외부 충격보다 내부 기준이 약해질 때 더 크게 커집니다.",
+            "환경보다 우선순위가 흐려질 때 피로와 실수가 같이 올라올 수 있습니다.",
+            "선택지가 늘어나는 시기일수록 무엇을 버릴지 정하지 않으면 리스크가 커질 수 있습니다.",
+            f"{clean_action_force_line} 이 한 줄이 실제 리스크를 줄이는 기준으로도 작동할 가능성이 큽니다.",
+        ],
+        seed + 179,
+        used_lines,
+        expand=False,
+    )
+
+    action_plan_headline = _pick(
+        [
+            "이 리포트의 핵심은 이해가 아니라 실행 순서를 만드는 데 있습니다.",
+            "좋은 해석을 읽는 것보다 실제 행동 순서를 정하는 순간부터 변화가 시작됩니다.",
+            "결국 이 리포트는 읽는 용도보다 옮겨 적고 실행하는 용도로 써야 의미가 생깁니다.",
+            "이번 프리미엄 해석의 핵심은 내용을 아는 것이 아니라 행동 순서를 분명히 두는 데 있습니다.",
+        ],
+        seed + 180,
+        used_lines,
+        expand=False,
+    )
+    action_plan_summary_one = action_intro
+    action_plan_summary_two = _pick(
+        [
+            action_month_focus,
+            f"이번 달 실행은 {action_month_focus}",
+            f"가장 먼저 손대야 할 월간 포인트는 {action_month_focus}",
+            f"이번 달 체크리스트 첫 줄은 {action_month_focus}",
+        ],
+        seed + 182,
+        used_lines,
+        expand=False,
+    )
+    action_plan_summary_three = _pick(
+        [
+            action_year_focus,
+            f"올해 운영 기준을 한 줄로 적으면 {action_year_focus}",
+            f"연간 흐름에서 먼저 고정할 기준은 {action_year_focus}",
+            f"지금 1년 운영을 압축하면 {action_year_focus}",
+        ],
+        seed + 183,
+        used_lines,
+        expand=False,
+    )
+    action_plan_summary_four = _pick(
+        [
+            clean_action_force_line,
+            f"이 실행 전략에서 강제로라도 지켜야 할 기준은 {clean_action_force_line}",
+            f"결국 실행력은 이 한 줄을 지킬 때 생깁니다. {clean_action_force_line}",
+            f"실행이 흐려질 때 다시 돌아와야 할 기준은 {clean_action_force_line}",
+        ],
+        seed + 184,
+        used_lines,
+        expand=False,
+    )
 
     sections = [
         {
             "key": "timeline",
             "title": "인생 흐름 타임라인",
-            "headline": _pick(
-                [
-                    "지금은 현재 흐름만 보지 말고 다음 흐름까지 같이 봐야 하는 구간입니다.",
-                    "지금 몇 년은 현재 결과보다 다음 흐름을 준비하는 방식이 더 중요합니다.",
-                    "이 구간은 하나의 대운만 보기보다 다음 대운으로 어떻게 넘어갈지를 같이 봐야 합니다.",
-                ],
-                seed + 9,
-                used_lines,
-            ),
+            "headline": timeline_headline,
             "summary_lines": [
-                _cycle_plain_sentence(active_cycle["pillar"], active_cycle["ten_god"], "current"),
-                _next_cycle_plain_sentence(next_cycle["pillar"], next_cycle["ten_god"], later_cycle["pillar"]),
-                timing_line,
+                timeline_summary_one,
+                timeline_summary_two,
+                timeline_summary_three,
             ],
             "patterns": [
-                "지금은 결과를 억지로 키우기보다 어디에 힘을 실을지 정하는 편이 더 중요합니다.",
-                f"현재 3년은 방향 설정 구간이고, 이후에는 {next_cycle['pillar']}라는 다음 10년 흐름을 거치며 결과 형식이 더 뚜렷해질 가능성이 큽니다.",
-                _pick(
-                    [
-                        "당장 성과를 크게 만들기보다 다음 흐름에서 쓸 기준을 정리해 두는 쪽이 훨씬 남습니다.",
-                        "지금 서두르면 결과는 보여도 다음 흐름 준비가 약해질 수 있습니다.",
-                        "이 시기는 버틸 축을 세워 놓을수록 다음 10년 운영이 쉬워집니다.",
-                    ],
-                    seed + 10,
-                    used_lines,
-                ),
+                timeline_pattern_one,
+                timeline_pattern_two,
+                timeline_pattern_three,
             ],
-            "strength": _pick(
-                [
-                    "긴 호흡으로 흐름을 읽고 준비를 나눠 가져갈 수 있다는 점이 강점입니다.",
-                    "지금 당장 흔들리지 않고 다음 구간까지 고려해 움직일 수 있다는 점이 강점입니다.",
-                    "현재 선택이 다음 흐름에 미치는 영향을 같이 보는 감각이 살아 있다는 점이 장점입니다.",
-                ],
-                seed + 11,
-                used_lines,
-            ),
-            "risk": _pick(
-                [
-                    "지금 당장 결과를 만들려는 조급함이 들어오면 다음 흐름 준비가 느슨해질 수 있습니다.",
-                    "현재 성과 압박에 끌리면 다음 10년을 위한 축이 약해질 수 있습니다.",
-                    "눈앞 결과를 급하게 만들려 할수록 흐름 전체를 읽는 힘이 흐려질 수 있습니다.",
-                ],
-                seed + 12,
-                used_lines,
-            ),
+            "strength": timeline_strength,
+            "risk": timeline_risk,
             "core_insight": timing_line,
             "action_points": [
-                "큰 결정은 준비, 실행, 확정 단계로 나눠서 접근합니다.",
-                f"지금은 {active_cycle['pillar']} 구간에서 무엇을 키울지보다 무엇을 고정할지 먼저 정합니다.",
-                _pick(
-                    [
-                        f"다음 10년 운 {next_cycle['pillar']}으로 넘어가기 전에 생활과 일의 기본 틀을 먼저 정비합니다.",
-                        "지금 3년 안에 방향과 기준을 문장으로 고정합니다.",
-                        "기회가 오기 전에 버릴 것부터 정하는 연습을 합니다.",
-                    ],
-                    seed + 13,
-                    used_lines,
-                ),
+                timeline_action_one,
+                timeline_action_two,
+                timeline_action_three,
             ],
-            "action_note": _pick(
-                [
-                    "지금은 성과보다 방향을 틀리지 않는 쪽이 더 중요합니다.",
-                    "이 시기에는 빠른 확정보다 다음 흐름에 맞는 자리를 고르는 편이 낫습니다.",
-                    "지금 구간은 결과보다 축을 세우는 데 집중할수록 뒤가 편해집니다.",
-                ],
-                seed + 14,
-                used_lines,
-            ),
+            "action_note": timeline_action_note,
         },
         {
             "key": "decision_points",
             "title": "인생 결정 포인트 분석",
-            "headline": _pick(
-                [
-                    "이 구조에서는 감정보다 유지 가능성이 더 중요한 기준이 됩니다.",
-                    "결정을 빨리 내리는 것보다, 결정 이후를 오래 끌고 갈 수 있는지가 더 중요합니다.",
-                    "좋은 선택인지보다 계속 유지할 수 있는 선택인지가 더 핵심이 됩니다.",
-                ],
-                seed + 15,
-                used_lines,
-            ),
+            "headline": decision_headline,
             "summary_lines": [
-                dominant_line,
-                f"월간 십성은 {month_ten_god}입니다. 이는 태어날 때부터 반복해서 작동하는 바깥 환경의 역할 감각으로, 쉽게 말하면 {TEN_GOD_PLAIN_MEANINGS.get(month_ten_god, month_ten_god_line)}입니다.",
-                weak_line,
+                decision_summary_one,
+                decision_summary_two,
+                decision_summary_three,
             ],
             "patterns": [
-                "기회가 와도 바로 움직이지 않고 조건을 먼저 따져보는 편입니다.",
-                "감정보다 구조를 먼저 고려하고, 한 번 결정하면 오래 유지하는 경향이 있습니다.",
+                decision_pattern_one,
+                decision_pattern_two,
                 interpretation["interpretation_sections"]["overall"]["highlight"],
-                _pick(
-                    [
-                        "결정을 미루는 것이 아니라, 납득 가능한 기준이 생길 때까지 보는 쪽에 가깝습니다.",
-                        "겉으로는 늦어 보여도 결론을 내린 뒤에는 방향을 잘 바꾸지 않는 편입니다.",
-                        "선택지가 많을수록 속도보다 비교 기준부터 먼저 세우려는 경향이 있습니다.",
-                    ],
-                    seed + 16,
-                    used_lines,
-                ),
+                decision_pattern_three,
             ],
-            "strength": _pick(
-                [
-                    "기준이 있어 큰 실수를 줄이는 구조입니다.",
-                    "결정 자체보다 결정 이후 유지 가능성을 같이 본다는 점이 강점입니다.",
-                    "한 번 결론을 내리면 쉽게 흔들리지 않는 점이 장점입니다.",
-                ],
-                seed + 17,
-                used_lines,
-            ),
-            "risk": _pick(
-                [
-                    "판단 시간이 길어지면 타이밍을 놓칠 수 있습니다.",
-                    "기회를 보고도 안전성부터 확인하느라 출발 시점이 늦어질 수 있습니다.",
-                    "조건 비교가 길어지면 결론이 늦고 피로감이 쌓일 수 있습니다.",
-                ],
-                seed + 18,
-                used_lines,
-            ),
+            "strength": decision_strength,
+            "risk": decision_risk,
             "core_insight": core_line if "선택 기준" in core_line else "문제는 기회가 아니라 선택 기준입니다.",
             "action_points": [
-                "모든 큰 결정은 계속 유지 가능한지를 기준으로 판단합니다.",
-                decision_line,
-                _pick(
-                    [
-                        "감정이 큰 날에는 결정 대신 조건표부터 만듭니다.",
-                        "기준 없는 비교를 줄이기 위해 판단 항목을 세 줄로 고정합니다.",
-                        "선택 전에는 기대보다 유지 비용부터 확인합니다.",
-                    ],
-                    seed + 19,
-                    used_lines,
-                ),
+                decision_action_one,
+                decision_action_two,
+                decision_action_three,
             ],
-            "action_note": _pick(
-                [
-                    "결정은 빠른 승부보다 조건 검증형으로 가져가는 편이 좋습니다.",
-                    "중요한 판단일수록 마음보다 유지 조건을 먼저 보는 편이 맞습니다.",
-                    "선택 속도보다 선택 이후를 버틸 수 있는지가 더 중요합니다.",
-                ],
-                seed + 20,
-                used_lines,
-            ),
+            "action_note": decision_action_note,
         },
         {
             "key": "wealth_deep",
             "title": "재물 흐름 심층 분석",
-            "headline": _pick(
-                [
-                    "이 사주의 재물은 얼마나 버느냐보다 얼마나 남기느냐에서 차이가 납니다.",
-                    "돈은 크게 움직이는 순간보다 관리 기준이 있을 때 더 안정적으로 남습니다.",
-                    "수입 규모보다 운영 방식이 결과 차이를 더 크게 만드는 구조입니다.",
-                ],
-                seed + 21,
-                used_lines,
-            ),
+            "headline": wealth_headline,
             "summary_lines": [
-                f"올해 재물 기조는 '{saju_result['summary_card']['wealth']}'입니다. 올해 들어오는 십성은 {year_ten_god}이고, 이는 올해 돈 문제를 다루는 분위기가 {TEN_GOD_PLAIN_MEANINGS.get(year_ten_god, year_ten_god_line)} 쪽으로 흐르기 쉽다는 뜻입니다.",
-                year_ten_god_line,
-                _pick(
-                    [
-                        "지금은 확장보다 축적과 관리에 더 무게가 실립니다.",
-                        "벌 기회가 있어도 남는 체계를 같이 만들지 않으면 체감 안정은 늦습니다.",
-                        "지금 돈 흐름은 속도보다 반복 관리에서 차이가 벌어지기 쉽습니다.",
-                    ],
-                    seed + 22,
-                    used_lines,
-                ),
+                wealth_summary_one,
+                wealth_summary_two,
+                wealth_summary_three,
             ],
             "patterns": [
-                "수입 규모보다 지출 구조가 결과를 좌우합니다.",
-                "기준이 없으면 흐름이 쉽게 흔들리지만, 관리 체계가 잡히면 빠르게 안정됩니다.",
-                _pick(
-                    [
-                        "돈은 감각보다 반복 관리에서 실력이 드러나는 편입니다.",
-                        "생활비와 고정비가 정리되면 마음 안정도 같이 올라가는 편입니다.",
-                        "수입 확장보다 새는 흐름을 줄일 때 체감 결과가 더 빨리 나타날 수 있습니다.",
-                    ],
-                    seed + 23,
-                    used_lines,
-                ),
-                (support_line or dominant_line),
+                wealth_pattern_one,
+                wealth_pattern_two,
+                wealth_pattern_three,
+                clean_support_line,
             ],
-            "strength": _pick(
-                [
-                    "꾸준히 쌓는 구조에서 강점을 보입니다.",
-                    "작게 누적하는 구조를 만들면 안정성이 빠르게 살아납니다.",
-                    "재정 흐름을 숫자로 관리할 때 장점이 더 크게 드러납니다.",
-                ],
-                seed + 24,
-                used_lines,
-            ),
-            "risk": _pick(
-                [
-                    "확장 타이밍이 늦어지면 기회 활용 속도가 떨어질 수 있습니다.",
-                    "수입보다 구조를 정리하느라 확장 출발이 늦어질 수 있습니다.",
-                    "기회가 와도 기준이 없으면 들어온 돈이 체감 결과로 잘 남지 않을 수 있습니다.",
-                ],
-                seed + 25,
-                used_lines,
-            ),
+            "strength": wealth_strength,
+            "risk": wealth_risk,
             "core_insight": _pick(
                 [
                     "돈은 속도가 아니라 구조에서 남습니다.",
@@ -1157,69 +1986,29 @@ def build_premium_report(
                 used_lines,
             ),
             "action_points": [
-                "고정비 점검 기준을 먼저 세웁니다.",
-                "계좌를 분리하고 월 단위 현금 흐름을 체크합니다.",
-                action_force_line,
+                wealth_action_one,
+                wealth_action_two,
+                wealth_action_three,
             ],
-            "action_note": _pick(
-                [
-                    "재물은 벌기보다 남기는 체계에서 결과가 갈립니다.",
-                    "지금은 수입보다 관리 틀을 만드는 쪽이 훨씬 중요합니다.",
-                    "돈 흐름은 감으로 두지 말고 숫자로 고정해야 체감 안정이 빨라집니다.",
-                ],
-                seed + 27,
-                used_lines,
-            ),
+            "action_note": wealth_action_note,
         },
         {
             "key": "career_direction",
             "title": "직업 / 사업 방향 분석",
-            "headline": _pick(
-                [
-                    "이 구조는 빠른 성과형보다 관리와 누적형에서 더 강합니다.",
-                    "성과를 내는 힘은 있지만, 더 큰 차이는 운영 능력에서 벌어지는 구조입니다.",
-                    "직업과 사업 모두 판을 키우기보다 유지 가능한 형식을 만들 때 강점이 더 잘 보입니다.",
-                ],
-                seed + 28,
-                used_lines,
-            ),
+            "headline": career_headline,
             "summary_lines": [
-                f"현재 직장운은 '{career_fortune['headline']}'로 읽히며, 지금은 성과보다 운영 능력이 더 중요하게 작동합니다.",
-                f"올해 십성은 {year_ten_god}, 현재 10년 운의 십성은 {daewoon_ten_god}입니다. 즉 단기 분위기는 {TEN_GOD_PLAIN_MEANINGS.get(year_ten_god, year_ten_god_line)} 쪽으로 움직이고, 더 긴 10년 흐름은 {TEN_GOD_PLAIN_MEANINGS.get(daewoon_ten_god, daewoon_ten_god_line)} 쪽 압력을 같이 주는 구간입니다.",
-                career_signal,
+                career_summary_one,
+                career_summary_two,
+                career_summary_three,
             ],
             "patterns": [
-                "역할이 명확할수록 강점이 더 잘 드러납니다.",
-                "관리와 실적이 같이 필요하고, 선택이 많아질수록 분산 위험이 커집니다.",
-                _pick(
-                    [
-                        "사업으로 넓히더라도 수익 구조를 먼저 확인한 뒤 확장하는 편이 좋습니다.",
-                        "직장에서는 잘하는 일을 더 선명하게 보이게 만드는 쪽이 먼저입니다.",
-                        "일이 늘어날수록 직접 다 쥐기보다 기준과 우선순위를 먼저 세우는 편이 좋습니다.",
-                    ],
-                    seed + 29,
-                    used_lines,
-                ),
-                career_fortune["section"]["highlight"],
+                career_pattern_one,
+                career_pattern_two,
+                career_pattern_three,
+                clean_career_highlight,
             ],
-            "strength": _pick(
-                [
-                    "지속 가능한 구조에서 성과를 유지하는 힘이 있습니다.",
-                    "운영 기준과 실무를 함께 챙길 수 있다는 점이 강점입니다.",
-                    "누적형 성과를 만들 때 흔들림이 비교적 적다는 점이 장점입니다.",
-                ],
-                seed + 30,
-                used_lines,
-            ),
-            "risk": _pick(
-                [
-                    "기회가 많을수록 우선순위가 흐려져 분산이 생길 수 있습니다.",
-                    "성과 욕심으로 일을 늘리면 관리가 느슨해질 수 있습니다.",
-                    "직장과 사업 모두 선택이 많을수록 에너지가 흩어질 가능성을 조심해야 합니다.",
-                ],
-                seed + 31,
-                used_lines,
-            ),
+            "strength": career_strength,
+            "risk": career_risk,
             "core_insight": _pick(
                 [
                     "성과는 능력보다 운영 방식에서 갈립니다.",
@@ -1230,84 +2019,28 @@ def build_premium_report(
                 used_lines,
             ),
             "action_points": [
-                "직장에서는 평가 기준을 눈에 보이게 정리합니다.",
-                "사업은 수익 구조를 먼저 검증한 뒤 확장합니다.",
-                _pick(
-                    [
-                        "업무는 늘리기 전에 버릴 것부터 정합니다.",
-                        "성과는 숫자로 남기고, 운영 기준은 문장으로 남깁니다.",
-                        "이직이나 확장은 충동 대신 조건 비교표로 판단합니다.",
-                    ],
-                    seed + 33,
-                    used_lines,
-                ),
+                career_action_one,
+                career_action_two,
+                career_action_three,
             ],
-            "action_note": _pick(
-                [
-                    "지금은 성과보다 운영 기준을 세우는 편이 더 중요합니다.",
-                    "직업 흐름은 확장보다 관리가 받쳐야 체감 결과가 남습니다.",
-                    "역할이 많아질수록 운영 기준을 먼저 세우는 편이 맞습니다.",
-                ],
-                seed + 34,
-                used_lines,
-            ),
+            "action_note": career_action_note,
         },
         {
             "key": "relationship_deep",
             "title": "관계 심층 분석",
-            "headline": _pick(
-                [
-                    "이 구조에서는 감정보다 관계의 속도와 리듬이 더 중요합니다.",
-                    "관계가 들어와도 빨리 가까워지는 것보다 천천히 안정되는 쪽이 더 잘 맞습니다.",
-                    "호감 자체보다 관계가 유지될 수 있는 리듬을 맞추는 일이 더 중요합니다.",
-                ],
-                seed + 35,
-                used_lines,
-            ),
+            "headline": relationship_headline,
             "summary_lines": [
-                relationship_fortune["summary"],
-                relationship_signal,
-                _pick(
-                    [
-                        "관계가 틀어지는 이유는 감정보다 타이밍 문제인 경우가 더 많습니다.",
-                        "좋아도 속도가 너무 빠르면 오히려 부담이 먼저 올라올 수 있습니다.",
-                        "관계는 열려 있어도 결론을 빨리 내릴수록 피로가 커질 수 있습니다.",
-                    ],
-                    seed + 36,
-                    used_lines,
-                ),
+                relationship_summary_one,
+                relationship_summary_two,
+                relationship_summary_three,
             ],
             "patterns": [
-                "관계 시작은 느릴 수 있지만, 깊어지면 오래 유지하는 편입니다.",
-                "감정 표현은 늦을 수 있어 타이밍이 어긋날 가능성을 같이 봐야 합니다.",
-                _pick(
-                    [
-                        "좋아도 빨리 확정하기보다 서로의 생활 리듬과 현실 조건을 함께 보는 편이 좋습니다.",
-                        "관계는 감정보다 거리와 속도 조절이 맞을 때 훨씬 편안해질 수 있습니다.",
-                        "처음에는 느려 보여도 신뢰가 생기면 오래 가는 편이라 초반 리듬이 중요합니다.",
-                    ],
-                    seed + 37,
-                    used_lines,
-                ),
+                relationship_pattern_one,
+                relationship_pattern_two,
+                relationship_pattern_three,
             ],
-            "strength": _pick(
-                [
-                    "신뢰 기반 관계를 오래 유지하는 힘이 있습니다.",
-                    "한 번 신뢰가 생기면 관계를 쉽게 가볍게 다루지 않는 점이 장점입니다.",
-                    "관계를 빠르게 소비하지 않고 깊이 있게 보는 힘이 있습니다.",
-                ],
-                seed + 38,
-                used_lines,
-            ),
-            "risk": _pick(
-                [
-                    "타이밍이 어긋나면 감정보다 거리감 문제로 관계가 흔들릴 수 있습니다.",
-                    "표현이 늦어지면 마음보다 차갑게 읽힐 가능성을 조심해야 합니다.",
-                    "좋아도 결론을 미루는 시간이 길어지면 흐름이 엇갈릴 수 있습니다.",
-                ],
-                seed + 39,
-                used_lines,
-            ),
+            "strength": relationship_strength,
+            "risk": relationship_risk,
             "core_insight": _pick(
                 [
                     "관계는 감정이 아니라 속도에서 갈립니다.",
@@ -1318,77 +2051,29 @@ def build_premium_report(
                 used_lines,
             ),
             "action_points": [
-                "관계 속도를 조절합니다.",
-                "현실 조건을 함께 확인합니다.",
-                "결론을 서두르지 않습니다.",
-                _relationship_action_line(gender, seed + 41, used_lines),
+                relationship_action_one,
+                relationship_action_two,
+                relationship_action_three,
+                clean_relationship_action,
             ],
-            "action_note": _pick(
-                [
-                    "관계는 감정보다 리듬이 맞을 때 더 오래 갑니다.",
-                    "호감이 커도 속도를 낮추는 편이 오히려 관계를 안정시킬 수 있습니다.",
-                    "좋은 흐름이 와도 타이밍을 천천히 맞추는 편이 더 잘 맞습니다.",
-                ],
-                seed + 42,
-                used_lines,
-            ),
+            "action_note": relationship_action_note,
         },
         {
             "key": "risk_analysis",
             "title": "리스크 분석",
-            "headline": _pick(
-                [
-                    "이 사주의 리스크는 운이 아니라 선택 구조에서 발생합니다.",
-                    "문제는 외부 상황보다, 흔들릴 때 어떤 기준으로 고르는지에서 커질 수 있습니다.",
-                    "리스크는 기회가 없는 데서보다 기준이 흐려질 때 더 크게 만들어집니다.",
-                ],
-                seed + 43,
-                used_lines,
-            ),
+            "headline": risk_headline,
             "summary_lines": [
-                f"특히 약한 오행 {', '.join(weak_kor)}이 흔들릴 때는 방향이 흐려지고 선택이 여러 갈래로 분산되는 문제가 같이 나타날 수 있습니다.",
-                risk_line,
-                _pick(
-                    [
-                        "문제는 외부 충격보다 내부 기준이 약해질 때 더 크게 커집니다.",
-                        "환경보다 우선순위가 흐려질 때 피로와 실수가 같이 올라올 수 있습니다.",
-                        "선택지가 늘어나는 시기일수록 무엇을 버릴지 정하지 않으면 리스크가 커질 수 있습니다.",
-                    ],
-                    seed + 44,
-                    used_lines,
-                ),
+                risk_summary_one,
+                risk_summary_two,
+                risk_summary_three,
             ],
             "patterns": [
-                "선택 기준이 흔들리면 좋은 기회도 쉽게 분산됩니다.",
-                "기회가 많아질수록 오히려 무엇을 버릴지 정하지 못해 피로가 커질 수 있습니다.",
-                _pick(
-                    [
-                        "감정이 앞서 결정하면 속도는 빨라지지만 유지력이 약해질 수 있습니다.",
-                        "지금은 못하는 것보다 너무 많이 잡는 것이 더 큰 문제일 수 있습니다.",
-                        "불안해서 판단을 서두르면 방향 수정 비용이 더 커질 수 있습니다.",
-                    ],
-                    seed + 45,
-                    used_lines,
-                ),
+                risk_pattern_one,
+                risk_pattern_two,
+                risk_pattern_three,
             ],
-            "strength": _pick(
-                [
-                    "한 번 기준을 잡으면 리스크를 빠르게 줄이는 편입니다.",
-                    "문제를 감보다 기준으로 다룰 수 있어 회복이 빠른 편입니다.",
-                    "흐름이 꼬여도 다시 정리할 축을 만드는 힘은 비교적 강한 편입니다.",
-                ],
-                seed + 46,
-                used_lines,
-            ),
-            "risk": _pick(
-                [
-                    "기준 없이 움직이면 분산과 결정 피로가 동시에 올라올 수 있습니다.",
-                    "좋아 보여도 전부 잡으려 하면 체감 안정이 빠르게 무너질 수 있습니다.",
-                    "선택 구조가 흐려지면 사람, 일정, 돈이 같이 엉킬 수 있습니다.",
-                ],
-                seed + 47,
-                used_lines,
-            ),
+            "strength": risk_strength,
+            "risk": risk_risk,
             "core_insight": _pick(
                 [
                     "리스크는 상황이 아니라 선택 방식에서 발생합니다.",
@@ -1399,46 +2084,22 @@ def build_premium_report(
                 used_lines,
             ),
             "action_points": [
-                "일정 상한선을 정합니다.",
-                "지출 상한선을 정합니다.",
-                "관계 거리 기준을 정합니다.",
-                _pick(
-                    [
-                        "중요한 선택에는 하루 이상의 검토 시간을 둡니다.",
-                        "무조건 해야 하는 일과 해도 되는 일을 분리합니다.",
-                        "이번 달에는 줄일 것을 먼저 정합니다.",
-                    ],
-                    seed + 49,
-                    used_lines,
-                ),
+                risk_action_one,
+                risk_action_two,
+                risk_action_three,
+                risk_action_four,
             ],
-            "action_note": _pick(
-                [
-                    "리스크는 감으로 다루지 말고 숫자와 선으로 관리해야 합니다.",
-                    "지금은 감정 정리가 아니라 기준 정리가 더 큰 보호 장치가 됩니다.",
-                    "정리된 기준 하나가 여러 문제를 같이 줄여줄 수 있습니다.",
-                ],
-                seed + 50,
-                used_lines,
-            ),
+            "action_note": risk_action_note,
         },
         {
             "key": "action_plan",
             "title": "실행 전략",
-            "headline": _pick(
-                [
-                    "이 리포트의 핵심은 이해가 아니라 실행입니다.",
-                    "좋은 해석은 많아도, 실제 변화는 행동 순서를 정할 때 시작됩니다.",
-                    "결국 이 리포트는 읽는 용도가 아니라 옮겨 적고 실행하는 용도로 써야 합니다.",
-                ],
-                seed + 51,
-                used_lines,
-            ),
+            "headline": action_plan_headline,
             "summary_lines": [
-                action_intro,
-                action_plan_profile["month_focus"],
-                action_plan_profile["year_focus"],
-                action_force_line,
+                action_plan_summary_one,
+                action_plan_summary_two,
+                action_plan_summary_three,
+                action_plan_summary_four,
             ],
             "patterns": [
                 action_plan_profile["month_pattern"],
@@ -1467,6 +2128,7 @@ def build_premium_report(
         "user_type": user_type,
         "header": "프리미엄 사주 리포트",
         "intro": "이 리포트는 단순한 성향 설명이 아니라, 앞으로 어떤 선택을 해야 하는지까지 정리한 실행형 분석입니다.",
+        "analysis_brief": analysis_profile,
         "overview": overview,
         "final_summary": {
             "headline": "최종 정리",
@@ -1511,6 +2173,8 @@ def _build_action_plan_profile(
     daewoon_ten_god: str,
     career_fortune: dict,
     relationship_fortune: dict,
+    analysis_context: dict | None,
+    action_force_line: str,
     seed: int,
     used_lines: set[str],
 ) -> dict:
@@ -1518,6 +2182,8 @@ def _build_action_plan_profile(
     weak_element = weak[0]
     career_trend = career_fortune.get("trend", "유지/정비")
     relationship_trend = relationship_fortune.get("trend", "재정비")
+    analysis_line = _pick(_analysis_focus_lines(analysis_context), seed + 34, used_lines)
+    uncertainty_line = _pick(_uncertainty_focus_lines(analysis_context), seed + 36, used_lines)
 
     month_focus = _pick(ACTION_PLAN_DAY_STEM_LINES[day_stem], seed + 1, used_lines)
     year_focus = _pick(ACTION_PLAN_MONTH_BRANCH_LINES[month_branch], seed + 3, used_lines)
@@ -1548,48 +2214,91 @@ def _build_action_plan_profile(
             _pick(ACTION_PLAN_MONTH_TEN_GOD_LINES[month_ten_god], seed + 29, used_lines),
             _pick(ACTION_PLAN_DAEWOON_LINES[daewoon_ten_god], seed + 31, used_lines),
             _pick(ACTION_PLAN_YEAR_FLOW_LINES[year_ten_god], seed + 33, used_lines),
+            analysis_line,
         ],
         seed + 35,
         used_lines,
     )
+    weak_focus_line = _pick(ACTION_PLAN_WEAK_LINES[weak_element], seed + 37, used_lines)
+    month_ten_god_focus_line = _pick(ACTION_PLAN_MONTH_TEN_GOD_LINES[month_ten_god], seed + 39, used_lines)
+    year_flow_focus_line = _pick(ACTION_PLAN_YEAR_FLOW_LINES[year_ten_god], seed + 41, used_lines)
+    career_focus_line = _pick(
+        ACTION_PLAN_CAREER_LINES.get(career_trend, ACTION_PLAN_CAREER_LINES["유지/정비"]),
+        seed + 43,
+        used_lines,
+    )
+    relation_focus_line = _pick(
+        ACTION_PLAN_RELATION_LINES.get(relationship_trend, ACTION_PLAN_RELATION_LINES["재정비"]),
+        seed + 45,
+        used_lines,
+    )
+    daewoon_focus_line = _pick(ACTION_PLAN_DAEWOON_LINES[daewoon_ten_god], seed + 47, used_lines)
+    dominant_focus_line = _pick(ACTION_PLAN_DOMINANT_LINES[dominant_element], seed + 49, used_lines)
+    action_month_focus = _clean_action_plan_line(month_focus)
+    action_year_focus = _clean_action_plan_line(year_focus)
+    action_weak_focus_line = _clean_action_plan_line(weak_focus_line)
+    action_analysis_line = _clean_action_plan_line(analysis_line)
+    action_month_ten_god_focus_line = _clean_action_plan_line(month_ten_god_focus_line)
+    action_year_flow_focus_line = _clean_action_plan_line(year_flow_focus_line)
+    action_career_focus_line = _clean_action_plan_line(career_focus_line)
+    action_relation_focus_line = _clean_action_plan_line(relation_focus_line)
+    action_daewoon_focus_line = _clean_action_plan_line(daewoon_focus_line)
+    action_dominant_focus_line = _clean_action_plan_line(dominant_focus_line)
+    action_strength_line = _clean_action_plan_line(strength)
+    action_core_insight = _clean_action_plan_line(core_insight)
+    action_uncertainty_line = _clean_action_plan_line(uncertainty_line)
+    action_force_summary = _clean_action_plan_line(action_force_line)
 
     point_one = _pick(
         [
-            f"이번 달에는 {month_focus.replace('편이 좋습니다.', '').replace('편이 더 잘 맞습니다.', '')}를 실행 항목으로 바로 옮깁니다.",
-            f"이번 달 기준표에는 {ACTION_PLAN_WEAK_LINES[weak_element][0].replace('편이 좋습니다.', '').replace('편이 더 중요합니다.', '')}를 먼저 넣습니다.",
+            f"이번 달 첫 실행은 이 문장으로 잡습니다. {action_month_focus}",
+            f"이번 달 체크리스트 첫 줄에는 이 기준을 넣습니다. {action_year_focus}",
+            f"이번 달 기준표에는 이 보완 포인트를 먼저 적어 둡니다. {action_weak_focus_line}",
+            f"이번 달에는 이 핵심 해석부터 현실 행동으로 옮깁니다. {action_analysis_line}",
         ],
-        seed + 37,
+        seed + 51,
         used_lines,
+        expand=False,
     )
     point_two = _pick(
         [
-            f"올해는 {ACTION_PLAN_MONTH_TEN_GOD_LINES[month_ten_god][0].replace('편이 좋습니다.', '').replace('편이 더 효과적입니다.', '')}를 중심 전략으로 잡습니다.",
-            f"올해 운영 기준은 {ACTION_PLAN_YEAR_FLOW_LINES[year_ten_god][0].replace('편이 좋습니다.', '').replace('편이 필요합니다.', '')}에 맞춰 정리합니다.",
+            f"올해 중심 전략은 이 흐름에 맞춰 정리합니다. {action_month_ten_god_focus_line}",
+            f"올해 운영 기준은 이 문장을 기준으로 고정합니다. {action_year_flow_focus_line}",
+            f"연간 실행표에는 이 강제 기준을 같이 넣습니다. {action_force_summary}",
+            f"올해는 핵심 인사이트를 이렇게 운용 기준으로 바꿉니다. {action_core_insight}",
         ],
-        seed + 39,
+        seed + 53,
         used_lines,
+        expand=False,
     )
     point_three = _pick(
         [
-            f"직장 쪽에서는 {ACTION_PLAN_CAREER_LINES.get(career_trend, ACTION_PLAN_CAREER_LINES['유지/정비'])[0].replace('편이 좋습니다.', '')}를 우선 실행합니다.",
-            f"관계 쪽에서는 {ACTION_PLAN_RELATION_LINES.get(relationship_trend, ACTION_PLAN_RELATION_LINES['재정비'])[0].replace('편이 좋습니다.', '')}를 먼저 확인합니다.",
+            f"직장 쪽 실행은 이 문장에서 먼저 시작합니다. {action_career_focus_line}",
+            f"관계 쪽 실행은 이 리듬부터 먼저 맞춥니다. {action_relation_focus_line}",
+            f"일과 사람 문제를 함께 볼 때는 이 강점을 먼저 살립니다. {action_dominant_focus_line}",
+            f"생활 바깥 움직임은 이 기준으로 나눠서 관리합니다. {action_strength_line}",
         ],
-        seed + 41,
+        seed + 55,
         used_lines,
+        expand=False,
     )
     point_four = _pick(
         [
-            f"다음 10년 흐름을 준비할 때는 {ACTION_PLAN_DAEWOON_LINES[daewoon_ten_god][0].replace('편이 좋습니다.', '').replace('더 중요합니다.', '중요합니다.')}를 장기 계획에 넣습니다.",
-            f"약한 오행 {', '.join(weak_kor)}을 보완하는 루틴을 하나 정해 30일 단위로 확인합니다.",
+            f"다음 10년 준비는 이 흐름을 장기 계획에 넣는 방식으로 가져갑니다. {action_daewoon_focus_line}",
+            f"30일 점검표에는 약한 오행 {', '.join(weak_kor)} 보완 루틴 한 가지를 꼭 남깁니다.",
+            f"변수가 생기면 이 유의점을 장기 전략과 같이 봅니다. {action_uncertainty_line}",
+            f"장기 흐름을 준비할 때는 이 보완 기준을 끝까지 유지합니다. {action_weak_focus_line}",
         ],
-        seed + 43,
+        seed + 57,
         used_lines,
+        expand=False,
     )
     action_note = _pick(
         [
             "읽은 내용을 이해하는 것보다, 이번 달 실행표에 네 줄로 옮기는 순간부터 체감 변화가 시작됩니다.",
             "이 실행 전략은 많이 아는 사람보다 먼저 적고 먼저 줄이는 사람이 더 크게 체감할 가능성이 큽니다.",
             "결국 해석의 차이는 이해량이 아니라, 어떤 기준을 먼저 고정했는지에서 벌어집니다.",
+            uncertainty_line,
         ],
         seed + 45,
         used_lines,
@@ -1610,22 +2319,184 @@ def _build_action_plan_profile(
         "point_three": point_three,
         "point_four": point_four,
         "action_note": action_note,
+        "analysis_focus": analysis_line,
+        "uncertainty_line": uncertainty_line,
     }
 
 
-def _pick(options: list[str], seed: int, used: set[str] | None = None) -> str:
+def _pick(options: list[str], seed: int, used: set[str] | None = None, *, expand: bool = True) -> str:
     if not options:
         return ""
-    for offset in range(len(options)):
-        candidate = options[(seed + offset) % len(options)]
+    expanded_options = list(_expanded_premium_pick_options(tuple(options))) if expand else list(options)
+    for offset in range(len(expanded_options)):
+        candidate = expanded_options[(seed + offset) % len(expanded_options)]
         if used is None or candidate not in used:
             if used is not None:
                 used.add(candidate)
             return candidate
-    candidate = options[seed % len(options)]
+    candidate = expanded_options[seed % len(expanded_options)]
     if used is not None:
         used.add(candidate)
     return candidate
+
+
+@lru_cache(maxsize=512)
+def _expanded_premium_pick_options(options: tuple[str, ...]) -> tuple[str, ...]:
+    expanded: list[str] = []
+    seen: set[str] = set()
+    for sentence in options:
+        candidates = _premium_variants(sentence)
+        for candidate in candidates:
+            cleaned = candidate.strip()
+            if not cleaned or cleaned in seen:
+                continue
+            expanded.append(cleaned)
+            seen.add(cleaned)
+    return tuple(expanded)
+
+
+def _premium_variants(sentence: str) -> list[str]:
+    stripped = sentence.strip()
+    if len(stripped) < 16:
+        return [stripped]
+
+    variants = [stripped]
+    lowered = stripped[0].lower() + stripped[1:] if len(stripped) > 1 else stripped
+    variants.append(f"핵심만 잡으면 {lowered}")
+    variants.append(f"조금 더 풀면 {lowered}")
+
+    ending_rewrites = (
+        ("더 중요합니다.", "중요해지는 구간입니다."),
+        ("더 필요합니다.", "필요한 시기입니다."),
+        ("더 좋습니다.", "더 유리하게 작동할 수 있습니다."),
+        ("입니다.", "인 흐름입니다."),
+        ("중요합니다.", "더 중요해지는 구간입니다."),
+        ("필요합니다.", "우선 필요한 시기입니다."),
+        ("좋습니다.", "더 유리하게 작동할 수 있습니다."),
+        ("됩니다.", "쪽으로 이어질 가능성이 큽니다."),
+        ("더 중요합니다", "중요해지는 구간입니다"),
+        ("더 필요합니다", "필요한 시기입니다"),
+        ("더 좋습니다", "더 유리하게 작동할 수 있습니다"),
+        ("입니다", "인 흐름입니다"),
+        ("중요합니다", "더 중요해지는 구간입니다"),
+        ("필요합니다", "우선 필요한 시기입니다"),
+        ("좋습니다", "더 유리하게 작동할 수 있습니다"),
+        ("됩니다", "쪽으로 이어질 가능성이 큽니다"),
+    )
+    for source, target in ending_rewrites:
+        if stripped.endswith(source):
+            variants.append(f"{stripped[:-len(source)]}{target}")
+    return variants
+
+
+def _expand_action_plan_pool(lines: list[str]) -> list[str]:
+    expanded: list[str] = []
+    seen: set[str] = set()
+    for sentence in lines:
+        stripped = sentence.strip()
+        lowered = stripped[0].lower() + stripped[1:] if len(stripped) > 1 else stripped
+        candidates = [
+            *_premium_variants(stripped),
+            stripped.replace("이번 달에는", "이번 한 달은"),
+            stripped.replace("실행 전략도", "실행표도"),
+            stripped.replace("실행 전략은", "실행표는"),
+            stripped.replace("편이 좋습니다.", "쪽이 더 실속 있습니다."),
+            stripped.replace("편이 더 중요합니다.", "쪽이 우선입니다."),
+            stripped.replace("편이 더 잘 맞습니다.", "쪽이 실제 흐름과 더 맞습니다."),
+            stripped.replace("더 중요합니다.", "우선순위가 됩니다."),
+            f"실무적으로는 {lowered}",
+            f"실제로 적용하면 {lowered}",
+        ]
+        for candidate in candidates:
+            cleaned = candidate.strip()
+            if not cleaned or cleaned in seen:
+                continue
+            expanded.append(cleaned)
+            seen.add(cleaned)
+    return expanded
+
+
+def _expand_action_plan_dict(pool: dict[str, list[str]]) -> dict[str, list[str]]:
+    return {key: _expand_action_plan_pool(lines) for key, lines in pool.items()}
+
+
+def _clean_action_plan_line(sentence: str) -> str:
+    cleaned = sentence.strip()
+    prefixes = (
+        "핵심만 잡으면 ",
+        "조금 더 풀면 ",
+        "실무적으로는 ",
+        "실제로 적용하면 ",
+        "결론만 남기면, ",
+        "그래서, ",
+    )
+    changed = True
+    while changed:
+        changed = False
+        for prefix in prefixes:
+            if cleaned.startswith(prefix):
+                cleaned = cleaned[len(prefix):].strip()
+                changed = True
+    return cleaned
+
+
+ACTION_FORCE_TEMPLATES = _expand_action_plan_pool(ACTION_FORCE_TEMPLATES)
+ACTION_PLAN_DAY_STEM_LINES = _expand_action_plan_dict(ACTION_PLAN_DAY_STEM_LINES)
+ACTION_PLAN_MONTH_BRANCH_LINES = _expand_action_plan_dict(ACTION_PLAN_MONTH_BRANCH_LINES)
+ACTION_PLAN_DOMINANT_LINES = _expand_action_plan_dict(ACTION_PLAN_DOMINANT_LINES)
+ACTION_PLAN_WEAK_LINES = _expand_action_plan_dict(ACTION_PLAN_WEAK_LINES)
+ACTION_PLAN_MONTH_TEN_GOD_LINES = _expand_action_plan_dict(ACTION_PLAN_MONTH_TEN_GOD_LINES)
+ACTION_PLAN_DAEWOON_LINES = _expand_action_plan_dict(ACTION_PLAN_DAEWOON_LINES)
+ACTION_PLAN_YEAR_FLOW_LINES = _expand_action_plan_dict(ACTION_PLAN_YEAR_FLOW_LINES)
+ACTION_PLAN_CAREER_LINES = _expand_action_plan_dict(ACTION_PLAN_CAREER_LINES)
+ACTION_PLAN_RELATION_LINES = _expand_action_plan_dict(ACTION_PLAN_RELATION_LINES)
+
+
+def _build_premium_analysis_profile(analysis_context: dict | None, seed: int, used_lines: set[str]) -> dict:
+    if not analysis_context:
+        return {"brief": []}
+
+    strength = analysis_context["strength"]
+    yongshin = analysis_context["yongshin"]
+    interactions = analysis_context["interactions"]
+    uncertainty_notes = analysis_context.get("uncertainty_notes", [])
+
+    brief = [
+        f"중간 계산상 일간 힘은 {strength['display_label']} 쪽으로 읽혀, 프리미엄 판단도 한쪽 과열보다 균형 관리가 더 중요합니다.",
+        f"핵심 용신 후보는 {yongshin['display']['primary']}이고, 보조 후보는 {yongshin['display']['secondary']}입니다.",
+    ]
+    if interactions["natal"]:
+        item = interactions["natal"][seed % len(interactions["natal"])]
+        brief.append(f"원국 안에는 {item['target']} {item['type']} 흐름이 있어, 큰 선택에서도 {item['meaning']}")
+    elif uncertainty_notes:
+        brief.append(uncertainty_notes[0])
+    return {"brief": [_pick([line], seed + index, used_lines) for index, line in enumerate(brief)]}
+
+
+def _analysis_focus_lines(analysis_context: dict | None) -> list[str]:
+    if not analysis_context:
+        return ["이번 전략은 한쪽 과열보다 기준을 먼저 고정하는 데 집중하는 편이 좋습니다."]
+
+    strength = analysis_context["strength"]
+    yongshin = analysis_context["yongshin"]
+    flags = analysis_context["flags"]
+    lines = [
+        f"중간 계산상 {strength['display_label']} 구조이므로 이번 전략도 {yongshin['display']['primary']} 균형을 먼저 살리는 편이 좋습니다.",
+        f"핵심 용신 후보가 {yongshin['display']['primary']}이므로 실행 전략도 그 기운에 맞는 운영 기준부터 세우는 편이 좋습니다.",
+    ]
+    if flags["needs_resource_support"]:
+        lines.append(f"이번 전략은 {yongshin['display']['primary']}처럼 기반과 준비를 채우는 쪽으로 짜는 편이 더 잘 맞습니다.")
+    elif flags["needs_output_release"]:
+        lines.append(f"이번 전략은 {yongshin['display']['primary']}처럼 결과를 바깥으로 보이게 남기는 쪽이 더 잘 맞습니다.")
+    return lines
+
+
+def _uncertainty_focus_lines(analysis_context: dict | None) -> list[str]:
+    if not analysis_context or not analysis_context.get("uncertainty_notes"):
+        return [
+            "실행 전략은 많이 적는 것보다 먼저 줄일 항목을 분명히 적는 순간부터 체감 차이가 생깁니다.",
+        ]
+    return analysis_context["uncertainty_notes"]
 
 
 def _ten_god_line(ten_god: str) -> str:

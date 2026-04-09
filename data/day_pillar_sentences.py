@@ -146,20 +146,76 @@ BRANCH_DAILY = {
 }
 
 
-def _build_day_pillar_sentences() -> dict[str, dict[str, str]]:
-    result: dict[str, dict[str, str]] = {}
+def _core_options(kor: str, stem_kor: str, branch_kor: str) -> list[str]:
+    return [
+        f"{kor} 일주는 {STEM_CORE[stem_kor]}과 {BRANCH_LIFE[branch_kor]}이 맞물려, 기본 판단 순서가 비교적 선명하게 드러나는 편입니다.",
+        f"{kor} 일주는 {branch_kor} 지지 특유의 {BRANCH_LIFE[branch_kor]} 위에 {stem_kor} 천간의 {STEM_CORE[stem_kor]}이 실려, 중요한 순간 반응 구조가 분명한 편입니다.",
+        f"{kor} 일주를 풀어보면 {STEM_CORE[stem_kor]}이 생활 속 {BRANCH_LIFE[branch_kor]}과 이어져, 겉보다 내부 판단 순서가 또렷하게 작동하는 편입니다.",
+    ]
+
+
+def _career_options(kor: str, stem_kor: str, branch_kor: str) -> list[str]:
+    stem_phrase = STEM_CAREER[stem_kor].replace("직장에서는 ", "")
+    branch_phrase = BRANCH_CAREER[branch_kor]
+    return [
+        f"일이 한꺼번에 몰릴 때는 {stem_phrase} 또한 {branch_phrase}",
+        f"역할을 나눠야 하는 장면에서는 {stem_phrase} 그리고 {branch_phrase}",
+        f"결정을 바로 내려야 하는 순간에는 {stem_phrase} 여기에 생활 리듬상 {branch_phrase}",
+    ]
+
+
+def _relationship_options(kor: str, stem_kor: str, branch_kor: str) -> list[str]:
+    stem_phrase = STEM_RELATION[stem_kor].replace("관계에서도 ", "").replace("관계에서는 ", "")
+    branch_phrase = BRANCH_RELATION[branch_kor]
+    return [
+        f"가까워질지 한발 물러설지 정해야 하는 장면에서는 {stem_phrase} 또한 {branch_phrase}",
+        f"연락을 이어 갈지 멈출지 고민하는 순간에는 {stem_phrase} 그리고 {branch_phrase}",
+        f"호감이 있어도 속도를 바로 올리기 어려운 장면에서는 {stem_phrase} 여기에 생활 리듬상 {branch_phrase}",
+    ]
+
+
+def _wealth_options(kor: str, stem_kor: str, branch_kor: str) -> list[str]:
+    return [
+        f"{kor} 일주는 {STEM_WEALTH[stem_kor]} 여기에 {branch_kor} 지지의 재물 결이 더해져 {BRANCH_WEALTH[branch_kor]}",
+        f"{kor} 일주를 재물 쪽으로 보면 {stem_kor} 천간의 기준으로는 {STEM_WEALTH[stem_kor].replace('재물은 ', '')} 그리고 생활 리듬으로는 {BRANCH_WEALTH[branch_kor]}",
+        f"{kor} 일주는 돈 문제에서도 {STEM_WEALTH[stem_kor].replace('돈 문제에서도 ', '').replace('재물은 ', '')} 여기에 {branch_kor} 지지의 습관이 더해져 {BRANCH_WEALTH[branch_kor]}",
+    ]
+
+
+def _daily_options(kor: str, stem_kor: str, branch_kor: str) -> list[str]:
+    return [
+        f"답을 빨리 정해야 하는 순간에는 {STEM_DAILY[stem_kor]} 또한 {branch_kor} 지지가 주는 하루 리듬상 {BRANCH_DAILY[branch_kor]}",
+        f"일정과 연락이 한꺼번에 몰릴 때는 {STEM_DAILY[stem_kor].replace('오늘은 ', '')} 그리고 하루 리듬으로는 {BRANCH_DAILY[branch_kor]}",
+        f"회의나 답장, 결제처럼 바로 판단해야 하는 장면에서는 {STEM_DAILY[stem_kor].replace('오늘은 ', '')} 여기에 {branch_kor} 지지 특유의 하루 결로는 {BRANCH_DAILY[branch_kor]}",
+    ]
+
+
+def _build_day_pillar_sentence_options() -> dict[str, dict[str, list[str]]]:
+    result: dict[str, dict[str, list[str]]] = {}
     for index in range(60):
         stem = STEMS[index % 10]
         branch = BRANCHES[index % 12]
         kor = f"{stem['kor']}{branch['kor']}"
         result[kor] = {
-            "core": f"{kor} 일주는 {STEM_CORE[stem['kor']]}과 {BRANCH_LIFE[branch['kor']]}이 맞물려, 기본 판단 순서가 비교적 선명하게 드러나는 편입니다.",
-            "career": f"{kor} 일주는 {STEM_CAREER[stem['kor']]} 여기에 {branch['kor']} 지지 특유의 리듬이 더해져 {BRANCH_CAREER[branch['kor']]}",
-            "relationship": f"{kor} 일주는 {STEM_RELATION[stem['kor']]} 여기에 {branch['kor']} 지지의 관계 결이 더해져 {BRANCH_RELATION[branch['kor']]}",
-            "wealth": f"{kor} 일주는 {STEM_WEALTH[stem['kor']]} 여기에 {branch['kor']} 지지의 재물 결이 더해져 {BRANCH_WEALTH[branch['kor']]}",
-            "daily": f"{kor} 일주 기준으로 보면 {STEM_DAILY[stem['kor']]} 또한 {branch['kor']} 지지가 주는 하루 리듬상 {BRANCH_DAILY[branch['kor']]}",
+            "core": _core_options(kor, stem["kor"], branch["kor"]),
+            "career": _career_options(kor, stem["kor"], branch["kor"]),
+            "relationship": _relationship_options(kor, stem["kor"], branch["kor"]),
+            "wealth": _wealth_options(kor, stem["kor"], branch["kor"]),
+            "daily": _daily_options(kor, stem["kor"], branch["kor"]),
         }
     return result
 
 
-DAY_PILLAR_SENTENCES = _build_day_pillar_sentences()
+DAY_PILLAR_SENTENCE_OPTIONS = _build_day_pillar_sentence_options()
+DAY_PILLAR_SENTENCES = {
+    pillar: {field: options[0] for field, options in fields.items()}
+    for pillar, fields in DAY_PILLAR_SENTENCE_OPTIONS.items()
+}
+
+
+def get_day_pillar_sentence_options(day_pillar_kor: str, field: str) -> list[str]:
+    options = DAY_PILLAR_SENTENCE_OPTIONS.get(day_pillar_kor, {}).get(field, [])
+    if options:
+        return options
+    fallback = DAY_PILLAR_SENTENCES.get(day_pillar_kor, {}).get(field)
+    return [fallback] if fallback else []

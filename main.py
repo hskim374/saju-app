@@ -25,6 +25,7 @@ from fastapi.responses import PlainTextResponse, Response
 from fastapi.templating import Jinja2Templates
 
 from services.career_fortune import build_career_fortune
+from services.analysis_context import build_analysis_context
 from services.daily_fortune import calculate_daily_fortune
 from services.daewoon import calculate_daewoon
 from services.element_analyzer import analyze_elements
@@ -261,17 +262,47 @@ def _build_result_data(
     ten_gods = calculate_ten_gods(result_data["saju"])
     daewoon = calculate_daewoon(result_data, gender=gender)
     year_fortune = calculate_yearly_fortune(result_data, daewoon, parsed_target_year)
-    monthly_fortune = calculate_monthly_fortune(result_data, parsed_target_year)
     daily_fortune = calculate_daily_fortune(result_data, parsed_target_date)
-    weekly_fortune = build_weekly_fortune(result_data, parsed_target_date)
-    career_fortune = build_career_fortune(result_data, year_fortune)
-    relationship_fortune = build_relationship_fortune(gender, year_fortune, result_data)
+    analysis_context = build_analysis_context(
+        saju_result=result_data,
+        element_analysis=element_analysis,
+        ten_gods=ten_gods,
+        daewoon=daewoon,
+        year_fortune=year_fortune,
+        daily_fortune=daily_fortune,
+    )
+    daily_fortune = calculate_daily_fortune(result_data, parsed_target_date, analysis_context=analysis_context)
+    year_fortune = calculate_yearly_fortune(
+        result_data,
+        daewoon,
+        parsed_target_year,
+        analysis_context=analysis_context,
+    )
+    monthly_fortune = calculate_monthly_fortune(
+        result_data,
+        parsed_target_year,
+        analysis_context=analysis_context,
+    )
+    weekly_fortune = build_weekly_fortune(
+        result_data,
+        parsed_target_date,
+        gender=gender,
+        daewoon=daewoon,
+    )
+    career_fortune = build_career_fortune(result_data, year_fortune, analysis_context=analysis_context)
+    relationship_fortune = build_relationship_fortune(
+        gender,
+        year_fortune,
+        result_data,
+        analysis_context=analysis_context,
+    )
     interpretation = build_interpretation(
         element_analysis,
         ten_gods=ten_gods,
         daewoon=daewoon,
         year_fortune=year_fortune,
         saju_result=result_data,
+        analysis_context=analysis_context,
     )
     summary_card = build_summary_card(
         element_analysis=element_analysis,
@@ -308,6 +339,7 @@ def _build_result_data(
     result_data["career_fortune"] = career_fortune
     result_data["relationship_fortune"] = relationship_fortune
     result_data["summary_card"] = summary_card
+    result_data["analysis_context"] = analysis_context
     result_data["premium_report"] = build_premium_report(
         saju_result=result_data,
         element_analysis=element_analysis,
@@ -318,6 +350,7 @@ def _build_result_data(
         relationship_fortune=relationship_fortune,
         interpretation=interpretation,
         premium_enabled=_is_checked(premium),
+        analysis_context=analysis_context,
     )
     return form_data, result_data
 

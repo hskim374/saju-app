@@ -71,6 +71,16 @@ def test_time_slot_input_maps_to_saju_time_basis():
     assert result["time_basis"]["input_label"] == "미시 (13:00~14:59)"
     assert result["time_basis"]["saju_time_kor"] == "미시"
     assert result["saju"]["time"]["branch"] == "미"
+    assert "notes" in result["sensitivity"]
+
+
+def test_saju_result_includes_sensitivity_hooks():
+    result = get_basic_saju_result("solar", 2017, 2, 3, 23, 50)
+
+    assert "sensitivity" in result
+    assert "late_night_birth" in result["sensitivity"]
+    assert "near_major_solar_term" in result["sensitivity"]
+    assert result["sensitivity"]["previous_major_term"] or result["sensitivity"]["next_major_term"]
 
 
 def test_both_ja_time_slots_calculate_as_ja_time():

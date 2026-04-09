@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from data.stems import STEMS_BY_KOR
 from services.interpretation_templates import ELEMENT_COMBO_STORIES, ELEMENT_KOR, ELEMENT_MEANINGS
 
 
@@ -23,7 +24,7 @@ def dominant_story(dominant: list[str], seed: int) -> str:
 
 
 def pick_support_elements(element_analysis: dict) -> list[str]:
-    counts = element_analysis["elements"]
+    counts = element_analysis.get("weighted_scores", element_analysis["elements"])
     dominant = set(element_analysis["dominant"])
     ranked = sorted(
         ((element, count) for element, count in counts.items() if element not in dominant and count > 0),
@@ -50,3 +51,43 @@ def element_meaning(element: str) -> str:
 
 def first_focus(values: list[str], default: str) -> str:
     return values[0] if values else default
+
+
+def build_analysis_flags(
+    *,
+    saju: dict,
+    element_analysis: dict,
+    strength_analysis: dict,
+    yongshin_analysis: dict,
+    interaction_analysis: dict,
+    ten_god_analysis: dict,
+) -> dict:
+    """Build reusable rule flags from the intermediate domain-analysis layer."""
+    day_element = STEMS_BY_KOR[saju["day"]["stem"]]["element"]
+    month_branch = saju["month"]["branch"]
+    dominant = element_analysis["dominant"]
+    weak = element_analysis["weak"]
+    hidden_groups = ten_god_analysis.get("hidden_ten_god_groups", [])
+
+    return {
+        "is_day_master_strong": strength_analysis["label"] in {"strong", "slightly_strong"},
+        "is_day_master_weak": strength_analysis["label"] in {"weak", "slightly_weak"},
+        "is_balanced_structure": strength_analysis["label"] == "balanced",
+        "needs_resource_support": yongshin_analysis["primary_candidate"] == strength_analysis["resource_element"],
+        "needs_output_release": yongshin_analysis["primary_candidate"] == strength_analysis["output_element"],
+        "dominant_element": dominant[0],
+        "weak_element": weak[0],
+        "day_element": day_element,
+        "month_branch": month_branch,
+        "has_branch_conflict": any(item["type"] in {"충", "형", "파", "해"} for item in interaction_analysis["natal"]),
+        "has_natal_conflict": any(item["type"] in {"충", "형", "파", "해"} for item in interaction_analysis["natal"]),
+        "has_natal_harmony": any(item["type"] == "합" for item in interaction_analysis["natal"]),
+        "has_luck_pressure": any(
+            item["type"] in {"충", "형"} for key in ("with_daewoon", "with_yearly", "with_daily") for item in interaction_analysis[key]
+        ),
+        "wealth_flow_open": any(group == "재성" for group in hidden_groups)
+        or ten_god_analysis["ten_gods"].get("month") in {"편재", "정재"},
+        "officer_pressure_high": strength_analysis["officer_pressure"] >= strength_analysis["resource_support"],
+        "hidden_group_focus": hidden_groups[0] if hidden_groups else None,
+        "month_visible_ten_god": ten_god_analysis["ten_gods"].get("month"),
+    }

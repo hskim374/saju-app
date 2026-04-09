@@ -2,11 +2,117 @@
 
 from __future__ import annotations
 
-from data.day_pillar_sentences import DAY_PILLAR_SENTENCES
+from data.day_pillar_sentences import get_day_pillar_sentence_options
 from data.month_ten_god_specialized import MONTH_TEN_GOD_RELATION_LINES
 from services.analysis_sentence_store import load_analysis_sentences
 from services.interpretation_engine import build_relationship_section
 from services.ten_gods import calculate_ten_gods
+
+ELEMENT_KOR_ONLY = {
+    "wood": "목",
+    "fire": "화",
+    "earth": "토",
+    "metal": "금",
+    "water": "수",
+}
+
+
+def _relationship_strength_scene_line(strength: dict) -> str:
+    label = strength["label"]
+    if label in {"weak", "slightly_weak"}:
+        return "관계에서는 감정이 커져도 템포를 늦추고 회복할 간격을 남기는 편이 더 안정적입니다."
+    if label in {"strong", "slightly_strong"}:
+        return "관계에서는 한쪽 감정으로 몰아붙이기 쉬워, 표현 수위와 속도를 같이 조절하는 편이 좋습니다."
+    return "관계에서는 감정과 현실 조건을 같이 보며 천천히 맞추는 편이 흐름을 지키기 쉽습니다."
+
+
+def _relationship_yongshin_scene_line(yongshin: dict) -> str:
+    primary_map = {
+        "wood": "답을 하나로 빨리 닫기보다 다음 대화의 여지를 조금 열어 두는",
+        "fire": "마음이 보일 때 필요한 만큼만 분명하게 표현하는",
+        "earth": "좋아도 버틸 수 있는 속도와 생활 리듬을 먼저 맞추는",
+        "metal": "관계 기준과 선을 먼저 분명히 하는",
+        "water": "좋아도 바로 확정하지 않고 흐름을 한 번 더 보는",
+    }
+    secondary_map = {
+        "wood": "다음 만남의 여지를 남기는",
+        "fire": "표현 강도를 한 번 다듬는",
+        "earth": "무리 없는 속도를 다시 확인하는",
+        "metal": "세부 기준을 차분히 정리하는",
+        "water": "결론을 서두르지 않는",
+    }
+    primary_phrase = primary_map.get(yongshin["primary_candidate"], "먼저 기준을 세우는")
+    secondary_phrase = secondary_map.get(yongshin["secondary_candidate"], "한 번 더 살펴보는")
+    return f"관계에서는 {primary_phrase} 쪽으로 움직이고, {secondary_phrase} 정도의 여지도 같이 챙기는 편이 좋습니다."
+
+
+def _relationship_hidden_focus_line(group: str | None) -> str:
+    mapping = {
+        "비겁": "관계에서는 내 기준과 거리 조절 문제가 먼저 올라와, 가까워지는 속도를 빨리 나누는 편이 마음 소모를 줄이기 쉽습니다.",
+        "식상": "관계에서는 말보다 표현 순서와 실제 행동이 먼저 보이기 쉬워, 약속과 행동이 감정보다 더 크게 읽힐 수 있습니다.",
+        "재성": "관계에서는 감정보다 현실 조건과 유지 가능성을 먼저 따지는 반응이 올라와, 오래 갈 수 있는지를 빨리 보게 될 수 있습니다.",
+        "관성": "관계에서는 책임감과 일관성을 먼저 보게 돼, 속도보다 신뢰 기준을 맞추는 편이 훨씬 중요해질 수 있습니다.",
+        "인성": "관계에서는 서두르기보다 상대 의도와 분위기를 다시 확인하고 싶은 마음이 강해져, 한 템포 늦춘 판단이 더 잘 맞을 수 있습니다.",
+    }
+    return mapping.get(group or "", "")
+
+
+def _relationship_action_support_line(flags: dict, yongshin: dict) -> str:
+    primary_map = {
+        "wood": "답을 하나로 빨리 닫지 않는",
+        "fire": "필요한 표현은 분명히 하는",
+        "earth": "버틸 수 있는 속도와 생활 리듬을 먼저 맞추는",
+        "metal": "관계 기준과 선을 먼저 정리하는",
+        "water": "좋아도 한 번 더 살피는",
+    }
+    primary_phrase = primary_map.get(yongshin["primary_candidate"], "먼저 기준을 세우는")
+    if flags["needs_resource_support"]:
+        return "관계는 감정보다 안정과 신뢰를 먼저 쌓는 쪽이 더 잘 맞습니다."
+    if flags["needs_output_release"]:
+        return "관계는 생각만 길게 두기보다 필요한 표현은 제때 꺼내는 편이 좋습니다."
+    return f"관계는 한쪽 감정으로 몰리지 않게 {primary_phrase} 편이 흐름을 덜 흔듭니다."
+
+
+def _normalize_relationship_support_line(line: str) -> str:
+    normalized = line.strip()
+    for prefix in ("그래서, ", "결국, ", "여기서 중요한 건, ", "다만, ", "특히, ", "대신, "):
+        if normalized.startswith(prefix):
+            normalized = normalized[len(prefix):]
+            break
+    replacements = (
+        ("실무적으로 풀면 ", ""),
+        ("월간 십성 보정으로 보면 ", ""),
+        ("월간 비견이 서 있으면 ", ""),
+        ("월간 겁재가 서 있으면 ", ""),
+        ("월간 식신이 서 있으면 ", ""),
+        ("월간 상관이 서 있으면 ", ""),
+        ("월간 편재가 서 있으면 ", ""),
+        ("월간 정재가 서 있으면 ", ""),
+        ("월간 편관이 서 있으면 ", ""),
+        ("월간 정관이 서 있으면 ", ""),
+        ("월간 편인이 서 있으면 ", ""),
+        ("월간 정인이 서 있으면 ", ""),
+        ("이 흐름을 성격 쪽으로 풀면 ", ""),
+        ("성향 보정으로 읽으면 ", ""),
+    )
+    for source, target in replacements:
+        if normalized.startswith(source):
+            normalized = target + normalized[len(source):]
+            break
+    return normalized
+
+
+def _strip_relationship_day_pillar_line(line: str) -> str:
+    normalized = line.strip()
+    prefixes = (
+        "가까워질지 한발 물러설지 정해야 하는 장면에서는 ",
+        "연락을 이어 갈지 멈출지 고민하는 순간에는 ",
+        "호감이 있어도 속도를 바로 올리기 어려운 장면에서는 ",
+    )
+    for prefix in prefixes:
+        if normalized.startswith(prefix):
+            return normalized[len(prefix):]
+    return normalized
 
 RELATIONSHIP_RULES = {
     "wealth": {
@@ -50,31 +156,31 @@ RELATIONSHIP_RULES = {
 }
 
 DAY_STEM_RELATION_LINES = {
-    "갑": "원국 일간이 갑목이면 관계에서도 방향과 태도가 맞는지를 먼저 보며 쉽게 타협하지 않는 편입니다.",
-    "을": "원국 일간이 을목이면 관계에서는 부드럽게 맞추지만 속으로는 리듬과 안전선을 오래 보는 편입니다.",
-    "병": "원국 일간이 병화이면 호감이 생겼을 때 표현과 반응이 빠르게 밖으로 드러나기 쉬운 편입니다.",
-    "정": "원국 일간이 정화이면 관계에서도 분위기와 타이밍을 먼저 보고 감정을 조심스럽게 꺼내는 편입니다.",
-    "무": "원국 일간이 무토이면 관계에서도 감정 자체보다 오래 갈 수 있는지와 현실성을 먼저 따지는 편입니다.",
-    "기": "원국 일간이 기토이면 상대 상황과 내 현실을 같이 보며 무리 없는 속도로 맞추려는 편입니다.",
-    "경": "원국 일간이 경금이면 관계에서도 애매한 상태를 오래 두기보다 기준과 선을 분명히 하고 싶은 편입니다.",
-    "신": "원국 일간이 신금이면 표현은 절제되어도 세부적인 태도와 균형을 꽤 오래 보는 편입니다.",
-    "임": "원국 일간이 임수이면 관계에서도 감정 하나보다 전체 흐름과 가능성을 넓게 읽는 쪽으로 움직입니다.",
-    "계": "원국 일간이 계수이면 관계에서는 겉표현보다 분위기와 맥락을 더 오래 읽으며 판단하는 편입니다.",
+    "갑": "관계 방향을 빨리 정해야 하는 장면에서는 태도와 기준이 맞는지를 먼저 보는 편입니다.",
+    "을": "상대에게 맞추는 장면에서도 속으로는 리듬과 안전선을 꽤 오래 보는 편입니다.",
+    "병": "호감이 생겼을 때는 표현과 반응이 비교적 빠르게 밖으로 드러나기 쉬운 편입니다.",
+    "정": "분위기가 미묘할수록 타이밍을 먼저 보고 감정을 조심스럽게 꺼내는 편입니다.",
+    "무": "좋아도 오래 갈 수 있는지와 현실성이 맞는지를 먼저 따지는 편입니다.",
+    "기": "상대 상황과 내 현실을 같이 보며 무리 없는 속도로 맞추려는 편입니다.",
+    "경": "애매한 상태를 오래 두기보다 기준과 선을 분명히 하고 싶어지는 장면이 많습니다.",
+    "신": "표현은 절제돼도 세부적인 태도와 균형을 꽤 오래 보는 편입니다.",
+    "임": "감정 하나보다 전체 흐름과 가능성을 넓게 읽는 쪽으로 움직이기 쉽습니다.",
+    "계": "겉표현보다 분위기와 맥락을 더 오래 읽으며 판단하는 편입니다.",
 }
 
 MONTH_BRANCH_RELATION_LINES = {
-    "자": "월지가 자수라 관계에서도 먼저 흐름과 분위기를 읽어야 마음이 놓이는 편입니다.",
-    "축": "월지가 축토라 관계에서는 천천히 쌓이는 신뢰와 버틸 수 있는 생활 감각을 더 중요하게 봅니다.",
-    "인": "월지가 인목이라 관계도 정체된 상태보다 앞으로 나아가는 느낌이 있어야 힘이 붙기 쉽습니다.",
-    "묘": "월지가 묘목이라 감정의 세기보다 관계 리듬과 거리 조절의 부드러움이 더 중요하게 작동합니다.",
-    "진": "월지가 진토라 관계에서도 여러 조건을 같이 보고 현실적으로 맞는지를 따지는 편입니다.",
-    "사": "월지가 사화라 관계에서 반응 속도가 빨라질 수 있어 감정이 달아오를 때 페이스 조절이 중요합니다.",
-    "오": "월지가 오화라 관계에서도 정적인 흐름보다 살아 있는 반응과 존재감이 보일 때 끌리기 쉽습니다.",
-    "미": "월지가 미토라 관계에서는 겉으로 빠르지 않아도 오래 갈 수 있는 안정감이 더 중요합니다.",
-    "신": "월지가 신금이라 관계에서도 말보다 태도, 약속, 선 긋기 같은 기준을 더 민감하게 보는 편입니다.",
-    "유": "월지가 유금이라 가까워질수록 세부 태도와 완성도를 보며 관계 판단을 더 섬세하게 하는 편입니다.",
-    "술": "월지가 술토라 관계에서도 책임감과 일관성이 확인될 때 비로소 마음을 더 여는 편입니다.",
-    "해": "월지가 해수라 관계는 서두르기보다 여지를 두고 천천히 보는 쪽이 더 자연스럽습니다.",
+    "자": "관계에서도 먼저 흐름과 분위기를 읽어야 마음이 놓이는 장면이 많습니다.",
+    "축": "천천히 쌓이는 신뢰와 버틸 수 있는 생활 감각을 더 중요하게 봅니다.",
+    "인": "정체된 상태보다 앞으로 나아가는 느낌이 있어야 힘이 붙기 쉽습니다.",
+    "묘": "감정의 세기보다 관계 리듬과 거리 조절의 부드러움이 더 중요하게 작동합니다.",
+    "진": "여러 조건을 같이 놓고 현실적으로 맞는지를 따지는 편입니다.",
+    "사": "반응 속도가 빨라질 수 있어 감정이 달아오를 때 페이스 조절이 중요합니다.",
+    "오": "정적인 흐름보다 살아 있는 반응과 존재감이 보일 때 더 끌리기 쉽습니다.",
+    "미": "겉으로 빠르지 않아도 오래 갈 수 있는 안정감이 더 중요합니다.",
+    "신": "말보다 태도, 약속, 선 긋기 같은 기준을 더 민감하게 보는 편입니다.",
+    "유": "가까워질수록 세부 태도와 완성도를 보며 관계 판단을 더 섬세하게 하는 편입니다.",
+    "술": "책임감과 일관성이 확인될 때 비로소 마음을 더 여는 편입니다.",
+    "해": "서두르기보다 여지를 두고 천천히 보는 쪽이 더 자연스럽습니다.",
 }
 
 TIME_BRANCH_RELATION_LINES = {
@@ -127,7 +233,12 @@ RELATIONSHIP_PROFILE_ADVICE = {
 }
 
 
-def build_relationship_fortune(gender: str, year_fortune: dict, saju_result: dict | None = None) -> dict:
+def build_relationship_fortune(
+    gender: str,
+    year_fortune: dict,
+    saju_result: dict | None = None,
+    analysis_context: dict | None = None,
+) -> dict:
     """Build a relationship fortune from natal chart, gender, and yearly flow."""
     current_stars = [year_fortune["ten_god"], year_fortune["daewoon_ten_god"]]
     current_star_set = set(current_stars)
@@ -148,6 +259,7 @@ def build_relationship_fortune(gender: str, year_fortune: dict, saju_result: dic
     strengths = list(rule["strengths"])
     warnings = list(rule["warnings"])
     relationship_profile = "balanced_connector"
+    advanced_lines = _analysis_context_relationship_lines(analysis_context)
 
     context_easy_lines: list[str] = []
     context_real_lines: list[str] = []
@@ -161,7 +273,6 @@ def build_relationship_fortune(gender: str, year_fortune: dict, saju_result: dic
         time_branch = saju["time"]["branch"] if saju.get("time") else None
         ten_gods = calculate_ten_gods(saju)
         month_ten_god = ten_gods["ten_gods"]["month"]
-        day_pillar_line = DAY_PILLAR_SENTENCES[day_pillar_kor]["relationship"]
         sentence_data = load_analysis_sentences()
         day_data = sentence_data["day_stem"][day_stem]
         month_data = sentence_data["month_branch"][month_branch]
@@ -169,6 +280,8 @@ def build_relationship_fortune(gender: str, year_fortune: dict, saju_result: dic
         month_ten_god_data = sentence_data["month_ten_god"].get(month_ten_god) if month_ten_god else None
         seed = len("".join(current_stars)) + len(strength_profile) + len(day_stem) + len(month_branch)
         relationship_profile = _resolve_relationship_profile(day_stem, month_branch, time_branch)
+        day_pillar_line = _pick(get_day_pillar_sentence_options(day_pillar_kor, "relationship"), seed)
+        stripped_day_pillar_line = _strip_relationship_day_pillar_line(day_pillar_line).rstrip(".")
         month_ten_god_relation_line = (
             _pick(MONTH_TEN_GOD_RELATION_LINES[month_ten_god], seed + 2)
             if month_ten_god
@@ -176,22 +289,27 @@ def build_relationship_fortune(gender: str, year_fortune: dict, saju_result: dic
         )
 
         context_easy_lines = [
-            day_pillar_line,
-            month_ten_god_relation_line,
+            f"연락을 이어 갈지, 거리를 둘지 정해야 하는 장면에서는 {stripped_day_pillar_line}",
+            *advanced_lines["easy"],
+            _normalize_relationship_support_line(month_ten_god_relation_line) if month_ten_god_relation_line else "",
             RELATIONSHIP_PROFILE_HEADLINES[relationship_profile],
             DAY_STEM_RELATION_LINES[day_stem],
             MONTH_BRANCH_RELATION_LINES[month_branch],
             _pick(day_data["social_reaction"], seed + 3),
         ]
+        context_easy_lines = [line for line in context_easy_lines if line]
         if month_ten_god_data:
             context_easy_lines.append(
-                f"월간 십성 보정으로 보면 {_pick(month_ten_god_data['personality_modifier'], seed + 5).lower()}"
+                _normalize_relationship_support_line(
+                    _pick(month_ten_god_data["personality_modifier"], seed + 5).lower()
+                )
             )
         if time_branch:
             context_easy_lines.append(TIME_BRANCH_RELATION_LINES[time_branch])
 
         context_real_lines = [
-            f"일주 {day_pillar_kor}를 관계 쪽으로 읽으면 {day_pillar_line.replace(f'{day_pillar_kor} 일주는 ', '').rstrip('.')}",
+            f"연락 간격을 줄일지, 관계 정의를 서둘지 고민하는 장면에서는 {stripped_day_pillar_line}",
+            *advanced_lines["real"],
             _pick(day_data["speech_style"], seed + 7),
             _pick(month_data["base_personality"], seed + 11),
             _pick(month_data["work_adaptation"], seed + 13),
@@ -200,8 +318,9 @@ def build_relationship_fortune(gender: str, year_fortune: dict, saju_result: dic
             context_real_lines.append(_pick(time_data["intimate_reaction"], seed + 17))
 
         context_action_lines = [
-            f"세운 {year_fortune['ten_god']}와 대운 {year_fortune['daewoon_ten_god']}이 겹치는 해이므로, 감정보다 관계 속도를 먼저 조절하는 편이 좋습니다.",
-            f"월지 {month_branch}의 리듬을 기준으로 보면 가까워지는 속도와 생활 호흡이 맞는지부터 확인하는 편이 좋습니다.",
+            "올해는 감정이 올라와도 관계 속도를 먼저 정하는 편이 흐름을 덜 흔듭니다.",
+            "가까워질수록 생활 리듬과 연락 간격이 맞는지부터 보는 편이 좋습니다.",
+            *advanced_lines["action"],
         ]
 
         strengths.extend(
@@ -215,15 +334,20 @@ def build_relationship_fortune(gender: str, year_fortune: dict, saju_result: dic
         if time_branch and time_branch in RELATIONSHIP_SPEED_WARNINGS:
             warnings.append(RELATIONSHIP_SPEED_WARNINGS[time_branch])
 
+    strengths.extend(advanced_lines["strengths"])
+    warnings.extend(advanced_lines["warnings"])
     if "겁재" in current_star_set or "상관" in current_star_set:
         warnings.append("관계에서는 말의 강약이 강해질 수 있어 서두른 확정은 피하는 편이 좋습니다.")
     if "정인" in current_star_set or "편인" in current_star_set:
         strengths.append("상대를 천천히 이해하려는 태도가 관계 안정에 도움이 됩니다.")
     day_pillar_kor = saju_result["saju"]["day"]["kor"] if saju_result else ""
-    day_pillar_line = DAY_PILLAR_SENTENCES[day_pillar_kor]["relationship"] if saju_result else ""
-    summary_prefix = f"{day_pillar_kor} 일주를 기준으로 보면 " if day_pillar_kor else ""
-    summary = f"{summary_prefix}{RELATIONSHIP_PROFILE_SUMMARIES[relationship_profile]} {rule[intensity]}"
-    explanation = f"{day_pillar_line} {_build_explanation(strength_profile, current_stars)} {RELATIONSHIP_PROFILE_SUMMARIES[relationship_profile]}".strip()
+    day_pillar_line = (
+        _pick(get_day_pillar_sentence_options(day_pillar_kor, "relationship"), len("".join(current_stars)) + len(strength_profile))
+        if saju_result
+        else ""
+    )
+    summary = f"{RELATIONSHIP_PROFILE_SUMMARIES[relationship_profile]} {rule[intensity]}"
+    explanation = f"{_build_explanation(strength_profile, current_stars)} {RELATIONSHIP_PROFILE_SUMMARIES[relationship_profile]}".strip()
     advice = f"{_build_advice(strength_profile, current_star_set)} {RELATIONSHIP_PROFILE_ADVICE[relationship_profile]}"
     headline = _build_profile_headline(relationship_profile, strength_profile, intensity, day_pillar_kor or "이 원국")
     section = build_relationship_section(
@@ -237,6 +361,8 @@ def build_relationship_fortune(gender: str, year_fortune: dict, saju_result: dic
         context_real_lines=context_real_lines,
         context_action_lines=context_action_lines,
     )
+    section["easy_explanation"] = [_normalize_relationship_support_line(line) for line in section["easy_explanation"]]
+    section["explanation"] = " ".join(section["easy_explanation"])
 
     return {
         "headline": section["one_line"],
@@ -287,20 +413,20 @@ def _build_profile_headline(relationship_profile: str, flow_profile: str, intens
         ("mixed", "medium"): "지금은 관계 속도보다 대화 방식 조정이 먼저입니다.",
         ("mixed", "light"): "지금은 결론을 서두르지 않으면 더 편안한 흐름입니다.",
     }[(flow_profile, intensity)]
-    return f"{day_pillar_kor} 일주 기준으로는 {RELATIONSHIP_PROFILE_HEADLINES[relationship_profile].replace('관계는 ', '').rstrip('.')} {flow_suffix}"
+    headline_body = RELATIONSHIP_PROFILE_HEADLINES[relationship_profile].replace("관계는 ", "").rstrip(".")
+    return (
+        f"가까워질지 거리를 둘지 정해야 하는 장면에서는 {day_pillar_kor} 일주의 결이 먼저 올라와 {headline_body}. "
+        f"{flow_suffix}"
+    )
 
 
 def _build_explanation(profile: str, stars: list[str]) -> str:
-    year_star, daewoon_star = stars
     profile_phrase = {
-        "wealth": "사람과 감정 흐름이 바깥에서 들어오며 관계 속도가 빨라질 수 있습니다.",
-        "officer": "관계의 기준과 책임감이 부각되어 감정보다 안정성이 먼저 보일 수 있습니다.",
-        "mixed": "새 인연보다 현재 관계를 어떻게 조정할지가 더 중요하게 느껴질 수 있습니다.",
+        "wealth": "사람과 감정 흐름이 들어와도 가까워지는 속도와 현실 조건을 같이 봐야 하는 장면이 늘어날 수 있습니다.",
+        "officer": "호감보다 관계의 기준과 책임감이 먼저 보이는 장면이 늘어날 수 있습니다.",
+        "mixed": "새 인연을 넓히기보다 지금 있는 관계의 속도와 대화 방식을 다시 맞춰야 하는 일이 더 많아질 수 있습니다.",
     }[profile]
-    return (
-        f"세운에서는 {year_star}, 대운에서는 {daewoon_star} 흐름이 겹칩니다. "
-        f"{profile_phrase}"
-    )
+    return f"올해는 {profile_phrase}"
 
 
 def _build_advice(profile: str, star_set: set[str]) -> str:
@@ -340,3 +466,50 @@ def _dedupe(values: list[str]) -> list[str]:
         seen.add(value)
         result.append(value)
     return result
+
+
+def _analysis_context_relationship_lines(analysis_context: dict | None) -> dict[str, list[str]]:
+    if not analysis_context:
+        return {"easy": [], "real": [], "action": [], "strengths": [], "warnings": []}
+
+    strength = analysis_context["strength"]
+    yongshin = analysis_context["yongshin"]
+    flags = analysis_context["flags"]
+    interactions = analysis_context["interactions"]
+    hidden_focus = flags.get("hidden_group_focus")
+
+    easy_lines = [
+        _relationship_strength_scene_line(strength),
+        _relationship_yongshin_scene_line(yongshin),
+    ]
+    hidden_focus_line = _relationship_hidden_focus_line(hidden_focus)
+    if hidden_focus_line:
+        easy_lines.append(hidden_focus_line)
+
+    real_lines: list[str] = []
+    if interactions["natal"]:
+        item = interactions["natal"][0]
+        real_lines.append(f"좋아도 바로 다가갈지, 한발 물러설지 고민하는 장면에서는 {item['meaning']}")
+    if interactions["with_yearly"]:
+        item = interactions["with_yearly"][0]
+        real_lines.append(f"올해는 연락 빈도와 관계 속도를 맞추는 과정에서 {item['meaning']}")
+
+    action_lines: list[str] = []
+    action_lines.append(_relationship_action_support_line(flags, yongshin))
+
+    strengths: list[str] = []
+    warnings: list[str] = []
+    if flags["is_day_master_strong"]:
+        strengths.append("원국 기준으로는 쉽게 흔들리지 않는 편이라 관계 속도가 달라도 기준을 지키는 힘이 남아 있는 편입니다.")
+    if flags["is_day_master_weak"]:
+        warnings.append("원국 기준으로는 감정 소모가 빨리 올라올 수 있어 관계 진전보다 회복 간격을 먼저 챙기는 편이 좋습니다.")
+    if flags["has_luck_pressure"]:
+        warnings.append("현재 운에서 충돌 압력이 걸릴 수 있어 감정이 커져도 확정은 한 박자 늦추는 편이 좋습니다.")
+
+    return {
+        "easy": easy_lines,
+        "real": real_lines,
+        "action": action_lines,
+        "strengths": strengths,
+        "warnings": warnings,
+    }

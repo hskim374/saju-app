@@ -176,6 +176,8 @@ def calculate_daewoon(
         "active_cycle_summary": {
             "nominal_age": current_age,
             "pillar": active_cycle["pillar"],
+            "stem": active_cycle["stem"],
+            "branch": active_cycle["branch"],
             "ten_god": active_cycle["ten_god"],
             "headline": active_section["one_line"],
             "summary": active_cycle["summary"],

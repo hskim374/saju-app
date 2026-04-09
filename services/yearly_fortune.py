@@ -85,6 +85,7 @@ def calculate_yearly_fortune(
     saju_result: dict,
     daewoon: dict,
     target_year: int,
+    analysis_context: dict | None = None,
 ) -> dict:
     """Build a yearly fortune summary from the target year's annual pillar."""
     reference_moment = build_korean_datetime(target_year, 7, 1, 12, 0)
@@ -96,8 +97,9 @@ def calculate_yearly_fortune(
     daewoon_ten_god = calculate_ten_god_for_stem(day_stem, active_cycle["stem"])
     year_rule = YEARLY_TEN_GOD_RULES[year_ten_god]
     daewoon_rule = YEARLY_TEN_GOD_RULES[daewoon_ten_god]
+    advanced = _analysis_context_yearly_lines(analysis_context)
 
-    focus = _dedupe(year_rule["focus"] + daewoon_rule["focus"])[:3]
+    focus = _dedupe(year_rule["focus"] + daewoon_rule["focus"] + advanced["focus"])[:3]
     summary = f"{year_rule['summary']} 대운에서는 {daewoon_rule['focus'][0]} 흐름이 겹칩니다."
     explanation = (
         f"{year_rule['explanation']} "
@@ -107,6 +109,12 @@ def calculate_yearly_fortune(
         f"{year_rule['advice']} "
         f"특히 올해는 {focus[0]}보다 앞서 {focus[1] if len(focus) > 1 else focus[0]}을 정리하는 편이 유리합니다."
     )
+    if advanced["summary"]:
+        summary = f"{summary} {advanced['summary']}"
+    if advanced["explanation"]:
+        explanation = f"{explanation} {advanced['explanation']}"
+    if advanced["advice"]:
+        advice = f"{advice} {advanced['advice']}"
     section = build_yearly_section(
         headline=year_rule["headline"],
         explanation=explanation,
@@ -147,3 +155,41 @@ def _dedupe(values: list[str]) -> list[str]:
         seen.add(value)
         result.append(value)
     return result
+
+
+def _analysis_context_yearly_lines(analysis_context: dict | None) -> dict:
+    if not analysis_context:
+        return {"summary": "", "explanation": "", "advice": "", "focus": []}
+
+    strength = analysis_context["strength"]
+    yongshin = analysis_context["yongshin"]
+    flags = analysis_context["flags"]
+    interactions = analysis_context["interactions"]
+
+    summary = (
+        f"중간 계산상 {strength['display_label']} 구조라 올해는 {yongshin['display']['primary']} 균형을 어떻게 쓰느냐가 체감 차이를 더 크게 만들 수 있습니다."
+    )
+    explanation = ""
+    if interactions["with_yearly"]:
+        item = interactions["with_yearly"][0]
+        explanation = f"또한 세운과 원국은 {item['target']} {item['type']} 흐름이 걸려 {item['meaning']}"
+
+    if flags["needs_resource_support"]:
+        advice = f"올해는 {yongshin['display']['primary']}처럼 기반과 준비를 먼저 채우는 방향이 더 잘 맞습니다."
+    elif flags["needs_output_release"]:
+        advice = f"올해는 {yongshin['display']['primary']}처럼 결과를 밖으로 보이게 남기는 방향이 더 잘 맞습니다."
+    else:
+        advice = f"올해는 {yongshin['display']['primary']} 균형을 의식해 한쪽 과열을 먼저 줄이는 편이 좋습니다."
+
+    focus: list[str] = []
+    if flags.get("hidden_group_focus"):
+        focus.append(flags["hidden_group_focus"])
+    focus_map = {
+        "metal": "정리",
+        "water": "점검",
+        "wood": "방향설정",
+        "fire": "실행",
+        "earth": "안정관리",
+    }
+    focus.append(focus_map[yongshin["primary_candidate"]])
+    return {"summary": summary, "explanation": explanation, "advice": advice, "focus": focus}

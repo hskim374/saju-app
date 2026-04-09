@@ -8,20 +8,38 @@
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3984376475463185"
         crossorigin="anonymous"></script>
     <style>
+        :root {
+            --page-bg: #f3f1ea;
+            --paper: #ffffff;
+            --text-main: #21302a;
+            --text-soft: #5c6b65;
+            --line-soft: #d6ddd7;
+            --line-strong: #c7d0ca;
+            --accent-deep: #4f6b60;
+            --accent-deep-hover: #425a51;
+            --accent-deep-shadow: rgba(79, 107, 96, 0.24);
+            --accent-soft: #dbe5df;
+            --accent-soft-hover: #cfdbd4;
+            --accent-soft-text: #365046;
+            --error-bg: #f5e7df;
+            --error-text: #9b5233;
+        }
+
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background: #f4f1ea;
-            color: #222;
+            background: var(--page-bg);
+            color: var(--text-main);
         }
 
         .container {
             max-width: 520px;
             margin: 48px auto;
             padding: 24px;
-            background: #ffffff;
+            background: var(--paper);
             border-radius: 16px;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(199, 208, 202, 0.7);
+            box-shadow: 0 18px 34px rgba(57, 75, 67, 0.08);
         }
 
         h1 {
@@ -31,7 +49,7 @@
         }
 
         p {
-            color: #555;
+            color: var(--text-soft);
             text-align: center;
             margin-bottom: 20px;
         }
@@ -40,9 +58,10 @@
             margin-bottom: 20px;
             padding: 14px;
             border-radius: 10px;
-            background: #fde8e4;
-            color: #a33c20;
+            background: var(--error-bg);
+            color: var(--error-text);
             font-size: 14px;
+            border: 1px solid rgba(155, 82, 51, 0.12);
         }
 
         .radio-row {
@@ -71,10 +90,21 @@
             width: 100%;
             padding: 12px;
             margin-bottom: 16px;
-            border: 1px solid #d5d0c8;
+            border: 1px solid var(--line-soft);
             border-radius: 10px;
             box-sizing: border-box;
             font-size: 16px;
+            color: var(--text-main);
+            background: #fcfcfa;
+            transition: border-color 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--accent-deep);
+            box-shadow: 0 0 0 4px rgba(79, 107, 96, 0.12);
+            background: #ffffff;
         }
 
         input[type="radio"],
@@ -86,14 +116,14 @@
         .hint {
             margin-top: -8px;
             margin-bottom: 16px;
-            color: #666;
+            color: var(--text-soft);
             font-size: 13px;
             text-align: left;
         }
 
         .persist-note {
             margin-top: 12px;
-            color: #666;
+            color: var(--text-soft);
             font-size: 12px;
             text-align: center;
         }
@@ -109,25 +139,40 @@
             padding: 14px;
             border: 0;
             border-radius: 10px;
-            background: #9c4f2f;
+            background: var(--accent-deep);
             color: #fff;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
+            box-shadow: 0 10px 18px var(--accent-deep-shadow);
+            transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease, filter 120ms ease;
         }
 
         button:hover {
-            background: #7e3f25;
+            background: var(--accent-deep-hover);
+            transform: translateY(-1px);
+        }
+
+        button:active,
+        button.is-pressed {
+            transform: translateY(1px) scale(0.992);
+            box-shadow: 0 4px 10px rgba(66, 90, 81, 0.22);
+            filter: saturate(0.96);
         }
 
         .secondary-button {
-            background: #e6ddd2;
-            color: #5b4636;
-            box-shadow: none;
+            background: var(--accent-soft);
+            color: var(--accent-soft-text);
+            box-shadow: 0 8px 16px rgba(96, 121, 110, 0.12);
         }
 
         .secondary-button:hover {
-            background: #d9cebf;
+            background: var(--accent-soft-hover);
+        }
+
+        .secondary-button:active,
+        .secondary-button.is-pressed {
+            box-shadow: 0 3px 8px rgba(96, 121, 110, 0.16);
         }
 
         .ad-block {
@@ -398,13 +443,31 @@
                 form.reset();
             }
 
+            function triggerPressedState(button) {
+                if (!button) {
+                    return;
+                }
+
+                button.classList.add("is-pressed");
+                window.setTimeout(() => {
+                    button.classList.remove("is-pressed");
+                }, 140);
+            }
+
             applySavedState();
 
             form.addEventListener("change", saveFormState);
-            form.addEventListener("submit", saveFormState);
+            form.addEventListener("submit", (event) => {
+                const submitButton = event.submitter || form.querySelector('button[type="submit"]');
+                triggerPressedState(submitButton);
+                saveFormState();
+            });
 
             if (clearButton) {
-                clearButton.addEventListener("click", clearSavedState);
+                clearButton.addEventListener("click", () => {
+                    triggerPressedState(clearButton);
+                    clearSavedState();
+                });
             }
         })();
     </script>

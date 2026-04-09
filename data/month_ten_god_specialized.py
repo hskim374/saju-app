@@ -2,6 +2,28 @@
 
 from __future__ import annotations
 
+
+def _expand_month_ten_god_lines(lines: dict[str, list[str]]) -> dict[str, list[str]]:
+    expanded: dict[str, list[str]] = {}
+    for ten_god, values in lines.items():
+        items: list[str] = []
+        seen: set[str] = set()
+        for sentence in values:
+            candidates = [
+                sentence,
+                f"실무적으로 풀면 {sentence[0].lower() + sentence[1:]}" if len(sentence) > 1 else sentence,
+                sentence.replace("흐름입니다.", "경향으로 읽히기 쉽습니다."),
+                sentence.replace("뜻합니다.", "의미로 이어지기 쉽습니다."),
+            ]
+            for candidate in candidates:
+                cleaned = candidate.strip()
+                if not cleaned or cleaned in seen:
+                    continue
+                items.append(cleaned)
+                seen.add(cleaned)
+        expanded[ten_god] = items
+    return expanded
+
 MONTH_TEN_GOD_CAREER_LINES = {
     "비견": [
         "월간 비견이 서 있으면 직장에서도 내 방식과 주도권을 직접 잡으려는 성향이 강하게 읽힐 수 있습니다.",
@@ -54,6 +76,7 @@ MONTH_TEN_GOD_CAREER_LINES = {
         "월간 정인은 직장에서도 바로 확장하기보다 다지는 과정이 성과를 더 오래 남기는 쪽으로 작동합니다.",
     ],
 }
+MONTH_TEN_GOD_CAREER_LINES = _expand_month_ten_god_lines(MONTH_TEN_GOD_CAREER_LINES)
 
 MONTH_TEN_GOD_RELATION_LINES = {
     "비견": [
@@ -107,3 +130,4 @@ MONTH_TEN_GOD_RELATION_LINES = {
         "월간 정인은 관계에서도 속도보다 안심할 수 있는 분위기와 정서적 안정이 핵심이 되는 흐름입니다.",
     ],
 }
+MONTH_TEN_GOD_RELATION_LINES = _expand_month_ten_god_lines(MONTH_TEN_GOD_RELATION_LINES)

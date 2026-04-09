@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections import Counter
 
 from data.branches import BRANCHES_BY_KOR
-from data.day_pillar_sentences import DAY_PILLAR_SENTENCES
+from data.day_pillar_sentences import DAY_PILLAR_SENTENCES, get_day_pillar_sentence_options
 from data.stems import STEMS_BY_KOR
 from services.analysis_sentence_store import load_analysis_sentences
 from services.report_display import (
@@ -158,24 +158,24 @@ PILLAR_ROLE_CORE_LINES = {
 
 PILLAR_ROLE_REAL_LINES = {
     "year": [
-        "처음 만나는 환경에서는 이 기둥이 만든 인상이 비교적 먼저 읽힐 가능성이 큽니다.",
-        "공적인 자리에서는 이 결이 생각보다 또렷하게 드러날 수 있습니다.",
-        "새 판에 들어갈 때 바깥 반응은 이 기둥의 성향을 먼저 따라갈 가능성이 큽니다.",
+        "처음 만나는 자리나 소개를 받는 장면에서는 말보다 분위기와 태도로 이미지가 먼저 정해질 수 있습니다.",
+        "면접, 상담, 첫 거래처럼 평가가 빠른 장면에서는 공적인 반응 방식이 생각보다 또렷하게 드러날 수 있습니다.",
+        "낯선 조직이나 모임에 들어가면 가까워지기 전까지는 바깥에서 읽히는 캐릭터가 먼저 작동하기 쉽습니다.",
     ],
     "month": [
-        "반복되는 일상과 실무에서는 이 기둥의 생활 결이 꾸준히 나타날 가능성이 큽니다.",
-        "먹고 일하고 쉬는 기본 리듬을 보면 이 기둥의 특징이 먼저 보일 가능성이 큽니다.",
-        "현실 적응 방식은 이 기둥이 만든 속도와 기준을 따라가는 경우가 많습니다.",
+        "일정이 몰리면 일을 푸는 순서, 쉬는 방식, 생활 루틴에서 기본 운영 리듬이 가장 먼저 드러납니다.",
+        "바쁜 주간에는 무엇을 먼저 처리하고 무엇을 미루는지에서 현실 적응 방식이 비교적 선명하게 보입니다.",
+        "먹고 일하고 쉬는 반복 장면을 보면 편한 속도와 버티는 기준이 꾸준히 같은 방향으로 나타나는 편입니다.",
     ],
     "day": [
-        "결정의 핵심 순간에는 결국 이 기둥이 만든 판단 순서가 다시 올라오기 쉽습니다.",
-        "좋고 싫음을 나누는 기준은 이 기둥의 성향을 따라가는 경우가 많습니다.",
-        "스스로 납득하는 방식은 이 기둥이 만든 결에 가까운 경우가 많습니다.",
+        "회의에서 결론을 빨리 정해야 하거나 선택지를 둘로 좁혀야 할 때 본래 판단 순서가 그대로 올라오기 쉽습니다.",
+        "좋고 싫음을 분명히 말해야 하는 순간에는 겉태도보다 내부 판단 기준이 먼저 작동하는 편입니다.",
+        "마음은 있어도 바로 움직이지 않는 장면이 생기면 스스로 납득되는 기준을 먼저 맞추고 있는 경우가 많습니다.",
     ],
     "time": [
-        "가까운 관계로 갈수록 이 기둥의 반응 속도와 거리감이 더 선명해질 수 있습니다.",
-        "혼자 정리하는 시간에는 이 기둥의 성향이 더 분명하게 올라오기 쉽습니다.",
-        "겉보다 속에서 움직이는 판단은 이 기둥의 영향을 더 직접적으로 받을 수 있습니다.",
+        "가까운 사람과 서운함이 생기면 겉보다 속에서 정리하는 방식과 거리 조절이 더 선명하게 드러날 수 있습니다.",
+        "혼자 쉬는 시간이나 밤에 생각을 정리할 때는 사적인 반응 패턴이 평소보다 더 또렷하게 보일 수 있습니다.",
+        "연인이나 가족과 일정, 말투, 거리감을 맞출 때는 속으로 움직이는 판단 순서가 관계 온도를 좌우하기 쉽습니다.",
     ],
 }
 
@@ -210,6 +210,7 @@ def build_interpretation_payload(
     daewoon: dict | None = None,
     year_fortune: dict | None = None,
     saju_result: dict | None = None,
+    analysis_context: dict | None = None,
 ) -> dict:
     """Build story-like sections for the natal chart."""
     page_state = _create_state()
@@ -221,9 +222,18 @@ def build_interpretation_payload(
         year_fortune["pillar"] if year_fortune else "",
         pillar_profile["seed_key"],
     )
-    overall = _build_overall_section(element_analysis, ten_gods, daewoon, year_fortune, pillar_profile, seed, page_state)
-    personality = _build_personality_section(element_analysis, pillar_profile, seed + 11, page_state)
-    wealth = _build_wealth_section(element_analysis, pillar_profile, year_fortune, daewoon, seed + 23, page_state)
+    overall = _build_overall_section(
+        element_analysis,
+        ten_gods,
+        daewoon,
+        year_fortune,
+        pillar_profile,
+        analysis_context,
+        seed,
+        page_state,
+    )
+    personality = _build_personality_section(element_analysis, pillar_profile, analysis_context, seed + 11, page_state)
+    wealth = _build_wealth_section(element_analysis, pillar_profile, year_fortune, daewoon, analysis_context, seed + 23, page_state)
     pillar_sections = _build_pillar_sections(
         saju_result=saju_result,
         ten_gods=ten_gods,
@@ -337,6 +347,7 @@ def _build_overall_section(
     daewoon: dict | None,
     year_fortune: dict | None,
     pillar_profile: dict,
+    analysis_context: dict | None,
     seed: int,
     state: dict,
 ) -> dict:
@@ -345,8 +356,11 @@ def _build_overall_section(
     support = pick_support_elements(element_analysis)
     month_star = ten_gods["ten_gods"].get("month") if ten_gods else None
     current_flow = _current_flow_phrase(year_fortune, daewoon)
+    analysis_openings = _analysis_overall_openings(analysis_context, current_flow)
+    advanced_easy = _advanced_easy_lines(analysis_context, seed)
+    advanced_real = _advanced_real_lines(analysis_context, seed + 3)
 
-    easy_options = [dominant_story(dominant, seed), *pillar_profile["overall_easy"]]
+    easy_options = [dominant_story(dominant, seed), *advanced_easy, *pillar_profile["overall_easy"]]
     for index, element in enumerate(dominant[:2]):
         easy_options.extend(_rotate_pool(ELEMENT_STRONG_TEMPLATES[element], seed + index * 5))
     if support:
@@ -356,31 +370,35 @@ def _build_overall_section(
     if month_star:
         easy_options.append(select_ten_god_explanation(month_star, seed + 23))
     easy_options.append(current_flow)
+    easy_options.extend(_advanced_easy_lines(analysis_context, seed))
 
     real_life_options = [
         *pillar_profile["overall_real"],
+        *advanced_real,
         *_rotate_pool(DECISION_TEMPLATES, seed + 29),
         *_rotate_pool(SOCIAL_TEMPLATES, seed + 37),
         *_rotate_pool(OPPORTUNITY_TEMPLATES, seed + 41),
         *_rotate_pool(PERSONALITY_REAL_LIFE, seed + 47),
     ]
 
-    one_line_options = [
+    one_line_options = _clean_options([
+        *analysis_openings,
         pillar_profile["overall_one_line"],
-        f"{join_elements(dominant)} 기운이 중심이 되어 삶의 판단과 반응 방향을 이끄는 구조입니다.",
-        f"{join_elements(dominant)} 기운이 앞에 서서 생활 전반의 선택 기준을 주도하는 편입니다.",
-        f"{join_elements(dominant)} 기운이 선명해 일상에서 드러나는 성향의 결이 비교적 분명합니다.",
-        f"{join_elements(dominant)} 기운이 주도권을 잡아 쉽게 흔들리기보다 오래 보는 판단이 먼저 들어갑니다.",
-        f"{join_elements(dominant)} 기운이 중심축이 되어 생각과 행동이 한쪽으로 모이기 쉬운 편입니다.",
-    ]
+        f"선택지를 빨리 좁혀야 하는 순간에는 {join_elements(dominant)} 기운 쪽 반응이 먼저 올라와 판단 결이 비교적 또렷하게 보입니다.",
+        f"여러 일이 한꺼번에 겹치면 {join_elements(dominant)} 기운이 앞에 서서 생활 전반의 선택 기준을 주도하는 편입니다.",
+        f"답을 미루기 어려운 장면에서는 {join_elements(dominant)} 기운이 선명해 일상에서 드러나는 성향의 결이 비교적 분명합니다.",
+        f"사람과 조건을 동시에 봐야 할 때는 {join_elements(dominant)} 기운이 주도권을 잡아 쉽게 흔들리기보다 오래 보는 판단이 먼저 들어갑니다.",
+        f"결정을 빨리 정리해야 하는 날에는 {join_elements(dominant)} 기운이 중심축이 되어 생각과 행동이 한쪽으로 모이기 쉬운 편입니다.",
+    ])
     section = build_report_section(
-        one_line_options=_prepend_if_present(one_line_options[1:], pillar_profile["overall_one_line"]),
+        one_line_options=one_line_options,
         easy_explanation_options=easy_options,
         real_life_options=real_life_options,
         action_advice_options=[*pillar_profile["overall_action"], *_rotate_pool(PERSONALITY_ACTION, seed + 53)],
         strength_options=_rotate_pool(STRENGTH_TEMPLATES, seed + 59),
         risk_options=_rotate_pool(RISK_TEMPLATES, seed + 67),
         highlight_options=[
+            *_advanced_highlight_lines(analysis_context),
             current_flow,
             dominant_story(dominant, seed + 71),
             *_rotate_pool(STRENGTH_TEMPLATES, seed + 73),
@@ -392,18 +410,31 @@ def _build_overall_section(
     )
     _prioritize_section_lines(
         section,
-        easy=pillar_profile["overall_easy"],
-        real=pillar_profile["overall_real"],
+        easy=[*advanced_easy, *pillar_profile["overall_easy"]],
+        real=[*advanced_real, *pillar_profile["overall_real"]],
         action=pillar_profile["overall_action"],
     )
+    if analysis_openings:
+        section["one_line"] = _to_judgment_tone(analysis_openings[0])
+        section["headline"] = section["one_line"]
+        section["summary"] = section["one_line"]
     return section
 
 
-def _build_personality_section(element_analysis: dict, pillar_profile: dict, seed: int, state: dict) -> dict:
+def _build_personality_section(
+    element_analysis: dict,
+    pillar_profile: dict,
+    analysis_context: dict | None,
+    seed: int,
+    state: dict,
+) -> dict:
     dominant = element_analysis["dominant"]
     weak = element_analysis["weak"]
     support = pick_support_elements(element_analysis)
-    easy_options = [*pillar_profile["personality_easy"]]
+    analysis_openings = _analysis_personality_openings(analysis_context)
+    advanced_easy = _advanced_easy_lines(analysis_context, seed + 1)
+    advanced_real = _advanced_real_lines(analysis_context, seed + 5)
+    easy_options = [*advanced_easy, *pillar_profile["personality_easy"]]
     for index, element in enumerate(dominant[:2]):
         easy_options.extend(_rotate_pool(ELEMENT_STRONG_TEMPLATES[element], seed + index * 5))
     if support:
@@ -414,6 +445,7 @@ def _build_personality_section(element_analysis: dict, pillar_profile: dict, see
 
     real_life_options = [
         *pillar_profile["personality_real"],
+        *advanced_real,
         *_rotate_pool(SOCIAL_TEMPLATES, seed + 31),
         *_rotate_pool(STRESS_TEMPLATES, seed + 37),
         *_rotate_pool(DECISION_TEMPLATES, seed + 43),
@@ -421,13 +453,15 @@ def _build_personality_section(element_analysis: dict, pillar_profile: dict, see
     ]
 
     section = build_report_section(
-        one_line_options=_prepend_if_present(_rotate_pool(PERSONALITY_SUMMARY, seed), pillar_profile["personality_one_line"]),
+        one_line_options=_clean_options([*analysis_openings, pillar_profile["personality_one_line"], *_rotate_pool(PERSONALITY_SUMMARY, seed)]),
         easy_explanation_options=easy_options,
         real_life_options=real_life_options,
         action_advice_options=[*pillar_profile["personality_action"], *_rotate_pool(PERSONALITY_ACTION, seed + 53)],
         strength_options=_rotate_pool(STRENGTH_TEMPLATES, seed + 59),
         risk_options=_rotate_pool(RISK_TEMPLATES, seed + 67),
         highlight_options=[
+            *_analysis_personality_highlights(analysis_context),
+            *_advanced_highlight_lines(analysis_context),
             pillar_profile["overall_one_line"],
             *_rotate_pool(STRENGTH_TEMPLATES, seed + 71),
             *_rotate_pool(DECISION_TEMPLATES, seed + 79),
@@ -439,10 +473,14 @@ def _build_personality_section(element_analysis: dict, pillar_profile: dict, see
     )
     _prioritize_section_lines(
         section,
-        easy=pillar_profile["personality_easy"],
-        real=pillar_profile["personality_real"],
+        easy=[*advanced_easy, *pillar_profile["personality_easy"]],
+        real=[*advanced_real, *pillar_profile["personality_real"]],
         action=pillar_profile["personality_action"],
     )
+    if analysis_openings:
+        section["one_line"] = _to_judgment_tone(analysis_openings[0])
+        section["headline"] = section["one_line"]
+        section["summary"] = section["one_line"]
     return section
 
 
@@ -451,13 +489,19 @@ def _build_wealth_section(
     pillar_profile: dict,
     year_fortune: dict | None,
     daewoon: dict | None,
+    analysis_context: dict | None,
     seed: int,
     state: dict,
 ) -> dict:
     dominant = element_analysis["dominant"]
     weak = element_analysis["weak"]
     support = pick_support_elements(element_analysis)
+    analysis_openings = _analysis_wealth_openings(analysis_context, year_fortune, daewoon)
+    advanced_easy = _advanced_easy_lines(analysis_context, seed + 2)
+    advanced_real = _advanced_real_lines(analysis_context, seed + 7)
     easy_options = [
+        *analysis_openings[1:],
+        *advanced_easy,
         dominant_story(dominant, seed + 3),
         *pillar_profile["wealth_easy"],
         _current_flow_phrase(year_fortune, daewoon),
@@ -473,6 +517,7 @@ def _build_wealth_section(
 
     real_life_options = [
         *pillar_profile["wealth_real"],
+        *advanced_real,
         *_rotate_pool(MONEY_REAL_LIFE, seed + 23),
         *_rotate_pool(MONEY_HABIT_TEMPLATES, seed + 29),
         *_rotate_pool(OPPORTUNITY_TEMPLATES, seed + 37),
@@ -480,13 +525,15 @@ def _build_wealth_section(
     ]
 
     section = build_report_section(
-        one_line_options=_prepend_if_present(_rotate_pool(MONEY_SUMMARY, seed), pillar_profile["wealth_one_line"]),
+        one_line_options=_clean_options([*analysis_openings, pillar_profile["wealth_one_line"], *_rotate_pool(MONEY_SUMMARY, seed)]),
         easy_explanation_options=easy_options,
         real_life_options=real_life_options,
         action_advice_options=[*pillar_profile["wealth_action"], *_rotate_pool(MONEY_ACTION, seed + 43)],
         strength_options=[*pillar_profile.get("wealth_strength", []), *_rotate_pool(STRENGTH_TEMPLATES, seed + 47)],
         risk_options=[*pillar_profile.get("wealth_risk", []), *_rotate_pool(RISK_TEMPLATES, seed + 53)],
         highlight_options=[
+            *_analysis_wealth_highlights(analysis_context, year_fortune, daewoon),
+            *_advanced_highlight_lines(analysis_context),
             pillar_profile.get("wealth_highlight", ""),
             pillar_profile["wealth_one_line"],
             *_rotate_pool(MONEY_HABIT_TEMPLATES, seed + 59),
@@ -502,16 +549,30 @@ def _build_wealth_section(
     )
     _prioritize_section_lines(
         section,
-        easy=pillar_profile["wealth_easy"],
-        real=pillar_profile["wealth_real"],
+        easy=[*advanced_easy, *pillar_profile["wealth_easy"]],
+        real=[*advanced_real, *pillar_profile["wealth_real"]],
         action=pillar_profile["wealth_action"],
     )
-    section["one_line"] = pillar_profile["wealth_one_line"]
+    section["one_line"] = _to_judgment_tone(analysis_openings[0]) if analysis_openings else pillar_profile["wealth_one_line"]
     section["headline"] = pillar_profile["wealth_one_line"]
-    section["summary"] = pillar_profile["wealth_one_line"]
-    if pillar_profile.get("wealth_highlight"):
+    section["summary"] = section["one_line"]
+    if analysis_context:
+        analysis_highlights = _analysis_wealth_highlights(analysis_context, year_fortune, daewoon)
+        if analysis_highlights:
+            section["highlight"] = _build_highlight(
+                analysis_highlights,
+                one_line=section["one_line"],
+                easy_explanation=section["easy_explanation"],
+                real_life=section["real_life"],
+                strength_and_risk=section["strength_and_risk"],
+                action_advice=section["action_advice"],
+                seed=seed + 61,
+            )
+            section["highlight_text"] = section["highlight"]
+    elif pillar_profile.get("wealth_highlight"):
         section["highlight"] = pillar_profile["wealth_highlight"]
         section["highlight_text"] = pillar_profile["wealth_highlight"]
+    section["headline"] = section["one_line"]
     return section
 
 
@@ -676,6 +737,11 @@ def _build_pillar_profile(
         return empty
 
     day_pillar_data = DAY_PILLAR_SENTENCES.get(day["kor"], {})
+    day_pillar_options = {
+        "core": get_day_pillar_sentence_options(day["kor"], "core"),
+        "relationship": get_day_pillar_sentence_options(day["kor"], "relationship"),
+        "wealth": get_day_pillar_sentence_options(day["kor"], "wealth"),
+    }
     year_stem_meta = STEMS_BY_KOR[year["stem"]]
     year_branch = BRANCHES_BY_KOR[year["branch"]]
     month_branch = month["branch"]
@@ -703,12 +769,12 @@ def _build_pillar_profile(
     )
 
     overall_easy = [
-        day_pillar_data.get("core", ""),
-        DAY_STEM_CORE_LINES[day_stem],
-        MONTH_BRANCH_CONTEXT_LINES[month_branch],
-        _build_year_pillar_line(year["kor"], year_stem_meta["element"], year_branch["element"]),
-        _pick_profile_line(year_data["first_impression"], base_seed + 5),
+        f"답을 빨리 정해야 하는 장면에서는 {_strip_day_pillar_prefix(_pick_profile_line(day_pillar_options['core'], base_seed + 1), day['kor']) or '판단 순서가 비교적 또렷하게 드러나는 편입니다.'}",
+        f"낯선 자리에서는 {_pick_profile_line(year_data['first_impression'], base_seed + 5).lower()}",
         _pick_profile_line(day_data["social_reaction"], base_seed + 3),
+        MONTH_BRANCH_WORK_LINES[month_branch],
+        DAY_STEM_CORE_LINES[day_stem],
+        _build_year_pillar_line(year["kor"], year_stem_meta["element"], year_branch["element"]),
     ]
     if time_branch:
         overall_easy.append(TIME_BRANCH_PRIVATE_LINES[time_branch])
@@ -716,7 +782,7 @@ def _build_pillar_profile(
         overall_easy.append(_as_modifier_line("성격 보정으로 보면", _pick_profile_line(month_ten_god_data["personality_modifier"], base_seed + 7)))
 
     overall_real = [
-        f"일주 {day['kor']} 자체를 보면, {_strip_day_pillar_prefix(day_pillar_data.get('core', ''), day['kor']) or '판단의 중심축이 비교적 분명하게 드러나는 편입니다.'}",
+        f"회의에서 선택지를 둘 이상 놓고 결론을 정해야 할 때는 {_strip_day_pillar_prefix(_pick_profile_line(day_pillar_options['core'], base_seed + 2), day['kor']) or '판단의 중심축이 비교적 분명하게 드러나는 편입니다.'}",
         DECISION_PATTERN_LINES[day_stem],
         MONTH_BRANCH_WORK_LINES[month_branch],
         _pick_profile_line(day_data["speech_style"], base_seed + 11),
@@ -731,17 +797,18 @@ def _build_pillar_profile(
         overall_action.append(_pick_profile_line(daewoon_ten_god_data["action_advice"], base_seed + 19))
 
     personality_easy = [
-        day_pillar_data.get("core", ""),
-        DAY_STEM_CORE_LINES[day_stem],
+        f"처음 만난 사람과 금방 호흡을 맞춰야 하는 자리에서는 {_strip_day_pillar_prefix(_pick_profile_line(day_pillar_options['core'], base_seed + 21), day['kor']) or '기본 반응 순서가 먼저 드러나는 편입니다.'}",
+        _pick_profile_line(day_data["social_reaction"], base_seed + 31),
     ]
     if month_ten_god_data:
         personality_easy.append(_as_modifier_line("성격 보정으로 보면", _pick_profile_line(month_ten_god_data["personality_modifier"], base_seed + 29)))
     personality_easy.extend([
         _pick_profile_line(month_data["base_personality"], base_seed + 23),
     ])
+    personality_easy.append(DAY_STEM_CORE_LINES[day_stem])
     personality_easy.append(MONTH_BRANCH_CONTEXT_LINES[month_branch])
     personality_real = [
-        f"대인 반응의 본체는 일주 {day['kor']}가 만든 결을 많이 따라가므로, {_strip_day_pillar_prefix(day_pillar_data.get('relationship', ''), day['kor']) or '관계에서도 기본 반응 순서가 선명한 편입니다.'}",
+        f"가까운 사람과 의견이 갈리거나 내 입장을 설명해야 하는 장면에서는 {_strip_day_pillar_prefix(_pick_profile_line(day_pillar_options['relationship'], base_seed + 24), day['kor']) or '관계에서도 기본 반응 순서가 선명한 편입니다.'}",
         _build_personality_social_line(year["kor"], time_branch),
         DECISION_PATTERN_LINES[day_stem],
         _pick_profile_line(day_data["social_reaction"], base_seed + 31),
@@ -754,18 +821,16 @@ def _build_pillar_profile(
         personality_action.append(_pick_profile_line(daewoon_ten_god_data["action_advice"], base_seed + 43))
 
     wealth_easy = [
-        day_pillar_data.get("wealth", ""),
-        _build_wealth_base_line(day["kor"], month["kor"]),
+        f"큰 지출이나 계약을 앞두면 {_strip_day_pillar_prefix(_pick_profile_line(day_pillar_options['wealth'], base_seed + 45), day['kor']) or '돈 문제에서도 본래 판단 순서가 먼저 올라오는 편입니다.'}",
         _build_wealth_profile_easy_line(wealth_profile, day_stem, month_branch),
+        _pick_profile_line(month_data["money_habit"], base_seed + 47),
+        MONTH_BRANCH_WORK_LINES[month_branch],
+        _build_wealth_base_line(day["kor"], month["kor"]),
     ]
     if month_ten_god_data:
         wealth_easy.append(_as_modifier_line("재물 보정으로 보면", _pick_profile_line(month_ten_god_data["wealth_modifier"], base_seed + 53)))
-    wealth_easy.extend([
-        _pick_profile_line(month_data["money_habit"], base_seed + 47),
-        MONTH_BRANCH_WORK_LINES[month_branch],
-    ])
     wealth_real = [
-        f"일주 {day['kor']}를 재물 관점에서 보면, {_strip_day_pillar_prefix(day_pillar_data.get('wealth', ''), day['kor']) or '돈 문제에서도 본래 판단 결이 크게 작동하는 편입니다.'}",
+        f"결제나 투자 여부를 바로 정해야 하는 장면에서는 {_strip_day_pillar_prefix(_pick_profile_line(day_pillar_options['wealth'], base_seed + 48), day['kor']) or '돈 문제에서도 본래 판단 결이 크게 작동하는 편입니다.'}",
         _build_wealth_real_life_line(day_stem, month_branch),
         _build_wealth_profile_real_line(wealth_profile, day_stem, month_branch),
         _pick_profile_line(month_data["work_adaptation"], base_seed + 59),
@@ -783,15 +848,15 @@ def _build_pillar_profile(
             pillar["kor"] for pillar in [year, month, day] + ([time] if time else [])
         ),
         "overall_one_line": (
-            f"일주 {day['kor']}가 중심이 되고 월지 {month['branch']}가 받쳐, "
-            "원국의 판단 방식과 생활 리듬을 비교적 선명하게 만드는 편입니다."
+            f"답을 빨리 정해야 하는 순간에는 {day['kor']}의 판단 결과 {month['branch']}의 생활 리듬이 함께 올라와 "
+            "무슨 기준을 먼저 잡는지가 비교적 또렷하게 드러나는 편입니다."
         ),
         "overall_easy": overall_easy,
         "overall_real": overall_real,
         "overall_action": overall_action,
         "personality_one_line": (
-            f"일주 {day['kor']}가 중심이 되고 월지 {month['branch']}가 받쳐, "
-            "성격에서는 생각보다 판단 순서와 생활 리듬이 먼저 드러나는 편입니다."
+            f"사람을 가까이 둘지 거리를 둘지 정해야 하는 장면에서는 {day['kor']}의 판단 순서와 "
+            f"{month['branch']}의 생활 리듬이 먼저 드러나는 편입니다."
         ),
         "personality_easy": personality_easy,
         "personality_real": personality_real,
@@ -822,12 +887,12 @@ def _resolve_wealth_profile(day_stem: str, month_branch: str, month_ten_god: str
 
 def _build_wealth_profile_one_line(profile: str, month_kor: str, day_kor: str) -> str:
     lines = {
-        "system_saver": f"월주 {month_kor}와 일주 {day_kor}를 보면, 재물은 버는 힘보다 관리 기준을 세울 때 차이가 크게 나는 편입니다.",
-        "selective_expander": f"월주 {month_kor}와 일주 {day_kor}를 보면, 재물은 기회를 넓히는 힘보다 무엇을 고를지에 따라 결과가 갈리는 편입니다.",
-        "precision_controller": f"월주 {month_kor}와 일주 {day_kor}를 보면, 재물은 속도보다 정리와 통제력에서 실제 차이가 크게 나는 편입니다.",
-        "flow_observer": f"월주 {month_kor}와 일주 {day_kor}를 보면, 재물은 눈앞 금액보다 전체 흐름을 어떻게 읽느냐에 따라 안정감이 달라지는 편입니다.",
-        "opportunity_handler": f"월주 {month_kor}와 일주 {day_kor}를 보면, 재물은 들어오는 기회를 어떻게 활용하고 마무리하느냐에 따라 성과가 갈리는 편입니다.",
-        "steady_accumulator": f"월주 {month_kor}와 일주 {day_kor}를 보면, 재물은 감정 반응보다 운영 습관과 판단 순서가 먼저 작동하는 편입니다.",
+        "system_saver": f"돈이 들어오거나 나갈 때는 {month_kor}의 운영 감각과 {day_kor}의 판단 순서가 함께 작동해, 버는 힘보다 관리 기준에서 차이가 크게 나는 편입니다.",
+        "selective_expander": f"새 수입처나 제안이 보이면 {month_kor}와 {day_kor}의 결이 함께 올라와, 기회를 넓히는 힘보다 무엇을 고를지에 따라 결과가 갈리는 편입니다.",
+        "precision_controller": f"정산이나 마감이 걸린 장면에서는 {month_kor}와 {day_kor}의 결이 같이 작동해, 속도보다 정리와 통제력에서 실제 차이가 크게 나는 편입니다.",
+        "flow_observer": f"큰 지출이나 투자 판단 앞에서는 {month_kor}와 {day_kor}의 결이 같이 올라와, 눈앞 금액보다 전체 흐름을 어떻게 읽느냐에 따라 안정감이 달라지는 편입니다.",
+        "opportunity_handler": f"수입 기회가 들어오면 {month_kor}와 {day_kor}의 결이 같이 움직여, 그 기회를 어떻게 활용하고 마무리하느냐에 따라 성과가 갈리는 편입니다.",
+        "steady_accumulator": f"돈 문제를 오래 끌고 갈수록 {month_kor}와 {day_kor}의 결이 함께 작동해, 감정 반응보다 운영 습관과 판단 순서가 먼저 힘을 쓰는 편입니다.",
     }
     return lines[profile]
 
@@ -982,9 +1047,9 @@ def _pillar_real_options(
     branch_label = format_branch_label(branch)
     options = [
         *_rotate_pool(PILLAR_ROLE_REAL_LINES[role], seed + 3),
-        f"현실에서는 {pillar_label}가 만든 결 때문에 같은 상황에서도 {stem_label} 천간의 판단 순서와 {branch_label} 지지의 반응 속도가 먼저 올라올 가능성이 큽니다.",
-        f"{PILLAR_ROLE_TITLES[role].replace(' 해석', '')}가 강하게 작동하는 순간에는 {branch_label} 지지가 만드는 생활 페이스가 선택의 속도를 직접 좌우할 수 있습니다.",
-        f"{pillar_label}는 단순한 상징이 아니라, 실제 생활에서는 {stem_label}과 {branch_label}가 겹친 반응 패턴으로 나타나는 경우가 많습니다.",
+        f"같은 부탁을 받아도 먼저 판단하는 순서는 {stem_label} 쪽에서 올라오고, 실제로 움직이는 속도는 {branch_label} 리듬을 크게 벗어나지 않는 편입니다.",
+        f"선택지가 두세 개 동시에 올라오면 {branch_label} 쪽 생활 리듬을 기준으로 버틸 수 있는지부터 살피는 장면이 반복되기 쉽습니다.",
+        f"급하게 결론을 내야 할 때도 반응 방식은 {stem_label}의 판단 순서와 {branch_label}의 생활 속도가 겹친 방향으로 비교적 일정하게 나타납니다.",
     ]
     if role == "year":
         options.extend([
@@ -998,8 +1063,9 @@ def _pillar_real_options(
             _pick_profile_line(month_data["work_adaptation"], seed + 31) if month_data else "",
         ])
     elif role == "day":
+        day_core = _strip_day_pillar_prefix(day_pillar_data.get("core", ""), pillar["kor"]) if day_pillar_data else ""
         options.extend([
-            f"일주 {pillar_label}를 그대로 읽으면 {_strip_day_pillar_prefix(day_pillar_data.get('core', ''), pillar['kor']) if day_pillar_data else '판단의 중심 결이 비교적 선명한 편입니다.'}",
+            f"중요한 결정을 바로 정해야 하는 장면에서는 {day_core or '판단의 중심 결이 비교적 선명하게 올라오는'} 쪽으로 반응하기 쉽습니다.",
             DECISION_PATTERN_LINES[stem],
             _pick_profile_line(day_data["speech_style"], seed + 37) if day_data else "",
             _pick_profile_line(day_data["social_reaction"], seed + 41) if day_data else "",
@@ -1062,18 +1128,18 @@ def _build_year_pillar_line(year_pillar: str, stem_element: str, branch_element:
 
 def _build_year_real_life_line(year_pillar: str, year_branch: str) -> str:
     return (
-        f"현실에서는 년주 {year_pillar}의 영향 때문에 처음 보는 환경에서도 "
-        f"{year_branch} 지지가 가진 바깥 반응 결이 먼저 읽히는 경우가 많습니다."
+        f"처음 보는 사람과 일을 시작하거나 소개를 받는 장면에서는 "
+        f"{year_branch} 쪽 바깥 반응이 먼저 읽혀 첫인상이 비교적 빨리 정해지는 편입니다."
     )
 
 
 def _build_personality_social_line(year_pillar: str, time_branch: str | None) -> str:
     if time_branch:
         return (
-            f"겉으로는 년주 {year_pillar}가 보여 주는 사회적 인상으로 읽히고, "
-            f"가까워질수록 시지 {time_branch}가 만든 사적인 페이스가 더 분명하게 드러날 수 있습니다."
+            "처음 만난 자리에서는 공적인 태도가 먼저 보이지만, "
+            "가까워질수록 답장 속도와 거리 조절 같은 사적인 페이스가 더 또렷하게 드러날 수 있습니다."
         )
-    return f"겉으로는 년주 {year_pillar}가 만든 사회적 인상이 먼저 보이고, 속도는 생각보다 천천히 열리는 편입니다."
+    return "처음에는 차분하고 공적인 태도가 먼저 보이지만, 친해질수록 마음을 여는 속도는 생각보다 천천히 드러나는 편입니다."
 
 
 def _build_wealth_base_line(day_pillar: str, month_pillar: str) -> str:
@@ -1085,21 +1151,21 @@ def _build_wealth_base_line(day_pillar: str, month_pillar: str) -> str:
 
 def _build_wealth_real_life_line(day_stem: str, month_branch: str) -> str:
     return (
-        f"돈 문제에서도 일간 {day_stem}의 판단 방식과 월지 {month_branch}의 생활 리듬이 겹쳐, "
-        "좋아 보여도 유지 가능한지부터 따져 보는 반응이 먼저 나오는 경우가 많습니다."
+        f"돈 문제에서는 바로 결제하거나 투자하기보다 "
+        f"{day_stem} 쪽 판단 순서와 {month_branch} 쪽 생활 리듬을 따라 유지 가능한지부터 따져 보는 장면이 자주 나올 수 있습니다."
     )
 
 
 def _build_year_resource_line(year_pillar: str, year_stem_element: str) -> str:
     return (
-        f"년주 {year_pillar}를 보면 바깥 기회가 들어와도 "
-        f"{ELEMENT_TONE[year_stem_element]}을 먼저 확인한 뒤 반응하는 편입니다."
+        f"소개나 외부 제안이 들어와도 바로 잡기보다 "
+        f"{ELEMENT_TONE[year_stem_element]}이 맞는지부터 확인한 뒤 반응하는 편입니다."
     )
 
 
 def _build_time_resource_line(time_pillar: str, time_branch: str) -> str:
     return (
-        f"시주 {time_pillar}의 영향으로 사적인 판단 단계에서는 {time_branch} 지지가 가진 속도 조절이 작동해, "
+        f"지출이나 계약을 마감 직전에 다시 볼 때는 {time_branch} 쪽 속도 조절이 작동해, "
         "마지막 확인 절차를 한 번 더 두는 편입니다."
     )
 
@@ -1117,23 +1183,41 @@ def _prepend_if_present(options: list[str], preferred: str) -> list[str]:
     return [preferred, *options]
 
 
-def _prioritize_section_lines(section: dict, *, easy: list[str], real: list[str], action: list[str]) -> None:
-    section["easy_explanation"] = _priority_merge(easy, section["easy_explanation"])
-    section["real_life"] = _priority_merge(real, section["real_life"])
-    section["action_advice"] = _priority_merge(action, section["action_advice"])
+def _clean_options(options: list[str]) -> list[str]:
+    return [option for option in options if option]
+
+
+def _prioritize_section_lines(
+    section: dict,
+    *,
+    easy: list[str],
+    real: list[str],
+    action: list[str],
+    blend_priority: bool = False,
+) -> None:
+    section["easy_explanation"] = _priority_merge(easy, section["easy_explanation"], blend_priority=blend_priority)
+    section["real_life"] = _priority_merge(real, section["real_life"], blend_priority=blend_priority)
+    section["action_advice"] = _priority_merge(action, section["action_advice"], blend_priority=blend_priority)
     section["explanation"] = " ".join(section["easy_explanation"])
     section["real_life_text"] = " ".join(section["real_life"])
     section["advice"] = " ".join(section["action_advice"])
 
 
-def _priority_merge(priority_lines: list[str], current_lines: list[str]) -> list[str]:
+def _priority_merge(priority_lines: list[str], current_lines: list[str], *, blend_priority: bool = False) -> list[str]:
     if not priority_lines:
         return current_lines
 
     merged: list[str] = []
     seen: set[str] = set()
     target_length = len(current_lines)
-    for line in [*priority_lines, *current_lines]:
+    if blend_priority:
+        max_priority = max(1, (target_length + 1) // 2)
+        front_priority = priority_lines[:max_priority]
+        tail_priority = priority_lines[max_priority:]
+        line_source = [*front_priority, *current_lines, *tail_priority]
+    else:
+        line_source = [*priority_lines, *current_lines]
+    for line in line_source:
         normalized = _to_judgment_tone(line.strip())
         if normalized in seen:
             continue
@@ -1167,6 +1251,200 @@ def _current_flow_phrase(year_fortune: dict | None, daewoon: dict | None) -> str
     if daewoon:
         return f"현재 대운에서는 {daewoon['active_cycle_summary']['ten_god']} 기운이 강해 장단점이 더 또렷하게 드러나기 쉽습니다."
     return "현재는 준비된 판단과 생활 리듬을 지키는 태도가 더 큰 차이를 만들 수 있습니다."
+
+
+def _hidden_group_focus_phrase(group: str | None) -> str:
+    mapping = {
+        "비겁": "내 기준과 거리 조절",
+        "식상": "표현과 실행의 순서",
+        "재성": "현실 성과와 관리 기준",
+        "관성": "책임과 평가 대응",
+        "인성": "해석과 보호 본능",
+    }
+    return mapping.get(group or "", "안쪽 반응의 결")
+
+
+def _analysis_overall_openings(
+    analysis_context: dict | None,
+    current_flow: str,
+) -> list[str]:
+    if not analysis_context:
+        return []
+    strength = analysis_context["strength"]["display_label"]
+    yongshin = analysis_context["yongshin"]["display"]["primary"]
+    dominant = ", ".join(analysis_context["elements"]["dominant_kor"])
+    weak = ", ".join(analysis_context["elements"]["weak_kor"])
+    hidden_focus = _hidden_group_focus_phrase(analysis_context["flags"].get("hidden_group_focus"))
+    lines = [
+        f"이 원국은 {strength} 구조이고, 해석의 중심은 {yongshin} 기운으로 균형을 다시 맞추는 데 있습니다.",
+        f"오행 가중치를 함께 보면 {dominant} 기운이 앞서지만, 실제 균형은 {yongshin} 기운을 살릴 때 더 자연스럽게 잡힙니다.",
+        f"겉으로는 {dominant} 기운이 강하고 약한 축은 {weak}이라, 전체 방향은 {yongshin} 기운을 통해 보완하는 쪽이 맞습니다.",
+        f"안쪽 반응에서는 {hidden_focus}이 먼저 작동해, 겉으로 보이는 성향보다 판단 순서와 균형 회복 방식이 더 중요합니다.",
+        current_flow,
+    ]
+    interactions = analysis_context["interactions"]
+    if interactions["natal"]:
+        item = interactions["natal"][0]
+        lines.append(
+            f"원국 안의 {item['target']} {item['type']} 흐름까지 함께 보면, 삶의 방향은 단순 성향보다 상호작용 구조에서 더 크게 갈립니다."
+        )
+    return lines
+
+
+def _analysis_personality_openings(analysis_context: dict | None) -> list[str]:
+    if not analysis_context:
+        return []
+    strength = analysis_context["strength"]["display_label"]
+    yongshin = analysis_context["yongshin"]["display"]["primary"]
+    hidden_group = analysis_context["flags"].get("hidden_group_focus")
+    hidden_focus = _hidden_group_focus_phrase(hidden_group)
+    flags = analysis_context["flags"]
+    lines = [
+        f"성격은 {strength} 구조 위에서 {yongshin} 기운을 어떻게 쓰느냐에 따라 장점이 또렷해지는 편입니다.",
+        f"겉성격보다 실제 반응은 숨은 십성의 {hidden_focus}이 먼저 작동하는 편이라 판단 순서가 중요합니다.",
+        (
+            "성격 해석에서는 안쪽 긴장과 바깥 반응이 같이 움직여, 한 번 흔들리면 선택 기준부터 다시 세워야 안정이 잡히는 편입니다."
+            if flags["has_natal_conflict"]
+            else "성격 해석에서는 강한 충돌보다 안팎의 결이 비교적 이어져, 기준을 세우면 안정적으로 장점을 쓰는 편입니다."
+        ),
+    ]
+    return lines
+
+
+def _analysis_wealth_openings(
+    analysis_context: dict | None,
+    year_fortune: dict | None,
+    daewoon: dict | None,
+) -> list[str]:
+    if not analysis_context:
+        return []
+    strength = analysis_context["strength"]["display_label"]
+    yongshin = analysis_context["yongshin"]["display"]["primary"]
+    weak = ", ".join(analysis_context["elements"]["weak_kor"])
+    flow = _current_flow_phrase(year_fortune, daewoon)
+    hidden_focus = analysis_context["flags"].get("hidden_group_focus")
+    lines = [
+        f"재물은 {strength} 구조를 보완하는 {yongshin} 기운을 얼마나 현실 운영으로 연결하느냐에서 차이가 납니다.",
+        f"돈 문제는 많이 버는 힘보다 약한 축인 {weak}을 보완할 수 있는 관리 기준이 있느냐가 더 중요합니다.",
+        flow,
+    ]
+    if hidden_focus == "재성":
+        lines.append("숨은 십성도 재성 쪽이 먼저 깔려 있어, 수입보다 관리 기준과 생활 운영이 더 직접적으로 결과에 남는 편입니다.")
+    elif hidden_focus == "관성":
+        lines.append("숨은 십성에 관성 흐름이 깔려 있어, 돈 문제도 책임과 기준을 먼저 세울 때 실제 안정감이 더 커지는 편입니다.")
+    elif hidden_focus == "인성":
+        lines.append("숨은 십성에 인성 흐름이 깔려 있어, 돈 문제도 바로 쓰기보다 검토와 보완을 먼저 할수록 실수를 줄이는 편입니다.")
+    return lines
+
+
+def _advanced_easy_lines(analysis_context: dict | None, seed: int) -> list[str]:
+    if not analysis_context:
+        return []
+    strength = analysis_context["strength"]
+    yongshin = analysis_context["yongshin"]
+    return [
+        _pick_profile_line(
+            [
+                f"중간 계산 기준으로 보면 일간 힘은 {strength['display_label']}으로 읽히고, 중심 기운의 버팀과 소모가 동시에 작동하는 편입니다.",
+                f"오행 가중치와 계절 흐름을 함께 보면 현재 원국은 {strength['display_label']} 쪽으로 기울어 해석하는 편이 자연스럽습니다.",
+                f"지장간과 계절 보정을 합쳐 보면 원국의 중심 힘은 {strength['display_label']}으로 읽히는 편입니다.",
+            ],
+            seed,
+        ),
+        _pick_profile_line(
+            [
+                f"균형을 맞추는 방향으로는 {yongshin['display']['primary']} 기운을 먼저 보고, 다음 보조 축으로 {yongshin['display']['secondary']} 기운을 함께 보는 편이 좋습니다.",
+                f"용신 후보는 {yongshin['display']['primary']} 쪽이고, 보조 축은 {yongshin['display']['secondary']}로 두는 편이 현재 구조를 읽기 쉽습니다.",
+                f"전체 균형을 맞추는 핵심 후보는 {yongshin['display']['primary']}이고, 보조 후보는 {yongshin['display']['secondary']}로 보는 편이 무리가 적습니다.",
+            ],
+            seed + 5,
+        ),
+        *strength["key_reasons"][:2],
+        *yongshin["reasons"][:2],
+    ]
+
+
+def _advanced_real_lines(analysis_context: dict | None, seed: int) -> list[str]:
+    if not analysis_context:
+        return []
+    interactions = analysis_context["interactions"]
+    flags = analysis_context["flags"]
+    lines: list[str] = []
+    if interactions["natal"]:
+        natal = interactions["natal"][seed % len(interactions["natal"])]
+        lines.append(
+            f"같은 문제를 두고 마음과 현실이 다른 쪽으로 끌리는 장면에서는 {natal['meaning']}"
+        )
+    if interactions["with_daewoon"]:
+        daewoon = interactions["with_daewoon"][(seed + 3) % len(interactions["with_daewoon"])]
+        lines.append(
+            f"역할이 커지거나 환경이 바뀌는 시기에는 {daewoon['meaning']}"
+        )
+    if interactions["with_yearly"]:
+        yearly = interactions["with_yearly"][(seed + 5) % len(interactions["with_yearly"])]
+        lines.append(
+            f"올해는 일정과 사람 문제가 겹치는 장면에서 {yearly['meaning']}"
+        )
+    lines.append(
+        "여러 장면이 한꺼번에 몰릴 때는 "
+        + (
+            "선택 충돌과 리듬 차이를 자주 관리해야 하는 편입니다."
+            if flags["has_natal_conflict"]
+            else "큰 충돌보다 이어지는 결을 살려 장점을 안정적으로 쓰기 쉬운 편입니다."
+        )
+    )
+    return lines
+
+
+def _advanced_highlight_lines(analysis_context: dict | None) -> list[str]:
+    if not analysis_context:
+        return []
+    strength = analysis_context["strength"]
+    yongshin = analysis_context["yongshin"]
+    return [
+        f"선택이 몰리는 순간에는 {strength['display_label']} 흐름을 감안해 {yongshin['display']['primary']} 쪽 기준을 먼저 세우는 편이 실제 체감 차이를 만들기 쉽습니다.",
+        f"문제가 한꺼번에 겹치는 날에는 {yongshin['display']['primary']} 쪽 자원과 리듬을 먼저 챙길 때 버티는 힘이 더 안정적으로 남습니다.",
+    ]
+
+
+def _analysis_personality_highlights(analysis_context: dict | None) -> list[str]:
+    if not analysis_context:
+        return []
+    hidden_focus = _hidden_group_focus_phrase(analysis_context["flags"].get("hidden_group_focus"))
+    return [
+        f"낯선 사람과 거리를 정해야 하는 장면에서는 {hidden_focus}이 겉반응보다 먼저 올라와 처음 분위기를 주도하는 편입니다.",
+        f"결국 사람을 계속 가까이 둘지 선을 그을지는 {analysis_context['yongshin']['display']['primary']} 기운으로 균형을 찾는 방식에서 갈리기 쉽습니다.",
+    ]
+
+
+def _analysis_wealth_highlights(
+    analysis_context: dict | None,
+    year_fortune: dict | None,
+    daewoon: dict | None,
+) -> list[str]:
+    if not analysis_context:
+        return []
+    if year_fortune and daewoon:
+        flow_line = (
+            f"이번 시기에는 돈과 역할이 함께 움직이는 장면에서 세운의 {year_fortune['ten_god']} 흐름과 "
+            f"대운의 {daewoon['active_cycle_summary']['ten_god']} 흐름이 동시에 판단 속도를 흔들 수 있습니다."
+        )
+    elif year_fortune:
+        flow_line = (
+            f"이번 해에는 {', '.join(year_fortune['focus'][:2])} 문제를 같이 챙겨야 하는 장면이 많아져 "
+            "돈과 일정 기준을 함께 잡는 편이 훨씬 유리합니다."
+        )
+    elif daewoon:
+        flow_line = (
+            f"지금은 {daewoon['active_cycle_summary']['ten_god']} 흐름이 강해져 생활비, 계약, 제안처럼 "
+            "현실 판단이 붙는 장면에서 체감 차이가 커지기 쉽습니다."
+        )
+    else:
+        flow_line = "이번 시기에는 돈과 일정이 겹치는 장면에서 먼저 기준을 세우는 편이 흔들림을 줄이기 쉽습니다."
+    return [
+        f"돈을 쓸지 말지, 제안을 잡을지 넘길지 정해야 할 때는 {analysis_context['yongshin']['display']['primary']} 쪽 기준을 먼저 살리는 편이 손실을 줄이기 쉽습니다.",
+        flow_line,
+    ]
 
 
 def _pick_strength_risk(
@@ -1288,22 +1566,40 @@ def _build_highlight(
     action_advice: list[str],
     seed: int,
 ) -> str:
-    candidates = [
-        *highlight_options,
-        *strength_and_risk,
-        *action_advice,
-        *real_life,
-        *easy_explanation,
+    preferred_candidates = [
+        *real_life[:2],
         one_line,
+        *action_advice[:2],
+        *highlight_options[:2],
+        *easy_explanation[:1],
     ]
+    support_candidates = [
+        *highlight_options[2:],
+        *easy_explanation[1:],
+        *real_life[2:],
+        *action_advice[2:],
+        *strength_and_risk,
+    ]
+    candidates = preferred_candidates or support_candidates
+    if not candidates:
+        candidates = support_candidates
     if not candidates:
         return ""
     opener = HIGHLIGHT_OPENERS[seed % len(HIGHLIGHT_OPENERS)]
-    base = candidates[seed % len(candidates)]
+    base = _strip_transition_prefix(candidates[seed % len(candidates)])
     highlighted = _to_judgment_tone(base)
     if not highlighted.endswith("."):
         highlighted = f"{highlighted}."
     return f"{opener}, {highlighted}"
+
+
+def _strip_transition_prefix(sentence: str) -> str:
+    stripped = sentence.strip()
+    for transition in sorted(TRANSITIONS, key=len, reverse=True):
+        prefix = f"{transition}, "
+        if stripped.startswith(prefix):
+            return stripped[len(prefix):]
+    return stripped
 
 
 def _to_judgment_tone(sentence: str) -> str:
@@ -1404,6 +1700,7 @@ def build_daily_section(
         easy=context_easy_lines or [],
         real=context_real_lines or [],
         action=context_action_lines or [],
+        blend_priority=True,
     )
     section["one_line"] = headline
     section["headline"] = headline
@@ -1450,6 +1747,7 @@ def build_career_section(
         easy=context_easy_lines or [],
         real=context_real_lines or [],
         action=context_action_lines or [],
+        blend_priority=True,
     )
     section["one_line"] = headline
     section["headline"] = headline
@@ -1496,6 +1794,7 @@ def build_relationship_section(
         easy=context_easy_lines or [],
         real=context_real_lines or [],
         action=context_action_lines or [],
+        blend_priority=True,
     )
     section["one_line"] = headline
     section["headline"] = headline

@@ -153,6 +153,11 @@ def get_basic_saju_result(
         lunar_python_day=local_eight_char.getDay(),
         independent_day=day_pillar["hanja"],
     )
+    sensitivity = _build_sensitivity_hooks(
+        solar_date=solar_date,
+        local_source=local_source,
+        birth_moment=birth_moment,
+    )
     _log_day_pillar_diagnostics(day_diagnostics)
 
     return {
@@ -186,6 +191,7 @@ def get_basic_saju_result(
             "day_boundary": "한국 기준 양력 civil date를 JDN으로 변환 후 2000-01-07 갑자일 epoch 기준 60갑자 계산",
             "time_boundary": "입력 시간 구간을 사주 기준 시각으로 변환한 뒤 일간 기준 시주 공식 사용",
         },
+        "sensitivity": sensitivity,
         "debug": {
             "day_pillar": day_diagnostics.__dict__,
         },
@@ -315,6 +321,61 @@ def _raise_if_boundary_day_without_time(solar_date: date) -> None:
                 f"{solar_date.isoformat()}은 {SOLAR_TERM_NAMES[point.name]} 절입일입니다. "
                 "정확한 년주/월주 판정을 위해 출생시간을 입력해 주세요."
             )
+
+
+def _build_sensitivity_hooks(
+    *,
+    solar_date: date,
+    local_source: datetime,
+    birth_moment: datetime | None,
+) -> dict:
+    major_terms = sorted(
+        _get_major_term_points(solar_date.year - 1)
+        + _get_major_term_points(solar_date.year)
+        + _get_major_term_points(solar_date.year + 1),
+        key=lambda point: point.at,
+    )
+    previous_term = None
+    next_term = None
+    for point in major_terms:
+        if point.at <= local_source:
+            previous_term = point
+            continue
+        next_term = point
+        break
+
+    nearest_gap_hours = None
+    if previous_term and next_term:
+        previous_gap = abs((local_source - previous_term.at).total_seconds()) / 3600
+        next_gap = abs((next_term.at - local_source).total_seconds()) / 3600
+        nearest_gap_hours = round(min(previous_gap, next_gap), 2)
+    elif previous_term:
+        nearest_gap_hours = round(abs((local_source - previous_term.at).total_seconds()) / 3600, 2)
+    elif next_term:
+        nearest_gap_hours = round(abs((next_term.at - local_source).total_seconds()) / 3600, 2)
+
+    notes: list[str] = []
+    if birth_moment is None:
+        notes.append("출생시간이 없어 시주와 경계 시각 민감도는 보수적으로 읽습니다.")
+    if birth_moment and birth_moment.hour in {23, 0}:
+        notes.append("자시 전후 출생이라 일주/시주 경계 해석을 함께 보는 편이 안전합니다.")
+    if nearest_gap_hours is not None and nearest_gap_hours <= 24:
+        notes.append("절입과 가까운 시점이라 월주/연주 판정 민감도를 함께 볼 필요가 있습니다.")
+
+    return {
+        "late_night_birth": bool(birth_moment and birth_moment.hour in {23, 0}),
+        "near_major_solar_term": bool(nearest_gap_hours is not None and nearest_gap_hours <= 24),
+        "nearest_major_term_gap_hours": nearest_gap_hours,
+        "previous_major_term": None if previous_term is None else {
+            "name": SOLAR_TERM_NAMES[previous_term.name],
+            "at": previous_term.at.isoformat(),
+        },
+        "next_major_term": None if next_term is None else {
+            "name": SOLAR_TERM_NAMES[next_term.name],
+            "at": next_term.at.isoformat(),
+        },
+        "notes": notes,
+    }
 
 
 def _build_pillar_from_hanja(value: str) -> dict:

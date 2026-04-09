@@ -189,6 +189,95 @@ def test_result_data_contains_premium_report_structure():
     assert "quarterly_fortune" not in result_data
     assert result_data["summary_card"]["year_trend"]
     assert result_data["summary_card"]["wealth"]
+    assert result_data["analysis_context"]["strength"]["display_label"]
+    assert result_data["analysis_context"]["yongshin"]["display"]["primary"]
+    assert result_data["analysis_context"]["yongshin"]["confidence_display"]
+    assert "natal" in result_data["analysis_context"]["interactions"]
+    assert result_data["analysis_context"]["uncertainty_notes"]
+
+
+def test_result_template_renders_balance_analysis_card():
+    _, result_data = _build_result_data(
+        calendar_type="solar",
+        year=2006,
+        month=8,
+        day=1,
+        time_slot="sa",
+        is_leap_month=False,
+        gender="male",
+        target_year="2026",
+        target_month="3",
+        target_date="2026-03-31",
+    )
+
+    display_result = build_display_result(result_data)
+    environment = Environment(loader=FileSystemLoader("templates"))
+    html = environment.get_template("result.html").render(
+        result=display_result,
+        premium_upgrade_link="/premium",
+        email_form_data={"email": "", "name": "", "consent": False},
+        email_success_message=None,
+        email_error_message=None,
+    )
+
+    assert "균형 해석" in html
+    assert "용신 확신도" in html
+    assert "근거 보기" in html
+    assert "신강/신약 점수" in html
+    assert "해석 유의점" in html
+    assert display_result["analysis_context"]["yongshin"]["display"]["primary"] in html
+    assert "핵심 근거" in html
+    assert display_result["premium_report"]["analysis_brief"]["brief"][0] in html
+
+
+def test_daily_fortune_score_matches_first_weekly_card_for_same_date():
+    _, result_data = _build_result_data(
+        calendar_type="solar",
+        year=2011,
+        month=4,
+        day=7,
+        time_slot="jin",
+        is_leap_month=False,
+        gender="male",
+        target_year="2026",
+        target_month="4",
+        target_date="2026-04-10",
+    )
+
+    daily_score = result_data["daily_fortune"]["score"]
+    weekly_first = result_data["weekly_fortune"][0]
+
+    assert result_data["daily_fortune"]["date"] == weekly_first["date"]
+    assert daily_score["value"] == weekly_first["score"]
+    assert daily_score["grade"] == weekly_first["grade"]
+    assert daily_score["label"] == weekly_first["label"]
+    assert daily_score["reason_tag"] == weekly_first["reason_tag"]
+    assert daily_score["caution_tag"] == weekly_first["caution_tag"]
+
+
+def test_daily_and_weekly_scores_match_for_1973_case_with_gendered_daewoon():
+    _, result_data = _build_result_data(
+        calendar_type="solar",
+        year=1973,
+        month=6,
+        day=6,
+        time_slot="sul",
+        is_leap_month=False,
+        gender="male",
+        target_year="2026",
+        target_month="4",
+        target_date="2026-04-10",
+    )
+
+    daily_score = result_data["daily_fortune"]["score"]
+    weekly_first = result_data["weekly_fortune"][0]
+
+    assert result_data["daily_fortune"]["date"] == weekly_first["date"] == "2026-04-10"
+    assert daily_score["value"] == weekly_first["score"]
+    assert daily_score["grade"] == weekly_first["grade"]
+    assert daily_score["label"] == weekly_first["label"]
+    assert daily_score["reason_tag"] == weekly_first["reason_tag"]
+    assert daily_score["caution_tag"] == weekly_first["caution_tag"]
 
 
 def test_premium_sentence_pools_have_expected_unique_sentences_per_type():
@@ -198,10 +287,29 @@ def test_premium_sentence_pools_have_expected_unique_sentences_per_type():
     assert set(premium_report.final_summary_pool) == expected_types
 
     for user_type in expected_types:
-        assert len(premium_report.action_intro_pool[user_type]) == 20
-        assert len(set(premium_report.action_intro_pool[user_type])) == 20
+        assert len(premium_report.action_intro_pool[user_type]) >= 40
+        assert len(set(premium_report.action_intro_pool[user_type])) == len(premium_report.action_intro_pool[user_type])
         assert len(premium_report.final_summary_pool[user_type]) == 50
         assert len(set(premium_report.final_summary_pool[user_type])) == 50
+
+
+def test_premium_action_plan_pools_are_expanded_beyond_base_pairs():
+    assert len(premium_report.ACTION_FORCE_TEMPLATES) >= 24
+
+    for pool in [
+        premium_report.ACTION_PLAN_DAY_STEM_LINES,
+        premium_report.ACTION_PLAN_MONTH_BRANCH_LINES,
+        premium_report.ACTION_PLAN_DOMINANT_LINES,
+        premium_report.ACTION_PLAN_WEAK_LINES,
+        premium_report.ACTION_PLAN_MONTH_TEN_GOD_LINES,
+        premium_report.ACTION_PLAN_DAEWOON_LINES,
+        premium_report.ACTION_PLAN_YEAR_FLOW_LINES,
+        premium_report.ACTION_PLAN_CAREER_LINES,
+        premium_report.ACTION_PLAN_RELATION_LINES,
+    ]:
+        for options in pool.values():
+            assert len(options) >= 8
+            assert len(set(options)) == len(options)
 
 
 def test_day_stem_maps_to_expected_user_type():
@@ -295,6 +403,46 @@ def test_premium_action_plan_changes_for_different_charts(monkeypatch):
     assert first_action["summary_lines"] != second_action["summary_lines"]
     assert first_action["patterns"] != second_action["patterns"]
     assert first_action["action_points"] != second_action["action_points"]
+    assert len(first_action["action_points"]) == 4
+    assert len(set(first_action["action_points"])) == 4
+    assert all(point.strip() for point in first_action["action_points"])
+
+
+def test_premium_core_sections_have_unique_patterns_and_actions():
+    _, result_data = _build_result_data(
+        calendar_type="solar",
+        year=2006,
+        month=8,
+        day=1,
+        time_slot="sa",
+        is_leap_month=False,
+        gender="male",
+        target_year="2026",
+        target_month="3",
+        target_date="2026-03-31",
+    )
+
+    sections = {section["key"]: section for section in result_data["premium_report"]["sections"]}
+    for key in ["timeline", "decision_points", "wealth_deep", "career_direction", "relationship_deep", "risk_analysis"]:
+        section = sections[key]
+        assert section["headline"].strip()
+        assert len(section["summary_lines"]) >= 3
+        assert all(line.strip() for line in section["summary_lines"])
+        assert len(set(section["summary_lines"])) == len(section["summary_lines"])
+        assert len(section["patterns"]) >= 3
+        assert len(set(section["patterns"])) == len(section["patterns"])
+        assert len(section["action_points"]) >= 3
+        assert len(set(section["action_points"])) == len(section["action_points"])
+        assert section["strength"].strip()
+        assert section["risk"].strip()
+        assert section["action_note"].strip()
+        assert len({section["strength"], section["risk"], section["action_note"]}) >= 2
+
+    action_plan = sections["action_plan"]
+    assert action_plan["headline"].strip()
+    assert len(action_plan["summary_lines"]) == 4
+    assert all(line.strip() for line in action_plan["summary_lines"])
+    assert len(set(action_plan["summary_lines"])) == 4
 
 
 def test_pdf_response_returns_downloadable_application_pdf(monkeypatch):

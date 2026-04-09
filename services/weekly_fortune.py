@@ -4,7 +4,12 @@ from __future__ import annotations
 
 from datetime import date, timedelta
 
+from services.analysis_context import build_analysis_context
+from services.daewoon import calculate_daewoon
 from services.daily_fortune import calculate_daily_fortune
+from services.element_analyzer import analyze_elements
+from services.ten_gods import calculate_ten_gods
+from services.yearly_fortune import calculate_yearly_fortune
 
 WEEKDAY_LABELS = ["월", "화", "수", "목", "금", "토", "일"]
 
@@ -167,13 +172,156 @@ SHORT_SUMMARY_POOLS = {
     ],
 }
 
+REASON_TAG_SHORT_POOLS = {
+    "용신 정합": [
+        "원국 결이 잘 받는 날",
+        "균형과 잘 맞는 날",
+        "용신 정합도가 높음",
+        "체감 활용도가 잘 붙음",
+        "균형 회복이 쉬운 날",
+        "내 결에 잘 맞는 날",
+    ],
+    "균형 회복": [
+        "균형 회복에 유리함",
+        "정리와 회복이 맞음",
+        "무리보다 회복 유리",
+        "안정감 회복이 좋음",
+        "기준 복구에 좋은 날",
+        "흐름 재정비에 적합",
+    ],
+    "실행 기회": [
+        "실행력이 붙는 날",
+        "움직이면 남는 날",
+        "성과 연결이 쉬움",
+        "실행 타이밍이 좋음",
+        "결과 만들기 좋음",
+        "작은 실행도 남음",
+    ],
+    "재물 흐름": [
+        "돈 기준 세우기 좋음",
+        "재물 판단이 또렷함",
+        "관리 기준이 잘 맞음",
+        "실무와 돈 점검 유리",
+        "축적 감각이 살아남",
+        "재정 정리가 잘 맞음",
+    ],
+    "관계 조율": [
+        "관계 조율이 중요함",
+        "사람 흐름 읽기 좋음",
+        "속도 조절이 잘 맞음",
+        "관계 리듬 점검 유리",
+        "대화 조율이 중요함",
+        "거리 조절이 핵심임",
+    ],
+    "정리 우선": [
+        "정리 순서가 중요함",
+        "기준부터 세우기 좋음",
+        "할 일 정돈이 잘 맞음",
+        "우선순위 정리가 핵심",
+        "정리 중심 운영이 유리",
+        "기준 잡고 가기 좋음",
+    ],
+    "속도 조절": [
+        "속도 조절이 핵심임",
+        "반응 수위를 낮추기",
+        "서두름 조절이 중요함",
+        "빠름보다 완성도 우선",
+        "한 박자 늦추면 좋음",
+        "과속만 줄이면 괜찮음",
+    ],
+    "변동 관리": [
+        "변수 관리가 중요함",
+        "흐름 변동 점검 유리",
+        "작은 변화 관리 필요",
+        "범위 조절이 잘 맞음",
+        "변수만 줄이면 안정",
+        "움직임 관리가 핵심임",
+    ],
+    "변동 주의": [
+        "작은 변동 관리 필요",
+        "일정 흔들림을 조심",
+        "변수 확장은 피하기",
+        "틈새 리스크 점검",
+        "미세 변동에 주의",
+        "가벼운 흔들림을 보기",
+    ],
+    "리듬 주의": [
+        "생활 리듬 점검 필요",
+        "속도 간격을 맞추기",
+        "리듬 흔들림을 조심",
+        "페이스 조절이 중요함",
+        "휴식 간격을 챙기기",
+        "흐름 리듬을 보기",
+    ],
+    "압력 주의": [
+        "압박 강도 조절 필요",
+        "부담 한도를 정하기",
+        "압력 대응이 핵심임",
+        "무리한 버팀은 피하기",
+        "기준 범위 축소 필요",
+        "압박 관리가 우선임",
+    ],
+    "충돌 주의": [
+        "충돌 신호를 조심",
+        "마찰 가능성 점검",
+        "속도 조절이 필요함",
+        "강한 반응은 주의",
+        "무리수는 피해야 함",
+        "충돌 관리가 중요함",
+    ],
+    "운 압박": [
+        "압박 대응이 중요함",
+        "부담 조절이 우선",
+        "운 압력 관리 필요",
+        "한도 설정이 중요함",
+        "무리 줄이기 우선",
+        "피로 관리가 핵심임",
+    ],
+    "방어 우선": [
+        "방어 운영이 우선",
+        "손실 줄이기 중요",
+        "확장보다 보호가 맞음",
+        "보수적 선택이 유리",
+        "일정 줄이기 우선",
+        "방어 집중이 맞음",
+    ],
+}
 
-def build_weekly_fortune(saju_result: dict, start_date: date) -> list[dict]:
+
+def build_weekly_fortune(
+    saju_result: dict,
+    start_date: date,
+    *,
+    gender: str | None = None,
+    daewoon: dict | None = None,
+) -> list[dict]:
     """Return 7 compact daily summaries starting from ``start_date``."""
+    element_analysis = analyze_elements(saju_result["saju"])
+    ten_gods = calculate_ten_gods(saju_result["saju"])
+    resolved_gender = gender or saju_result.get("raw_input", {}).get("gender")
+    resolved_daewoon = daewoon
+    if resolved_daewoon is None and resolved_gender in {"male", "female"}:
+        resolved_daewoon = calculate_daewoon(saju_result, gender=resolved_gender)
+    yearly_cache: dict[int, dict | None] = {}
     weekly_items = []
     for offset in range(7):
         target_date = start_date + timedelta(days=offset)
-        daily = calculate_daily_fortune(saju_result, target_date)
+        base_daily = calculate_daily_fortune(saju_result, target_date)
+        year_fortune = None
+        if resolved_daewoon:
+            year_fortune = yearly_cache.get(target_date.year)
+            if year_fortune is None:
+                year_fortune = calculate_yearly_fortune(saju_result, resolved_daewoon, target_date.year)
+                yearly_cache[target_date.year] = year_fortune
+        analysis_context = build_analysis_context(
+            saju_result=saju_result,
+            element_analysis=element_analysis,
+            ten_gods=ten_gods,
+            daewoon=resolved_daewoon,
+            year_fortune=year_fortune,
+            daily_fortune=base_daily,
+        )
+        daily = calculate_daily_fortune(saju_result, target_date, analysis_context=analysis_context)
         score = daily["score"]
         weekly_items.append(
             {
@@ -184,6 +332,9 @@ def build_weekly_fortune(saju_result: dict, start_date: date) -> list[dict]:
                 "score": score["value"],
                 "grade": score["grade"],
                 "label": score["label"],
+                "reason_tag": score.get("reason_tag"),
+                "caution_tag": score.get("caution_tag"),
+                "confidence": score.get("confidence", "high"),
                 "summary": _build_short_summary(daily, target_date),
                 "score_class": _score_class(score["value"]),
             }
@@ -194,7 +345,8 @@ def build_weekly_fortune(saju_result: dict, start_date: date) -> list[dict]:
 def _build_short_summary(daily: dict, target_date: date) -> str:
     score = daily["score"]["value"]
     bucket = _summary_bucket(score)
-    options = SHORT_SUMMARY_POOLS[bucket]
+    reason_tag = daily["score"].get("reason_tag")
+    options = REASON_TAG_SHORT_POOLS.get(reason_tag) or SHORT_SUMMARY_POOLS[bucket]
     keyword_seed = sum(sum(ord(char) for char in keyword) for keyword in daily.get("keywords", []))
     return options[(target_date.toordinal() + score + keyword_seed) % len(options)]
 

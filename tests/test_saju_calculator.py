@@ -48,6 +48,14 @@ def test_same_input_is_deterministic():
     assert first == second
 
 
+def test_saju_identity_is_included_and_stable():
+    result = get_basic_saju_result("solar", 1973, 6, 6, 20, 30)
+
+    assert result["saju_id"]
+    assert result["saju_hash"]
+    assert result["saju_id"] == "year-계축|month-무오|day-계유|hour-임술"
+
+
 def test_li_chun_boundary_uses_korea_timezone():
     result = get_basic_saju_result("solar", 2017, 2, 3, 23, 50)
 

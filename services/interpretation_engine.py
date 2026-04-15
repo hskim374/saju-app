@@ -1264,6 +1264,50 @@ def _hidden_group_focus_phrase(group: str | None) -> str:
     return mapping.get(group or "", "안쪽 반응의 결")
 
 
+def _balance_focus_phrase(yongshin: dict | None) -> str:
+    if not yongshin:
+        return "우선순위와 처리 범위를 먼저 고정하는"
+    mapping = {
+        "wood": "막힌 선택지를 조금 열어 두고 조정하는",
+        "fire": "말과 행동의 전달 강도를 분명히 다루는",
+        "earth": "버틸 수 있는 범위와 현실 조건을 먼저 정하는",
+        "metal": "기준과 순서를 먼저 또렷하게 세우는",
+        "water": "바로 확정하지 않고 한 번 더 흐름을 살피는",
+    }
+    return mapping.get(yongshin.get("primary_candidate"), "우선순위와 처리 범위를 먼저 고정하는")
+
+
+def _balance_support_phrase(yongshin: dict | None) -> str:
+    if not yongshin:
+        return "세부 기준을 다시 점검하는"
+    mapping = {
+        "wood": "다음 선택지 하나를 열어 두는",
+        "fire": "전달 강도를 한 번 더 다듬는",
+        "earth": "무리 없는 범위를 다시 확인하는",
+        "metal": "세부 기준을 차분히 정리하는",
+        "water": "여지를 조금 남겨 두는",
+    }
+    return mapping.get(yongshin.get("secondary_candidate"), "세부 기준을 다시 점검하는")
+
+
+def _balance_reason_lines(yongshin: dict | None) -> list[str]:
+    if not yongshin:
+        return []
+    direction = yongshin.get("direction")
+    confidence = yongshin.get("confidence", "medium")
+    direction_line = {
+        "보강": "지금은 부족한 축을 보강하는 운영이 맞아, 무리한 확장보다 기본 리듬을 먼저 고정하는 편이 좋습니다.",
+        "설기·조절": "지금은 힘이 한쪽으로 몰리기 쉬워, 속도보다 강약 조절과 분산 관리가 더 중요합니다.",
+        "균형 조정": "지금은 한쪽 해법만 밀기보다 상황에 맞춰 기준을 유연하게 조정하는 편이 안정적입니다.",
+    }.get(direction, "지금은 기준을 먼저 세우고 상황에 맞춰 조정하는 운영이 더 안전합니다.")
+    confidence_line = {
+        "high": "현재 판단 축은 비교적 선명해, 한 번 정한 운영 원칙을 하루 안에서 꾸준히 지키는 편이 유리합니다.",
+        "medium": "현재 판단 축은 중간 정도 확신이라, 결론을 빠르게 내리기보다 한 번 더 확인하는 여지를 두는 편이 좋습니다.",
+        "low": "현재 판단 축은 변동 여지가 있어, 큰 결정은 단번에 확정하지 말고 단계적으로 나누는 편이 안전합니다.",
+    }.get(confidence, "지금은 결론을 한 번에 확정하기보다 확인 단계를 두는 편이 좋습니다.")
+    return [direction_line, confidence_line]
+
+
 def _analysis_overall_openings(
     analysis_context: dict | None,
     current_flow: str,
@@ -1271,14 +1315,19 @@ def _analysis_overall_openings(
     if not analysis_context:
         return []
     strength = analysis_context["strength"]["display_label"]
-    yongshin = analysis_context["yongshin"]["display"]["primary"]
+    yongshin = analysis_context["yongshin"]
+    balance_focus = _balance_focus_phrase(yongshin)
+    structure = analysis_context.get("structure", {})
+    primary_pattern = structure.get("primary_pattern", "균형격")
+    sub_pattern = structure.get("sub_pattern", "균형 운영형")
     dominant = ", ".join(analysis_context["elements"]["dominant_kor"])
     weak = ", ".join(analysis_context["elements"]["weak_kor"])
     hidden_focus = _hidden_group_focus_phrase(analysis_context["flags"].get("hidden_group_focus"))
     lines = [
-        f"이 원국은 {strength} 구조이고, 해석의 중심은 {yongshin} 기운으로 균형을 다시 맞추는 데 있습니다.",
-        f"오행 가중치를 함께 보면 {dominant} 기운이 앞서지만, 실제 균형은 {yongshin} 기운을 살릴 때 더 자연스럽게 잡힙니다.",
-        f"겉으로는 {dominant} 기운이 강하고 약한 축은 {weak}이라, 전체 방향은 {yongshin} 기운을 통해 보완하는 쪽이 맞습니다.",
+        f"핵심 구조는 {primary_pattern}이며 세부 결은 {sub_pattern}으로 읽혀, 같은 일간 안에서도 {balance_focus} 방식에 따라 판단 순서가 꽤 다르게 나타나는 편입니다.",
+        f"이 원국은 {strength} 구조이고, 해석의 중심은 {balance_focus} 운영으로 균형을 다시 맞추는 데 있습니다.",
+        f"오행 가중치를 함께 보면 {dominant} 기운이 앞서지만, 실제 균형은 {balance_focus} 방향을 살릴 때 더 자연스럽게 잡힙니다.",
+        f"겉으로는 {dominant} 기운이 강하고 약한 축은 {weak}이라, 전체 방향은 {balance_focus} 방식으로 보완하는 쪽이 맞습니다.",
         f"안쪽 반응에서는 {hidden_focus}이 먼저 작동해, 겉으로 보이는 성향보다 판단 순서와 균형 회복 방식이 더 중요합니다.",
         current_flow,
     ]
@@ -1295,12 +1344,15 @@ def _analysis_personality_openings(analysis_context: dict | None) -> list[str]:
     if not analysis_context:
         return []
     strength = analysis_context["strength"]["display_label"]
-    yongshin = analysis_context["yongshin"]["display"]["primary"]
+    balance_focus = _balance_focus_phrase(analysis_context["yongshin"])
+    structure = analysis_context.get("structure", {})
+    primary_pattern = structure.get("primary_pattern", "균형격")
     hidden_group = analysis_context["flags"].get("hidden_group_focus")
     hidden_focus = _hidden_group_focus_phrase(hidden_group)
     flags = analysis_context["flags"]
     lines = [
-        f"성격은 {strength} 구조 위에서 {yongshin} 기운을 어떻게 쓰느냐에 따라 장점이 또렷해지는 편입니다.",
+        f"성격 축은 {primary_pattern} 구조의 영향을 크게 받아, 같은 일간이라도 {balance_focus} 방식에 따라 반응 기준이 달라지는 편입니다.",
+        f"성격은 {strength} 구조 위에서 {balance_focus} 운영을 하느냐에 따라 장점이 또렷해지는 편입니다.",
         f"겉성격보다 실제 반응은 숨은 십성의 {hidden_focus}이 먼저 작동하는 편이라 판단 순서가 중요합니다.",
         (
             "성격 해석에서는 안쪽 긴장과 바깥 반응이 같이 움직여, 한 번 흔들리면 선택 기준부터 다시 세워야 안정이 잡히는 편입니다."
@@ -1319,12 +1371,15 @@ def _analysis_wealth_openings(
     if not analysis_context:
         return []
     strength = analysis_context["strength"]["display_label"]
-    yongshin = analysis_context["yongshin"]["display"]["primary"]
+    balance_focus = _balance_focus_phrase(analysis_context["yongshin"])
+    structure = analysis_context.get("structure", {})
+    sub_pattern = structure.get("sub_pattern", "균형 운영형")
     weak = ", ".join(analysis_context["elements"]["weak_kor"])
     flow = _current_flow_phrase(year_fortune, daewoon)
     hidden_focus = analysis_context["flags"].get("hidden_group_focus")
     lines = [
-        f"재물은 {strength} 구조를 보완하는 {yongshin} 기운을 얼마나 현실 운영으로 연결하느냐에서 차이가 납니다.",
+        f"재물은 {sub_pattern} 구조의 영향이 커서, {balance_focus} 운영 기준을 어떻게 지키느냐에 따라 벌기보다 보존 규칙에서 결과 차이가 크게 납니다.",
+        f"재물은 {strength} 구조를 보완하는 방향을 얼마나 현실 운영으로 연결하느냐에서 차이가 납니다.",
         f"돈 문제는 많이 버는 힘보다 약한 축인 {weak}을 보완할 수 있는 관리 기준이 있느냐가 더 중요합니다.",
         flow,
     ]
@@ -1342,6 +1397,9 @@ def _advanced_easy_lines(analysis_context: dict | None, seed: int) -> list[str]:
         return []
     strength = analysis_context["strength"]
     yongshin = analysis_context["yongshin"]
+    balance_focus = _balance_focus_phrase(yongshin)
+    support_focus = _balance_support_phrase(yongshin)
+    balance_reasons = _balance_reason_lines(yongshin)
     return [
         _pick_profile_line(
             [
@@ -1353,14 +1411,14 @@ def _advanced_easy_lines(analysis_context: dict | None, seed: int) -> list[str]:
         ),
         _pick_profile_line(
             [
-                f"균형을 맞추는 방향으로는 {yongshin['display']['primary']} 기운을 먼저 보고, 다음 보조 축으로 {yongshin['display']['secondary']} 기운을 함께 보는 편이 좋습니다.",
-                f"용신 후보는 {yongshin['display']['primary']} 쪽이고, 보조 축은 {yongshin['display']['secondary']}로 두는 편이 현재 구조를 읽기 쉽습니다.",
-                f"전체 균형을 맞추는 핵심 후보는 {yongshin['display']['primary']}이고, 보조 후보는 {yongshin['display']['secondary']}로 보는 편이 무리가 적습니다.",
+                f"균형을 맞출 때는 {balance_focus} 쪽 기준을 먼저 세우고, {support_focus} 보조 습관을 함께 두는 편이 좋습니다.",
+                f"현재 구조에서는 {balance_focus} 운영을 중심으로 잡고, 세부는 {support_focus} 방식으로 보완하는 편이 무리가 적습니다.",
+                f"오늘 판단 순서를 잡을 때는 {balance_focus} 흐름을 먼저 고정한 뒤, {support_focus} 단계로 마무리하는 편이 안정적입니다.",
             ],
             seed + 5,
         ),
         *strength["key_reasons"][:2],
-        *yongshin["reasons"][:2],
+        *balance_reasons[:2],
     ]
 
 
@@ -1401,9 +1459,11 @@ def _advanced_highlight_lines(analysis_context: dict | None) -> list[str]:
         return []
     strength = analysis_context["strength"]
     yongshin = analysis_context["yongshin"]
+    balance_focus = _balance_focus_phrase(yongshin)
+    support_focus = _balance_support_phrase(yongshin)
     return [
-        f"선택이 몰리는 순간에는 {strength['display_label']} 흐름을 감안해 {yongshin['display']['primary']} 쪽 기준을 먼저 세우는 편이 실제 체감 차이를 만들기 쉽습니다.",
-        f"문제가 한꺼번에 겹치는 날에는 {yongshin['display']['primary']} 쪽 자원과 리듬을 먼저 챙길 때 버티는 힘이 더 안정적으로 남습니다.",
+        f"선택이 몰리는 순간에는 {strength['display_label']} 흐름을 감안해 {balance_focus} 기준을 먼저 세우는 편이 실제 체감 차이를 만들기 쉽습니다.",
+        f"문제가 한꺼번에 겹치는 날에는 {support_focus} 운영을 먼저 챙길 때 버티는 힘이 더 안정적으로 남습니다.",
     ]
 
 
@@ -1411,9 +1471,10 @@ def _analysis_personality_highlights(analysis_context: dict | None) -> list[str]
     if not analysis_context:
         return []
     hidden_focus = _hidden_group_focus_phrase(analysis_context["flags"].get("hidden_group_focus"))
+    balance_focus = _balance_focus_phrase(analysis_context["yongshin"])
     return [
         f"낯선 사람과 거리를 정해야 하는 장면에서는 {hidden_focus}이 겉반응보다 먼저 올라와 처음 분위기를 주도하는 편입니다.",
-        f"결국 사람을 계속 가까이 둘지 선을 그을지는 {analysis_context['yongshin']['display']['primary']} 기운으로 균형을 찾는 방식에서 갈리기 쉽습니다.",
+        f"결국 사람을 계속 가까이 둘지 선을 그을지는 {balance_focus} 방식으로 균형을 찾는 운영에서 갈리기 쉽습니다.",
     ]
 
 
@@ -1441,8 +1502,9 @@ def _analysis_wealth_highlights(
         )
     else:
         flow_line = "이번 시기에는 돈과 일정이 겹치는 장면에서 먼저 기준을 세우는 편이 흔들림을 줄이기 쉽습니다."
+    balance_focus = _balance_focus_phrase(analysis_context["yongshin"])
     return [
-        f"돈을 쓸지 말지, 제안을 잡을지 넘길지 정해야 할 때는 {analysis_context['yongshin']['display']['primary']} 쪽 기준을 먼저 살리는 편이 손실을 줄이기 쉽습니다.",
+        f"돈을 쓸지 말지, 제안을 잡을지 넘길지 정해야 할 때는 {balance_focus} 기준을 먼저 살리는 편이 손실을 줄이기 쉽습니다.",
         flow_line,
     ]
 

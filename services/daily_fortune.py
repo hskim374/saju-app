@@ -265,6 +265,155 @@ SCORE_GRADE_RULES = [
     (DAILY_SCORE_MIN, "D", "방어가 우선인 날"),
 ]
 
+GRADE_LABEL_VARIANTS = {
+    "S": [
+        "활용도가 매우 높은 날",
+        "성과가 잘 붙는 날",
+        "주도권이 잘 서는 날",
+    ],
+    "A+": [
+        "활용도가 높은 날",
+        "흐름을 살리기 좋은 날",
+        "실행에 힘이 붙는 날",
+    ],
+    "A": [
+        "활용하기 좋은 날",
+        "무난하게 풀기 좋은 날",
+        "결과를 남기기 좋은 날",
+    ],
+    "B": [
+        "관리형 보통의 날",
+        "정리하며 가기 좋은 날",
+        "기준을 챙기면 무난한 날",
+    ],
+    "C": [
+        "주의가 필요한 날",
+        "속도 조절이 필요한 날",
+        "한 번 더 점검할 날",
+    ],
+    "D": [
+        "방어가 우선인 날",
+        "범위를 줄여야 하는 날",
+        "무리수를 피해야 하는 날",
+    ],
+}
+
+REASON_TAG_SCORE_SUMMARY_VARIANTS = {
+    "용신 정합": [
+        "오늘은 내가 잘하는 방식이 잘 맞아떨어져, 같은 힘을 써도 결과가 비교적 잘 남기 쉬운 날입니다.{confidence_tail}",
+        "오늘은 평소 장점이 자연스럽게 살아나는 날이라, 기준만 지키면 한 일의 성과가 또렷하게 남기 쉽습니다.{confidence_tail}",
+    ],
+    "균형 회복": [
+        "오늘은 크게 벌리기보다 내 페이스를 지키는 선택이 마음과 일정을 함께 안정시키기 쉽습니다.{confidence_tail}",
+        "오늘은 속도보다 균형이 중요한 날이라, 할 일을 줄여 정리하면 훨씬 편하게 운영할 수 있습니다.{confidence_tail}",
+    ],
+    "재물 흐름": [
+        "오늘은 돈이 드나드는 기준을 분명히 할수록 실속이 남기 쉬운 날입니다.{confidence_tail}",
+        "오늘은 벌기보다 새는 돈을 막는 쪽이 유리해, 지출과 결제를 선별하면 체감 안정이 커집니다.{confidence_tail}",
+    ],
+    "관계 조율": [
+        "오늘은 말의 내용보다 타이밍과 간격 조절이 더 중요한 날입니다.{confidence_tail}",
+        "오늘은 사람 사이 속도만 잘 맞춰도 불필요한 오해와 피로를 줄이기 쉽습니다.{confidence_tail}",
+    ],
+    "정리 우선": [
+        "오늘은 속도보다 정리가 먼저인 날이라, 할 일 순서와 기준을 먼저 잡는 편이 좋습니다.{confidence_tail}",
+        "오늘은 여러 일을 동시에 벌리기보다 정리 중심으로 움직여야 실수와 피로를 줄일 수 있습니다.{confidence_tail}",
+    ],
+    "속도 조절": [
+        "오늘은 반응 속도를 한 단계 낮추면 과열을 막고 완성도를 높이기 쉽습니다.{confidence_tail}",
+        "오늘은 바로 확정하기보다 한 번 더 확인하는 편이 결과를 더 또렷하게 만듭니다.{confidence_tail}",
+    ],
+    "변동 관리": [
+        "오늘은 계획보다 변수가 먼저 생기기 쉬워, 범위를 작게 나눠 움직이는 편이 유리합니다.{confidence_tail}",
+        "오늘은 한꺼번에 처리하기보다 할 일을 작게 끊어 관리해야 흔들림을 줄일 수 있습니다.{confidence_tail}",
+    ],
+    "변동 주의": [
+        "오늘은 큰 문제보다 작은 흔들림이 먼저 쌓일 수 있어, 일정 간격을 넉넉하게 잡는 편이 안전합니다.{confidence_tail}",
+        "오늘은 약속과 일정의 빈틈을 미리 줄여 두면 하루가 훨씬 덜 흔들립니다.{confidence_tail}",
+    ],
+    "리듬 주의": [
+        "오늘은 일 자체보다 페이스가 먼저 흔들리기 쉬워, 속도와 휴식 간격을 먼저 맞추는 편이 좋습니다.{confidence_tail}",
+        "오늘은 빨리 끝내려 하기보다 회복 간격을 챙겨야 하루 리듬을 지키기 쉽습니다.{confidence_tail}",
+    ],
+    "압력 주의": [
+        "오늘은 해야 할 일보다 부담이 먼저 커질 수 있어, 감당할 범위를 먼저 정하는 편이 좋습니다.{confidence_tail}",
+        "오늘은 한 번에 다 처리하려 하지 말고, 한도와 우선순위를 먼저 고정하는 편이 안전합니다.{confidence_tail}",
+    ],
+    "충돌 주의": [
+        "오늘은 방향이 엇갈리기 쉬워, 반응 속도를 낮추고 결정을 줄이는 편이 안전합니다.{caution_tail}{confidence_tail}",
+        "오늘은 충돌이 커질 만한 장면을 먼저 피하고, 꼭 필요한 일만 처리하는 편이 좋습니다.{caution_tail}{confidence_tail}",
+    ],
+    "운 압박": [
+        "오늘은 전체적으로 압박이 느껴지기 쉬워, 장점을 쓰더라도 범위를 줄여 가는 편이 좋습니다.{confidence_tail}",
+        "오늘은 무게를 한꺼번에 지지 말고 일을 나눠 처리해야 피로를 줄일 수 있습니다.{confidence_tail}",
+    ],
+    "방어 우선": [
+        "오늘은 기회를 넓히기보다 방어와 정리가 우선이라, 일정과 감정 반응을 줄여 운영하는 편이 좋습니다.{confidence_tail}",
+        "오늘은 잘하려고 무리하기보다 흔들리지 않는 데 집중해야 하며, 해야 할 범위를 작게 잡는 편이 안전합니다.{confidence_tail}",
+    ],
+}
+
+SCORE_BUCKET_SUMMARY_VARIANTS = {
+    "very_high": [
+        "오늘은 힘을 쓴 만큼 결과가 남기 쉬운 날이라, 중요한 일을 앞당겨 처리하기 좋습니다.{confidence_tail}",
+        "오늘은 성과가 붙기 쉬운 날이니 우선순위 높은 일을 먼저 끝내는 편이 좋습니다.{confidence_tail}",
+    ],
+    "high": [
+        "오늘은 비교적 무난하게 풀리는 날이라, 평소 리듬만 지켜도 결과가 잘 남는 편입니다.{confidence_tail}",
+        "오늘은 크게 무리하지 않아도 한 일이 정리되기 쉬운 날입니다.{confidence_tail}",
+    ],
+    "good": [
+        "오늘은 무난하게 운영할 수 있지만, 페이스를 놓치면 피로가 빨리 올라올 수 있습니다.{confidence_tail}",
+        "오늘은 욕심을 줄이고 일정 간격을 지키면 안정적으로 마무리하기 좋습니다.{confidence_tail}",
+    ],
+    "caution": [
+        "오늘은 부담이 먼저 올라올 수 있어, 무리수를 줄이고 할 일을 먼저 나누는 편이 좋습니다.{confidence_tail}",
+        "오늘은 할 일과 하지 않을 일을 초반에 구분하면 실수를 줄이기 쉽습니다.{confidence_tail}",
+    ],
+    "defense": [
+        "오늘은 기회를 넓히기보다 방어가 우선이라, 일정과 감정 반응을 줄여 가는 편이 좋습니다.{confidence_tail}",
+        "오늘은 잘 해내려 하기보다 흔들리지 않는 게 먼저이므로, 일정과 반응을 작게 가져가는 편이 안전합니다.{confidence_tail}",
+    ],
+}
+
+PATTERN_SCORE_SUMMARY_TAILS = {
+    "식상격": [
+        "실행 단위를 작게 끊어 마감하면 체감 성과가 더 또렷해집니다.",
+        "아이디어보다 완료 기준을 먼저 정하면 결과 품질이 안정됩니다.",
+    ],
+    "재성격": [
+        "지출·투자 판단은 조건표를 먼저 맞추면 실속이 더 잘 남습니다.",
+        "수익 기회가 보여도 선별 기준을 지킬수록 변동 폭이 줄어듭니다.",
+    ],
+    "관성격": [
+        "책임 범위를 명확히 나누면 압박이 줄고 실행력이 안정됩니다.",
+        "기준과 절차를 먼저 고정하면 일정 흔들림을 줄일 수 있습니다.",
+    ],
+    "인성격": [
+        "결론 전에 핵심 정보를 한 번 더 정리하면 오차를 줄이기 쉽습니다.",
+        "준비 시간을 짧게 고정하면 생각 과부하 없이 흐름을 유지할 수 있습니다.",
+    ],
+    "비겁격": [
+        "협업과 단독 작업의 비율을 나눠 두면 에너지 소모를 줄일 수 있습니다.",
+        "경쟁 장면에서는 속도보다 기준 유지가 결과 편차를 줄입니다.",
+    ],
+}
+
+SPECIAL_STAR_SCORE_TAILS = {
+    "도화": [
+        "사람이 모이는 자리에서는 말의 속도와 결론 시점을 분리하는 편이 좋습니다.",
+        "대화량이 늘어도 약속 범위를 작게 유지하면 관계 피로를 줄일 수 있습니다.",
+    ],
+    "역마": [
+        "변동이 많은 날은 계획을 오전·오후 두 번 점검하면 안정적입니다.",
+        "이동·전환 이슈가 있으면 핵심 한 가지를 먼저 고정하는 편이 유리합니다.",
+    ],
+    "화개": [
+        "집중 시간이 확보되면 품질이 올라가니 정리 시간을 짧게라도 확보해 보세요.",
+        "마무리 단계에서 체크리스트를 쓰면 작은 누락을 줄일 수 있습니다.",
+    ],
+}
+
 ALL_REASON_TAGS = (
     "용신 정합",
     "균형 회복",
@@ -299,6 +448,103 @@ REASON_TAG_PRIORITY = [
     "방어 우선",
 ]
 WARNING_TAG_PRIORITY = ["충돌 주의", "압력 주의", "변동 주의", "리듬 주의", "방어 우선"]
+
+REASON_TAG_EXPLANATION = {
+    "용신 정합": "오늘은 해야 할 일의 기준을 먼저 세우면 체감 효율이 빠르게 붙는 편입니다.",
+    "균형 회복": "오늘은 무리하게 넓히기보다 리듬을 맞추면 흐름이 안정되기 쉽습니다.",
+    "실행 기회": "오늘은 미뤄 둔 일을 작은 단위로 완료하면 성과 체감이 또렷해질 수 있습니다.",
+    "재물 흐름": "오늘은 돈과 일정 기준을 먼저 맞추면 실속이 남기 쉬운 날입니다.",
+    "관계 조율": "오늘은 말의 강약과 간격을 조절하면 관계 피로를 줄이기 쉽습니다.",
+    "정리 우선": "오늘은 순서와 마감 기준을 먼저 잡는 편이 하루 품질을 높입니다.",
+    "속도 조절": "오늘은 바로 확정하기보다 한 번 더 확인하는 편이 오차를 줄입니다.",
+    "변동 관리": "오늘은 변수를 줄이고 해야 할 범위를 작게 고정하는 편이 유리합니다.",
+    "변동 주의": "오늘은 작은 일정 흔들림이 커지기 쉬워 중간 점검이 필요합니다.",
+    "리듬 주의": "오늘은 속도보다 휴식 간격과 페이스 관리가 더 중요합니다.",
+    "압력 주의": "오늘은 부담을 한 번에 지지 말고 우선순위를 줄여 가는 편이 안전합니다.",
+    "충돌 주의": "오늘은 반응을 낮추고 결론 시점을 늦추면 마찰을 줄이기 쉽습니다.",
+    "방어 우선": "오늘은 확장보다 손실 방지와 유지 관리에 초점을 두는 편이 맞습니다.",
+}
+
+CAUTION_TAG_EXPLANATION = {
+    "변동 주의": "변수 대응을 위해 일정 여유를 10~20% 남겨 두는 편이 좋습니다.",
+    "리듬 주의": "집중 시간이 길어지면 짧게라도 휴식 구간을 끼워 넣는 편이 좋습니다.",
+    "압력 주의": "오늘은 해야 할 일을 셋 이하로 줄여 과부하를 막는 편이 좋습니다.",
+    "충돌 주의": "중요한 대화는 결론보다 합의 순서를 먼저 맞추는 편이 유리합니다.",
+    "방어 우선": "큰 결정은 하루 유예하고 기존 계획을 정리하는 편이 더 안전합니다.",
+}
+
+REASON_TAG_ACTION_GUIDE = {
+    "용신 정합": [
+        "오늘은 기준 하나를 먼저 정하고 그 기준 안에서만 밀어붙이세요.",
+        "할 일 순서를 고정해 실행하면 체감 성과가 더 또렷해질 수 있습니다.",
+    ],
+    "균형 회복": [
+        "해야 할 일과 쉬어야 할 구간을 같이 적어 두고 움직이세요.",
+        "속도를 올리기보다 완료 기준을 먼저 맞추는 편이 좋습니다.",
+    ],
+    "실행 기회": [
+        "미뤄 둔 일 하나를 오늘 안에 끝내는 데 집중하세요.",
+        "작게라도 결과물을 남기는 쪽으로 일정을 잡아 보세요.",
+    ],
+    "재물 흐름": [
+        "결제와 지출은 상한선을 먼저 정하고 진행하세요.",
+        "돈이 드는 일은 조건표를 확인한 뒤 순서대로 처리하세요.",
+    ],
+    "관계 조율": [
+        "중요한 대화는 결론보다 조건 정리부터 시작하세요.",
+        "연락 간격과 약속 범위를 작게 잡으면 피로를 줄일 수 있습니다.",
+    ],
+    "정리 우선": [
+        "오늘은 해야 할 일 세 가지를 먼저 고르고 나머지는 보류하세요.",
+        "완료 기준을 먼저 적어 두고 그 기준대로만 마감하세요.",
+    ],
+    "속도 조절": [
+        "바로 확정하기보다 10분만 재확인 시간을 두고 결정하세요.",
+        "답장과 결론은 한 박자 늦춰 정확도를 먼저 챙기세요.",
+    ],
+    "변동 관리": [
+        "일정을 오전·오후 두 번 점검해 변수 범위를 줄이세요.",
+        "오늘은 새로운 일보다 진행 중인 일 정리에 집중하세요.",
+    ],
+    "변동 주의": [
+        "일정 여유를 남기고 즉시 확정은 줄이는 편이 좋습니다.",
+        "변수가 큰 일은 오늘 결정보다 정보 정리로 넘기세요.",
+    ],
+    "리듬 주의": [
+        "집중 시간을 짧게 끊고 중간 휴식 간격을 확보하세요.",
+        "속도보다 페이스 유지에 맞춰 할 일을 줄여 진행하세요.",
+    ],
+    "압력 주의": [
+        "오늘은 우선순위 세 개만 남기고 나머지는 내일로 넘기세요.",
+        "한 번에 몰아붙이지 말고 업무를 구간으로 나눠 처리하세요.",
+    ],
+    "충돌 주의": [
+        "중요한 대화는 기록을 남기며 합의 순서부터 맞추세요.",
+        "반응이 올라와도 결론 시점을 늦추고 조건을 먼저 확인하세요.",
+    ],
+    "방어 우선": [
+        "새로운 확장 대신 기존 일정과 비용 정리에 집중하세요.",
+        "큰 결정을 하루 유예하고 손실 가능성부터 먼저 점검하세요.",
+    ],
+}
+
+CAUTION_TAG_ACTION_GUIDE = {
+    "변동 주의": [
+        "오늘은 즉흥 일정 추가를 줄이고 기존 계획부터 닫아 보세요.",
+    ],
+    "리듬 주의": [
+        "쉬는 구간을 일정에 고정해 과열을 먼저 막는 편이 좋습니다.",
+    ],
+    "압력 주의": [
+        "요청을 모두 받지 말고 지금 감당 가능한 범위만 확정하세요.",
+    ],
+    "충돌 주의": [
+        "사람 이슈는 바로 결론 내기보다 합의 가능한 조건부터 맞추세요.",
+    ],
+    "방어 우선": [
+        "오늘은 확정 숫자를 줄이고 보류 리스트를 별도로 관리하세요.",
+    ],
+}
 
 ACTION_BY_SCORE_BUCKET = {
     "very_high": [
@@ -1120,12 +1366,15 @@ def calculate_daily_fortune(
         analysis_context=analysis_context,
         day_pillar=day_pillar,
     )
+    score_linked_easy = _score_linked_easy_line(score)
+    score_linked_actions = _score_linked_action_lines(score=score, seed=seed + 21)
     advanced_lines = _analysis_context_daily_lines(analysis_context)
 
     stripped_day_line = _strip_day_pillar_prefix(natal_day_pillar_line, natal_day_pillar_kor)
 
     context_easy_lines = [
         stripped_day_line,
+        score_linked_easy,
         *advanced_lines["easy"],
         _pick(_day_stem_daily_options(day_stem), seed + 11),
         _pick(_month_branch_daily_options(month_branch), seed + 13),
@@ -1152,13 +1401,16 @@ def calculate_daily_fortune(
     if time_data:
         context_real_lines.append(_normalize_daily_support_line(_pick(time_data["intimate_reaction"], seed + 19)))
 
-    context_action_lines = _daily_execution_action_lines(
-        score=score["value"],
-        ten_god=ten_god,
-        keywords=rule["keywords"],
-        seed=seed + 21,
-    )
-    advice = context_action_lines[0]
+    context_action_lines = [
+        *score_linked_actions,
+        *_daily_execution_action_lines(
+            score=score["value"],
+            ten_god=ten_god,
+            keywords=rule["keywords"],
+            seed=seed + 21,
+        ),
+    ]
+    advice = score_linked_actions[0] if score_linked_actions else context_action_lines[0]
 
     strength_lines = [
         _pick(_daily_strength_options(ten_god), seed + 27),
@@ -1189,6 +1441,7 @@ def calculate_daily_fortune(
     )
     section["easy_explanation"] = [_normalize_daily_support_line(line) for line in section["easy_explanation"]]
     section["real_life"] = [_normalize_daily_support_line(line) for line in section["real_life"]]
+    section["one_line"] = _score_linked_one_line(section["one_line"], score)
     return {
         "date": target_date.isoformat(),
         "pillar": day_pillar["kor"],
@@ -1313,14 +1566,20 @@ def _build_daily_score(
         analysis_context=analysis_context,
         ten_god=ten_god,
     )
+    structure_delta, structure_factors, structure_tag_scores = _structure_adjustment(
+        analysis_context=analysis_context,
+        ten_god=ten_god,
+        day_pillar=day_pillar,
+    )
 
-    raw_score = DAILY_SCORE_V2_BASE + base_delta + fit_delta + interaction_delta
+    raw_score = DAILY_SCORE_V2_BASE + base_delta + fit_delta + interaction_delta + structure_delta
     bounded_score = max(DAILY_SCORE_MIN, min(DAILY_SCORE_MAX, raw_score))
     bounded_score = _expand_v2_score_distribution(bounded_score)
     bounded_score, confidence = _compress_for_uncertainty(bounded_score, analysis_context)
-    tag_scores = _merge_tag_scores(base_tag_scores, fit_tag_scores, interaction_tag_scores)
+    tag_scores = _merge_tag_scores(base_tag_scores, fit_tag_scores, interaction_tag_scores, structure_tag_scores)
     reason_tag, caution_tag = _select_reason_and_caution_tags(tag_scores, bounded_score)
-    grade, label = _score_grade_and_label(bounded_score)
+    grade, _ = _score_grade_and_label(bounded_score)
+    label = _label_for_grade(score=bounded_score, grade=grade, reason_tag=reason_tag, caution_tag=caution_tag)
     summary = _build_score_summary(
         score=bounded_score,
         label=label,
@@ -1330,17 +1589,27 @@ def _build_daily_score(
         reason_tag=reason_tag,
         caution_tag=caution_tag,
         confidence=confidence,
+        analysis_context=analysis_context,
     )
     return {
         "title": "오늘의 운세 활용도",
         "value": bounded_score,
         "grade": grade,
         "label": label,
+        "guide_lines": _score_guide_lines(),
         "summary": summary,
+        "driver_line": _build_score_driver_line(
+            factors=[*base_factors, *fit_factors, *interaction_factors, *structure_factors],
+            reason_tag=reason_tag,
+            caution_tag=caution_tag,
+        ),
+        "factor_highlights": _score_factor_highlights(
+            factors=[*base_factors, *fit_factors, *interaction_factors, *structure_factors],
+        ),
         "reason_tag": reason_tag,
         "caution_tag": caution_tag,
         "confidence": confidence,
-        "factors": [*base_factors, *fit_factors, *interaction_factors],
+        "factors": [*base_factors, *fit_factors, *interaction_factors, *structure_factors],
     }
 
 
@@ -1409,24 +1678,34 @@ def _build_legacy_daily_score(
         score += combo_delta
 
     bounded_score = _normalize_daily_score(score)
-    grade, label = _score_grade_and_label(bounded_score)
+    reason_tag = _base_reason_tag(ten_god=ten_god, daily_profile=daily_profile, keywords=keywords)
+    grade, _ = _score_grade_and_label(bounded_score)
+    label = _label_for_grade(score=bounded_score, grade=grade, reason_tag=reason_tag, caution_tag=None)
     summary = _build_score_summary(
         score=bounded_score,
         label=label,
         ten_god=ten_god,
         daily_profile=daily_profile,
         month_branch=month_branch,
-        reason_tag=_base_reason_tag(ten_god=ten_god, daily_profile=daily_profile, keywords=keywords),
+        reason_tag=reason_tag,
         caution_tag=None,
         confidence="high",
+        analysis_context=None,
     )
     return {
         "title": "오늘의 운세 활용도",
         "value": bounded_score,
         "grade": grade,
         "label": label,
+        "guide_lines": _score_guide_lines(),
         "summary": summary,
-        "reason_tag": _base_reason_tag(ten_god=ten_god, daily_profile=daily_profile, keywords=keywords),
+        "driver_line": _build_score_driver_line(
+            factors=factors,
+            reason_tag=reason_tag,
+            caution_tag=None,
+        ),
+        "factor_highlights": _score_factor_highlights(factors=factors),
+        "reason_tag": reason_tag,
         "caution_tag": None,
         "confidence": "high",
         "factors": factors,
@@ -1668,26 +1947,31 @@ def _interaction_adjustment(
     delta = 0
     tag_scores = _empty_tag_scores()
 
-    interaction_weights = {"합": 6, "충": -8, "형": -6, "파": -4, "해": -3}
-    tag_map = {"합": "관계 조율", "충": "충돌 주의", "형": "압력 주의", "파": "변동 주의", "해": "리듬 주의"}
+    interaction_weights = {"합": 6, "충": -8, "형": -6, "파": -4, "해": -3, "원진": -1}
+    tag_map = {"합": "관계 조율", "충": "충돌 주의", "형": "압력 주의", "파": "변동 주의", "해": "리듬 주의", "원진": "관계 조율"}
     if interactions["with_daily"]:
+        weighted_items: list[tuple[dict, int]] = []
         for item in interactions["with_daily"]:
-            _add_tag_score(tag_scores, tag_map[item["type"]], 2 if item["type"] in {"충", "형"} else 1)
-        strongest = min(
-            interactions["with_daily"],
-            key=lambda item: (interaction_weights.get(item["type"], 0), item["target"]),
+            weight = interaction_weights.get(item["type"], 0)
+            if item["type"] == "충" and _is_stem_target(item.get("target", "")):
+                weight = 0
+            weighted_items.append((item, weight))
+            _add_tag_score(tag_scores, tag_map[item["type"]], 2 if item["type"] in {"충", "형"} and weight < 0 else 1)
+        strongest_item, strongest_weight = min(
+            weighted_items,
+            key=lambda row: (row[1], row[0]["target"]),
         )
-        interaction_delta = interaction_weights.get(strongest["type"], 0)
+        interaction_delta = strongest_weight
         if interaction_delta:
             factors.append(
                 {
                     "name": "원국-일운 상호작용",
-                    "value": f"{strongest['target']} {strongest['type']}",
+                    "value": f"{strongest_item['target']} {strongest_item['type']}",
                     "delta": interaction_delta,
                 }
             )
             delta += interaction_delta
-            _add_tag_score(tag_scores, tag_map[strongest["type"]], 2)
+            _add_tag_score(tag_scores, tag_map[strongest_item["type"]], 2)
 
     if flags["has_luck_pressure"]:
         factors.append({"name": "운 압력", "value": "원국과 운의 압박 신호", "delta": -4})
@@ -1715,6 +1999,134 @@ def _interaction_adjustment(
         _add_tag_score(tag_scores, "재물 흐름" if ten_god in {"정재", "편재"} else "실행 기회", 2)
 
     return max(-12, min(12, delta)), factors, tag_scores
+
+
+def _is_stem_target(target: str) -> bool:
+    left = target.split("-")[0][:1] if target else ""
+    if left in STEMS_BY_KOR:
+        return True
+    return any(left == item["hanja"] for item in STEMS_BY_KOR.values())
+
+
+def _structure_adjustment(
+    *,
+    analysis_context: dict | None,
+    ten_god: str,
+    day_pillar: dict,
+) -> tuple[int, list[dict], dict[str, int]]:
+    if not analysis_context:
+        return 0, [], _empty_tag_scores()
+
+    structure = analysis_context.get("structure", {})
+    special_stars = analysis_context.get("special_stars", {})
+    relationship_flags = set(structure.get("relationship_flags", []))
+    primary_pattern = structure.get("primary_pattern")
+    hour_theme = structure.get("signature", {}).get("hour_theme", "")
+
+    factors: list[dict] = []
+    delta = 0
+    tag_scores = _empty_tag_scores()
+
+    if primary_pattern == "식상격":
+        if ten_god in {"식신", "상관"}:
+            factors.append({"name": "구조 정합", "value": "식상 중심 구조와 일운 정합", "delta": 3})
+            delta += 3
+            _add_tag_score(tag_scores, "실행 기회", 2)
+        elif ten_god in {"편관", "겁재"}:
+            factors.append({"name": "구조 역행", "value": "식상 구조 대비 압박형 일운", "delta": -2})
+            delta -= 2
+            _add_tag_score(tag_scores, "압력 주의", 2)
+    elif primary_pattern == "재성격":
+        if ten_god in {"정재", "편재", "식신"}:
+            factors.append({"name": "구조 정합", "value": "재성 운영 구조와 일운 정합", "delta": 3})
+            delta += 3
+            _add_tag_score(tag_scores, "재물 흐름", 3)
+        elif ten_god in {"겁재", "편관"}:
+            factors.append({"name": "구조 역행", "value": "재성 구조 대비 손실·압박형 일운", "delta": -2})
+            delta -= 2
+            _add_tag_score(tag_scores, "방어 우선", 2)
+    elif primary_pattern == "관성격":
+        if ten_god in {"정관", "정인", "편인"}:
+            factors.append({"name": "구조 정합", "value": "관성 책임 구조와 일운 정합", "delta": 2})
+            delta += 2
+            _add_tag_score(tag_scores, "정리 우선", 2)
+        elif ten_god in {"상관", "겁재"}:
+            factors.append({"name": "구조 역행", "value": "관성 구조 대비 과속·마찰형 일운", "delta": -2})
+            delta -= 2
+            _add_tag_score(tag_scores, "충돌 주의", 2)
+    elif primary_pattern == "인성격":
+        if ten_god in {"정인", "편인", "정관"}:
+            factors.append({"name": "구조 정합", "value": "인성 보완 구조와 일운 정합", "delta": 2})
+            delta += 2
+            _add_tag_score(tag_scores, "균형 회복", 2)
+        elif ten_god in {"편재", "상관"}:
+            factors.append({"name": "구조 역행", "value": "인성 구조 대비 분산형 일운", "delta": -1})
+            delta -= 1
+            _add_tag_score(tag_scores, "속도 조절", 1)
+    elif primary_pattern == "비겁격":
+        if ten_god in {"비견", "식신", "정재"}:
+            factors.append({"name": "구조 정합", "value": "비겁 주도 구조와 일운 정합", "delta": 2})
+            delta += 2
+            _add_tag_score(tag_scores, "실행 기회", 2)
+        elif ten_god in {"겁재", "편관"}:
+            factors.append({"name": "구조 역행", "value": "비겁 구조 대비 경쟁 과열형 일운", "delta": -2})
+            delta -= 2
+            _add_tag_score(tag_scores, "압력 주의", 2)
+
+    if "충" in relationship_flags and ten_god in {"상관", "편관", "겁재"}:
+        factors.append({"name": "관계 플래그", "value": "원국 충 신호와 변동형 일운 겹침", "delta": -3})
+        delta -= 3
+        _add_tag_score(tag_scores, "충돌 주의", 3)
+    elif "합" in relationship_flags and ten_god in {"정관", "정재", "식신", "정인"}:
+        factors.append({"name": "관계 플래그", "value": "원국 합 신호와 안정형 일운 정합", "delta": 2})
+        delta += 2
+        _add_tag_score(tag_scores, "관계 조율", 2)
+
+    star_tags = set(special_stars.get("tags", []))
+    if "역마" in star_tags:
+        if ten_god in {"편재", "식신", "상관"}:
+            factors.append({"name": "신살 보정", "value": "역마 흐름과 실행형 일운 정합", "delta": 2})
+            delta += 2
+            _add_tag_score(tag_scores, "변동 관리", 2)
+        elif ten_god in {"편관", "겁재"}:
+            factors.append({"name": "신살 보정", "value": "역마 흐름과 압박형 일운 충돌", "delta": -2})
+            delta -= 2
+            _add_tag_score(tag_scores, "변동 주의", 2)
+    if "도화" in star_tags:
+        if ten_god in {"정재", "정관", "정인", "식신"}:
+            factors.append({"name": "신살 보정", "value": "도화 흐름과 관계형 일운 정합", "delta": 2})
+            delta += 2
+            _add_tag_score(tag_scores, "관계 조율", 2)
+        elif ten_god in {"상관", "겁재"}:
+            factors.append({"name": "신살 보정", "value": "도화 흐름에서 반응 과속 주의", "delta": -1})
+            delta -= 1
+            _add_tag_score(tag_scores, "리듬 주의", 2)
+    if "화개" in star_tags:
+        if ten_god in {"정인", "편인", "정관"}:
+            factors.append({"name": "신살 보정", "value": "화개 흐름과 정리형 일운 정합", "delta": 2})
+            delta += 2
+            _add_tag_score(tag_scores, "정리 우선", 2)
+        elif ten_god in {"편재", "상관"}:
+            factors.append({"name": "신살 보정", "value": "화개 흐름에서 분산 주의", "delta": -1})
+            delta -= 1
+            _add_tag_score(tag_scores, "속도 조절", 1)
+
+    if "결과" in hour_theme and ten_god in {"식신", "정재", "정관"}:
+        factors.append({"name": "시간 테마", "value": "후반 결과 테마와 일운 정합", "delta": 2})
+        delta += 2
+        _add_tag_score(tag_scores, "실행 기회", 1)
+    elif "경쟁" in hour_theme and ten_god in {"상관", "겁재"}:
+        factors.append({"name": "시간 테마", "value": "후반 경쟁 테마와 일운 긴장", "delta": -2})
+        delta -= 2
+        _add_tag_score(tag_scores, "압력 주의", 1)
+
+    day_stem_element = STEMS_BY_KOR[day_pillar["stem"]]["element"]
+    if day_stem_element in analysis_context["strength"]["draining_elements"] and ten_god in {"편관", "겁재"}:
+        factors.append({"name": "일간 소모", "value": "일간 소모 축과 부담형 일운 겹침", "delta": -2})
+        delta -= 2
+        _add_tag_score(tag_scores, "방어 우선", 2)
+
+    return max(-10, min(10, delta)), factors, tag_scores
 
 
 def _compress_for_uncertainty(score: int, analysis_context: dict | None) -> tuple[int, str]:
@@ -1880,6 +2292,43 @@ def _score_grade_and_label(score: int) -> tuple[str, str]:
     return "D", "방어가 우선인 날"
 
 
+def _score_variant_seed(*parts: object) -> int:
+    total = 0
+    for part in parts:
+        if part is None:
+            continue
+        text = str(part)
+        total += sum(ord(char) for char in text)
+    return total
+
+
+def _pick_scored_variant(options: list[str], *parts: object) -> str:
+    if not options:
+        return ""
+    seed = _score_variant_seed(*parts)
+    return options[seed % len(options)]
+
+
+def _score_bucket(score: int) -> str:
+    if score >= 80:
+        return "very_high"
+    if score >= 65:
+        return "high"
+    if score >= 50:
+        return "good"
+    if score >= 35:
+        return "caution"
+    return "defense"
+
+
+def _label_for_grade(*, score: int, grade: str, reason_tag: str, caution_tag: str | None) -> str:
+    options = GRADE_LABEL_VARIANTS.get(grade)
+    if not options:
+        _, label = _score_grade_and_label(score)
+        return label
+    return _pick_scored_variant(options, grade, score, reason_tag, caution_tag)
+
+
 def _build_score_summary(
     *,
     score: int,
@@ -1890,6 +2339,7 @@ def _build_score_summary(
     reason_tag: str,
     caution_tag: str | None,
     confidence: str,
+    analysis_context: dict | None,
 ) -> str:
     month_label = format_branch_label(month_branch)
     profile_label = PROFILE_LABELS[daily_profile]
@@ -1898,83 +2348,196 @@ def _build_score_summary(
         confidence_tail = " 다만 확신도는 중간 수준이라 한 번 더 확인하는 편이 좋습니다."
     elif confidence == "low":
         confidence_tail = " 다만 확신도가 낮아 큰 결정은 한 번 더 검토하는 편이 좋습니다."
+    caution_tail = ""
+    if caution_tag and caution_tag != reason_tag:
+        caution_tail = f" 특히 {caution_tag.replace('주의', '').replace('우선', '').strip()} 쪽은 한 번 더 점검하는 편이 좋습니다."
 
-    if reason_tag == "용신 정합":
+    templates = REASON_TAG_SCORE_SUMMARY_VARIANTS.get(reason_tag)
+    pattern_tail = _score_pattern_tail(analysis_context, score, reason_tag, caution_tag)
+    if templates:
+        summary = _pick_scored_variant(
+            templates,
+            score,
+            reason_tag,
+            caution_tag,
+            month_branch,
+            daily_profile,
+            ten_god,
+            confidence,
+        ).format(
+            month_label=month_label,
+            profile_label=profile_label,
+            ten_god=ten_god,
+            confidence_tail=confidence_tail,
+            caution_tail=caution_tail,
+        )
+        return f"{summary} {pattern_tail}".strip() if pattern_tail else summary
+
+    bucket = _score_bucket(score)
+    fallback_templates = SCORE_BUCKET_SUMMARY_VARIANTS[bucket]
+    summary = _pick_scored_variant(
+        fallback_templates,
+        score,
+        bucket,
+        reason_tag,
+        month_branch,
+        daily_profile,
+        ten_god,
+        confidence,
+    ).format(
+        month_label=month_label,
+        profile_label=profile_label,
+        ten_god=ten_god,
+        confidence_tail=confidence_tail,
+    )
+    return f"{summary} {pattern_tail}".strip() if pattern_tail else summary
+
+
+def _score_pattern_tail(
+    analysis_context: dict | None,
+    score: int,
+    reason_tag: str,
+    caution_tag: str | None,
+) -> str:
+    if not analysis_context:
+        return ""
+
+    structure = analysis_context.get("structure", {})
+    special_stars = analysis_context.get("special_stars", {})
+    signature_key = structure.get("signature_key", "")
+    seed = _score_variant_seed(signature_key, score, reason_tag, caution_tag or "")
+
+    tail_options: list[str] = []
+    pattern = structure.get("primary_pattern")
+    if pattern in PATTERN_SCORE_SUMMARY_TAILS:
+        tail_options.extend(PATTERN_SCORE_SUMMARY_TAILS[pattern])
+
+    for tag in special_stars.get("tags", []):
+        tail_options.extend(SPECIAL_STAR_SCORE_TAILS.get(tag, []))
+
+    if not tail_options:
+        return ""
+
+    return tail_options[seed % len(tail_options)]
+
+
+def _build_score_driver_line(
+    *,
+    factors: list[dict],
+    reason_tag: str,
+    caution_tag: str | None,
+) -> str:
+    if not factors:
+        return f"오늘은 {reason_tag} 흐름을 기준으로 운영하는 편이 좋습니다."
+
+    positives = [item for item in factors if item.get("delta", 0) > 0]
+    negatives = [item for item in factors if item.get("delta", 0) < 0]
+    positives.sort(key=lambda item: item.get("delta", 0), reverse=True)
+    negatives.sort(key=lambda item: item.get("delta", 0))
+
+    top_positive = positives[0]["name"] if positives else None
+    top_negative = negatives[0]["name"] if negatives else None
+
+    if top_positive and top_negative:
+        caution_phrase = caution_tag or "주의 구간"
         return (
-            f"오늘은 원국 균형과 잘 맞는 기운이 들어와, {month_label} 리듬 안에서 힘을 써도 결과가 비교적 잘 남기 쉬운 날입니다."
-            f"{confidence_tail}"
+            f"오늘 점수는 {top_positive} 영향으로 흐름이 올라왔고, "
+            f"{top_negative} 구간은 {caution_phrase}로 관리하는 편이 좋습니다."
         )
-    if reason_tag == "균형 회복":
-        return (
-            f"오늘은 {profile_label} 장점을 살릴수록 균형 회복이 쉬운 날이라, {month_label} 리듬을 지키는 선택이 실제 안정감으로 이어지기 쉽습니다."
-            f"{confidence_tail}"
-        )
-    if reason_tag == "재물 흐름":
-        return (
-            f"오늘은 {ten_god} 기운이 돈과 실무 기준에 닿아 있어, {month_label} 리듬 안에서 관리와 선별을 하면 체감 결과가 남기 쉬운 편입니다."
-            f"{confidence_tail}"
-        )
-    if reason_tag == "관계 조율":
-        return (
-            f"오늘은 사람과 조건을 함께 보는 조율 감각이 중요해, {profile_label} 장점을 살리면 관계 피로를 줄이며 흐름을 잇기 쉬운 날입니다."
-            f"{confidence_tail}"
-        )
-    if reason_tag == "정리 우선":
-        return (
-            f"오늘은 크게 벌리기보다 할 일 순서와 기준을 먼저 세우는 편이 맞아, {month_label} 리듬 안에서 정리 중심으로 움직일수록 실수가 줄기 쉽습니다."
-            f"{confidence_tail}"
-        )
-    if reason_tag == "속도 조절":
-        return (
-            f"오늘은 흐름이 붙더라도 반응 속도를 한 단계 낮추는 편이 좋고, {profile_label} 장점을 살릴수록 과열보다 완성도가 남기 쉽습니다."
-            f"{confidence_tail}"
-        )
-    if reason_tag == "변동 관리":
-        return (
-            f"오늘은 바로 밀어붙이기보다 변수와 일정의 움직임을 관리하는 편이 유리해, {month_label} 리듬 안에서 범위를 작게 잡을수록 안정감이 커집니다."
-            f"{confidence_tail}"
-        )
-    if reason_tag == "변동 주의":
-        return (
-            f"오늘은 큰 충돌보다 작은 변동과 틈이 먼저 생기기 쉬워, {month_label} 리듬을 벗어나지 말고 일정과 감정의 간격을 먼저 조절하는 편이 좋습니다."
-            f"{confidence_tail}"
-        )
-    if reason_tag == "리듬 주의":
-        return (
-            f"오늘은 흐름 자체보다 리듬이 어긋나기 쉬운 날이라, {profile_label} 장점을 살리더라도 속도와 휴식 간격을 다시 맞추는 편이 안전합니다."
-            f"{confidence_tail}"
-        )
-    if reason_tag == "압력 주의":
-        return (
-            f"오늘은 해야 할 일보다 압박감이 먼저 크게 느껴질 수 있어, {month_label} 리듬 안에서 범위를 줄이고 한도부터 정하는 편이 좋습니다."
-            f"{confidence_tail}"
-        )
-    if reason_tag == "충돌 주의":
-        summary = (
-            f"오늘은 원국과 일운의 충돌 신호가 있어, {month_label} 리듬을 벗어나지 말고 속도와 분산을 줄이는 편이 안전합니다."
-        )
-        if caution_tag and caution_tag != reason_tag:
-            summary += f" 특히 {caution_tag.replace('주의', '').replace('우선', '').strip()} 쪽은 한 번 더 점검하는 편이 좋습니다."
-        return summary + confidence_tail
-    if reason_tag == "운 압박":
-        return (
-            f"오늘은 운의 압력이 같이 걸려 있어, {profile_label} 장점을 살리더라도 {month_label} 리듬 안에서 범위를 줄여 가는 편이 좋습니다."
-            f"{confidence_tail}"
-        )
-    if reason_tag == "방어 우선":
-        return (
-            f"오늘은 기회를 넓히기보다 방어와 정리가 우선인 날이라, {profile_label} 판단을 살리되 {month_label} 리듬 안에서 일정과 감정을 줄여 보는 편이 좋습니다."
-            f"{confidence_tail}"
-        )
-    if score >= 80:
-        return f"{ten_god} 기운과 {profile_label} 결이 잘 맞아, 오늘은 {month_label} 리듬 안에서 성과를 만들기 쉬운 편입니다.{confidence_tail}"
-    if score >= 65:
-        return f"{ten_god} 기운이 무난하게 받쳐 주는 날이라, 오늘은 {month_label} 리듬을 지키면 결과가 비교적 잘 남습니다.{confidence_tail}"
-    if score >= 50:
-        return f"오늘은 {profile_label} 쪽 판단을 살리면 무난하게 운영할 수 있지만, {month_label} 리듬을 벗어나면 피로가 빨리 올라올 수 있습니다.{confidence_tail}"
-    if score >= 35:
-        return f"오늘은 {ten_god} 기운의 부담이 있어, {profile_label} 장점을 살리더라도 {month_label} 리듬 안에서 무리수를 줄이는 편이 좋습니다.{confidence_tail}"
-    return f"오늘은 기회보다 방어가 우선인 날이라, {profile_label} 판단을 살리되 {month_label} 리듬 안에서 일정과 감정을 줄여 보는 편이 좋습니다.{confidence_tail}"
+    if top_positive:
+        return f"오늘 점수는 {top_positive}이(가) 힘을 실어 {reason_tag} 흐름이 비교적 잘 붙는 편입니다."
+    if top_negative:
+        caution_phrase = caution_tag or "방어 우선"
+        return f"오늘 점수는 {top_negative} 부담이 커 {caution_phrase} 기준으로 범위를 줄이는 편이 안전합니다."
+    return f"오늘은 {reason_tag} 흐름을 기준으로 운영하는 편이 좋습니다."
+
+
+def _score_factor_highlights(*, factors: list[dict], limit: int = 3) -> list[str]:
+    if not factors:
+        return []
+
+    positives = [item for item in factors if item.get("delta", 0) > 0]
+    negatives = [item for item in factors if item.get("delta", 0) < 0]
+    positives.sort(key=lambda item: (item.get("delta", 0), item.get("name", "")), reverse=True)
+    negatives.sort(key=lambda item: (item.get("delta", 0), item.get("name", "")))
+
+    selected: list[dict] = []
+    if positives:
+        selected.append(positives[0])
+    if negatives and len(selected) < limit:
+        selected.append(negatives[0])
+
+    used = {(item.get("name"), item.get("value"), item.get("delta")) for item in selected}
+    rest = sorted(
+        [item for item in factors if (item.get("name"), item.get("value"), item.get("delta")) not in used and item.get("delta", 0) != 0],
+        key=lambda item: (abs(item.get("delta", 0)), item.get("name", "")),
+        reverse=True,
+    )
+    for item in rest:
+        if len(selected) >= limit:
+            break
+        selected.append(item)
+
+    highlights: list[str] = []
+    for item in selected:
+        delta = int(item.get("delta", 0))
+        name = item.get("name", "요인")
+        value = item.get("value", "")
+        prefix = "상승" if delta > 0 else "주의"
+        sign = f"+{delta}" if delta > 0 else str(delta)
+        if value:
+            highlights.append(f"{prefix}: {name} ({sign}) · {value}")
+        else:
+            highlights.append(f"{prefix}: {name} ({sign})")
+    return highlights
+
+
+def _score_linked_easy_line(score: dict) -> str:
+    reason_tag = score.get("reason_tag", "정리 우선")
+    caution_tag = score.get("caution_tag")
+    reason_line = REASON_TAG_EXPLANATION.get(reason_tag, "오늘은 기준을 먼저 세우고 범위를 조절하는 편이 좋습니다.")
+    caution_line = CAUTION_TAG_EXPLANATION.get(caution_tag or "", "")
+    if caution_line:
+        return f"{reason_line} 또한 {caution_line}"
+    return reason_line
+
+
+def _score_linked_one_line(base_line: str, score: dict) -> str:
+    grade = score.get("grade", "")
+    reason_tag = score.get("reason_tag", "")
+    if not grade or not reason_tag:
+        return base_line
+    suffix = f" (활용도 {grade} / {reason_tag})"
+    if suffix in base_line:
+        return base_line
+    return f"{base_line}{suffix}"
+
+
+def _score_linked_action_lines(*, score: dict, seed: int) -> list[str]:
+    reason_tag = score.get("reason_tag", "정리 우선")
+    caution_tag = score.get("caution_tag")
+
+    lines: list[str] = []
+    reason_options = REASON_TAG_ACTION_GUIDE.get(reason_tag, REASON_TAG_ACTION_GUIDE["정리 우선"])
+    if reason_options:
+        lines.append(_pick(reason_options, seed))
+
+    caution_options = CAUTION_TAG_ACTION_GUIDE.get(caution_tag or "")
+    if caution_options:
+        lines.append(_pick(caution_options, seed + 3))
+
+    unique_lines: list[str] = []
+    seen: set[str] = set()
+    for line in lines:
+        if line in seen:
+            continue
+        unique_lines.append(line)
+        seen.add(line)
+    return unique_lines
+
+
+def _score_guide_lines() -> list[str]:
+    return [f"{threshold}점 이상: {grade} / {label}" for threshold, grade, label in SCORE_GRADE_RULES]
 
 
 def _build_daily_headline(

@@ -14,6 +14,13 @@ STEM_COMBINATIONS = {
     frozenset(("무", "계")): "운영과 조절이 만나는 합으로 해석할 수 있습니다.",
 }
 
+STEM_CLASHES = {
+    frozenset(("갑", "경")): "방향성과 결단이 정면으로 부딪혀 선택 피로가 커질 수 있습니다.",
+    frozenset(("을", "신")): "관계 조율과 결과 기준이 충돌해 말의 온도차가 커질 수 있습니다.",
+    frozenset(("병", "임")): "표현 속도와 정보 해석이 맞부딪혀 오해가 생기기 쉬울 수 있습니다.",
+    frozenset(("정", "계")): "세밀한 감정선과 현실 판단이 충돌해 결론이 늦어질 수 있습니다.",
+}
+
 BRANCH_COMBINATIONS = {
     "합": {
         frozenset(("자", "축")): "생활 기반을 단단히 묶는 합으로 보기 쉽습니다.",
@@ -56,6 +63,15 @@ BRANCH_COMBINATIONS = {
         frozenset(("신", "해")): "정리와 여유를 보는 방식이 달라 판단 피로가 생길 수 있습니다.",
         frozenset(("유", "술")): "기준과 책임이 겹쳐 관계 온도가 낮아질 수 있습니다.",
     },
+}
+
+BRANCH_WONJIN = {
+    frozenset(("자", "미")): "가까워도 정서적 거리감이 남아 사소한 말이 오래 걸릴 수 있습니다.",
+    frozenset(("축", "오")): "생활 리듬 차이로 작은 약속에서도 서운함이 누적될 수 있습니다.",
+    frozenset(("인", "유")): "표현 방식 차이로 같은 말을 다르게 받아들이기 쉬울 수 있습니다.",
+    frozenset(("묘", "신")): "속도와 간격 감각이 엇갈려 관계 템포가 흔들릴 수 있습니다.",
+    frozenset(("진", "해")): "현실 판단과 감정 해석이 충돌해 결론이 자주 미뤄질 수 있습니다.",
+    frozenset(("사", "술")): "주도권과 책임 기준이 어긋나 피로가 쌓이기 쉬울 수 있습니다.",
 }
 
 
@@ -124,6 +140,16 @@ def _resolve_pair(left_role: str, left: dict, right_role: str, right: dict) -> l
                 meaning=STEM_COMBINATIONS[stem_key],
             )
         )
+    if stem_key in STEM_CLASHES:
+        entries.append(
+            _entry(
+                interaction_type="충",
+                source=f"{left_role}-{right_role}",
+                target=f"{format_stem_label(left['stem'])}-{format_stem_label(right['stem'])}",
+                strength="high",
+                meaning=STEM_CLASHES[stem_key],
+            )
+        )
 
     branch_key = frozenset((left["branch"], right["branch"]))
     for interaction_type, mapping in BRANCH_COMBINATIONS.items():
@@ -136,6 +162,16 @@ def _resolve_pair(left_role: str, left: dict, right_role: str, right: dict) -> l
                 target=f"{format_branch_label(left['branch'])}-{format_branch_label(right['branch'])}",
                 strength="high" if interaction_type in {"충", "형"} else "medium",
                 meaning=mapping[branch_key],
+            )
+        )
+    if branch_key in BRANCH_WONJIN:
+        entries.append(
+            _entry(
+                interaction_type="원진",
+                source=f"{left_role}-{right_role}",
+                target=f"{format_branch_label(left['branch'])}-{format_branch_label(right['branch'])}",
+                strength="medium",
+                meaning=BRANCH_WONJIN[branch_key],
             )
         )
     return entries

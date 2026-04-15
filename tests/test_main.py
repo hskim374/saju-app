@@ -10,7 +10,7 @@ from jinja2 import Environment, FileSystemLoader
 
 from main import _build_pdf_response, _build_result_data, _default_form_data, _today_in_seoul, _validate_gender
 from services import premium_report
-from services.report_display import build_display_result
+from services.report_display import build_display_result, localize_text
 from services.saju_calculator import SajuCalculationError
 
 
@@ -164,6 +164,23 @@ def test_pillar_sections_do_not_expose_raw_english_role_names():
     assert any(label in joined for label in ["월주 자리", "일주 자리", "시주 자리", "년주 자리"])
 
 
+def test_localize_text_does_not_inject_pillar_labels_into_normal_words():
+    text = "결론을 빠르게 정해야 하는 장면에서는 일간 기준을 먼저 확인합니다."
+    localized = localize_text(text)
+
+    assert "정해(丁亥)야" not in localized
+    assert "기(己)준" not in localized
+    assert localized == text
+
+
+def test_localize_text_does_not_inject_pillar_labels_into_space_separated_verbs():
+    text = "일정 상한선과 관계 경계를 숫자로 정해 두는 것이 도움이 됩니다."
+    localized = localize_text(text)
+
+    assert "정해(丁亥) 두는" not in localized
+    assert localized == text
+
+
 def test_result_data_contains_premium_report_structure():
     _, result_data = _build_result_data(
         calendar_type="solar",
@@ -193,7 +210,17 @@ def test_result_data_contains_premium_report_structure():
     assert result_data["analysis_context"]["yongshin"]["display"]["primary"]
     assert result_data["analysis_context"]["yongshin"]["confidence_display"]
     assert "natal" in result_data["analysis_context"]["interactions"]
+    assert result_data["analysis_context"]["structure"]["signature_key"]
+    assert result_data["interpretation_signals"]["core"]
+    assert result_data["structured_report"]["headline"]
+    assert result_data["structured_report"]["sections"]["core_structure"]
+    assert result_data["structured_report"]["match_logs"]["career"]["matched_count"] >= 0
+    assert isinstance(result_data["structured_report"]["match_logs"]["career"]["matched_ids"], list)
+    assert result_data["analysis_context"]["special_stars"]["summary"]
     assert result_data["analysis_context"]["uncertainty_notes"]
+    assert result_data["saju_id"]
+    assert result_data["raw_input"]["saju_id"] == result_data["saju_id"]
+    assert result_data["cache_key"]
 
 
 def test_result_template_renders_balance_analysis_card():
@@ -224,9 +251,21 @@ def test_result_template_renders_balance_analysis_card():
     assert "용신 확신도" in html
     assert "근거 보기" in html
     assert "신강/신약 점수" in html
+    assert "신살 흐름" in html
     assert "해석 유의점" in html
+    assert display_result["daily_fortune"]["score"]["driver_line"] in html
+    assert display_result["daily_fortune"]["score"]["guide_lines"][0] in html
+    assert "점수 근거 Top" in html
+    assert display_result["weekly_fortune"][0]["reason_tag"] in html
+    assert display_result["main_cards"]["personality"]["one_line"]
+    assert display_result["main_cards"]["career"]["source"] in {"structured", "legacy"}
+    assert display_result["weekly_fortune"][0]["factor_top_compact"] in html
+    assert display_result["weekly_fortune"][0]["confidence_label"] in html
+    assert display_result["weekly_fortune"][0]["driver_line"] in html
     assert display_result["analysis_context"]["yongshin"]["display"]["primary"] in html
     assert "핵심 근거" in html
+    assert "구조 판별 요약" in html
+    assert display_result["structured_report"]["headline"] in html
     assert display_result["premium_report"]["analysis_brief"]["brief"][0] in html
 
 

@@ -36,7 +36,9 @@ _PILLAR_HANJA_PATTERN = re.compile("|".join(re.escape(value) for value in PILLAR
 _STEM_PATTERN = "[갑을병정무기경신임계甲乙丙丁戊己庚辛壬癸]"
 _BRANCH_PATTERN = "[자축인묘진사오미신유술해子丑寅卯辰巳午未申酉戌亥]"
 _STEM_BEFORE_PATTERN = re.compile(rf"({_STEM_PATTERN})(?![\(（])(?=\s*(?:일간|천간))")
-_STEM_AFTER_PATTERN = re.compile(rf"(?<=(?:일간|천간|년간|월간|시간)\s)({_STEM_PATTERN})(?![\(（])")
+_STEM_AFTER_PATTERN = re.compile(
+    rf"(?<=(?:일간|천간|년간|월간|시간)\s)({_STEM_PATTERN})(?![\(（])(?=(?:\s|$|[.,!?:;)\]\"'’”]))"
+)
 _BRANCH_BEFORE_PATTERN = re.compile(rf"({_BRANCH_PATTERN})(?![\(（])(?=\s*지지)")
 _BRANCH_AFTER_PATTERN = re.compile(rf"(?<=(?:지지|년지|월지|일지|시지)\s)({_BRANCH_PATTERN})(?![\(（])")
 _SKIP_STRING_KEYS = {
@@ -46,6 +48,65 @@ _SKIP_STRING_KEYS = {
     "branch",
     "stem_hanja",
     "branch_hanja",
+    "source",
+}
+_PARTICLE_NEXT_CHARS = {
+    "은",
+    "는",
+    "이",
+    "가",
+    "을",
+    "를",
+    "과",
+    "와",
+    "도",
+    "만",
+    "의",
+    "로",
+    "에",
+    "께",
+}
+_PILLAR_CONTEXT_BEFORE_HINTS = (
+    "사주",
+    "원국",
+    "년주",
+    "월주",
+    "일주",
+    "시주",
+    "대운",
+    "세운",
+    "년운",
+    "월운",
+    "일운",
+    "천간",
+    "지지",
+    "일간",
+    "년간",
+    "월간",
+    "시간",
+    "년지",
+    "월지",
+    "일지",
+    "시지",
+    "간지",
+)
+_PILLAR_CONTEXT_AFTER_HEADS = {
+    "년",
+    "월",
+    "일",
+    "시",
+    "주",
+    "운",
+    "간",
+    "지",
+    "기",
+    "흐",
+    "합",
+    "충",
+    "형",
+    "파",
+    "해",
+    "살",
 }
 
 
@@ -132,6 +193,13 @@ def _attach_display_fields(display: dict) -> None:
     if daily_fortune:
         daily_fortune["pillar_display"] = format_pillar_label(daily_fortune["pillar"], daily_fortune.get("hanja"))
 
+    tomorrow_fortune = display.get("tomorrow_fortune")
+    if tomorrow_fortune:
+        tomorrow_fortune["pillar_display"] = format_pillar_label(
+            tomorrow_fortune["pillar"],
+            tomorrow_fortune.get("hanja"),
+        )
+
     for item in display.get("monthly_fortune", []):
         item["pillar_display"] = format_pillar_label(item["pillar"], item.get("hanja"))
 
@@ -141,6 +209,8 @@ def _attach_display_fields(display: dict) -> None:
             selected_month_fortune["pillar"],
             selected_month_fortune.get("hanja"),
         )
+
+    _attach_main_cards(display)
 
 
 def _localize_value(value, key: str | None = None):
@@ -158,12 +228,16 @@ def _localize_value(value, key: str | None = None):
 def _replace_unformatted_pillars(text: str) -> str:
     def replace_kor(match: re.Match[str]) -> str:
         start, end = match.span()
+        if _should_skip_match(text, start, end):
+            return match.group(0)
         if end < len(text) and text[end] in "(（":
             return match.group(0)
         return PILLAR_LABEL_BY_KOR[match.group(0)]
 
     def replace_hanja(match: re.Match[str]) -> str:
         start, end = match.span()
+        if _should_skip_match(text, start, end):
+            return match.group(0)
         if start > 0 and text[start - 1] in "(（" and end < len(text) and text[end] in ")）":
             return match.group(0)
         return PILLAR_LABEL_BY_HANJA[match.group(0)]
@@ -188,3 +262,113 @@ def _replace_branch_terms(text: str) -> str:
 
     text = _BRANCH_BEFORE_PATTERN.sub(replace, text)
     return _BRANCH_AFTER_PATTERN.sub(replace, text)
+
+
+def _should_skip_match(text: str, start: int, end: int) -> bool:
+    prev_char = text[start - 1] if start > 0 else ""
+    next_char = text[end] if end < len(text) else ""
+    next_next_char = text[end + 1] if end + 1 < len(text) else ""
+
+    if _is_hangul_syllable(prev_char):
+        return True
+    if _is_hangul_syllable(next_char):
+        if next_char in _PARTICLE_NEXT_CHARS and (not next_next_char or not _is_hangul_syllable(next_next_char)):
+            return False
+        return True
+    if next_char.isspace() and not _has_pillar_context(text, start, end):
+        return True
+    return False
+
+
+def _is_hangul_syllable(char: str) -> bool:
+    return bool(char) and "가" <= char <= "힣"
+
+
+def _has_pillar_context(text: str, start: int, end: int) -> bool:
+    before_window = text[max(0, start - 10) : start]
+    if any(hint in before_window for hint in _PILLAR_CONTEXT_BEFORE_HINTS):
+        return True
+
+    tail = text[end:]
+    match = re.match(r"\s*([가-힣])", tail)
+    if not match:
+        return False
+    return match.group(1) in _PILLAR_CONTEXT_AFTER_HEADS
+
+
+def _attach_main_cards(display: dict) -> None:
+    structured = display.get("structured_report", {}).get("sections", {})
+    interpretation = display.get("interpretation_sections", {})
+    career_section = display.get("career_fortune", {}).get("section", {})
+    relationship_section = display.get("relationship_fortune", {}).get("section", {})
+
+    display["main_cards"] = {
+        "personality": _build_main_card(
+            structured_lines=structured.get("personality", []),
+            fallback_section=interpretation.get("personality", {}),
+        ),
+        "wealth": _build_main_card(
+            structured_lines=structured.get("money", []),
+            fallback_section=interpretation.get("wealth", {}),
+        ),
+        "career": _build_main_card(
+            structured_lines=structured.get("career", []),
+            fallback_section=career_section,
+        ),
+        "relationship": _build_main_card(
+            structured_lines=structured.get("relationship", []),
+            fallback_section=relationship_section,
+        ),
+    }
+
+
+def _build_main_card(*, structured_lines: list[str], fallback_section: dict) -> dict:
+    fallback_one_line = str(fallback_section.get("one_line", "")).strip()
+    fallback_highlight = str(fallback_section.get("highlight", "")).strip()
+    fallback_easy = [str(item).strip() for item in fallback_section.get("easy_explanation", []) if str(item).strip()]
+    fallback_real = [str(item).strip() for item in fallback_section.get("real_life", []) if str(item).strip()]
+    fallback_strength = [str(item).strip() for item in fallback_section.get("strength_and_risk", []) if str(item).strip()]
+    fallback_action = [str(item).strip() for item in fallback_section.get("action_advice", []) if str(item).strip()]
+
+    lines = [str(item).strip() for item in structured_lines if str(item).strip()]
+    use_structured = bool(lines)
+
+    if use_structured:
+        one_line = lines[0]
+        highlight = lines[1] if len(lines) > 1 else one_line
+        easy = lines[2:] if len(lines) > 2 else [one_line]
+        real = fallback_real if fallback_real else lines[1:3]
+        strength = fallback_strength if fallback_strength else [lines[-1]]
+        action_seed = lines[-1]
+        action = _unique_lines([action_seed, *fallback_action])
+        source = "structured"
+    else:
+        one_line = fallback_one_line
+        highlight = fallback_highlight or fallback_one_line
+        easy = fallback_easy
+        real = fallback_real
+        strength = fallback_strength
+        action = fallback_action
+        source = "legacy"
+
+    return {
+        "source": source,
+        "one_line": one_line,
+        "highlight": highlight,
+        "easy_explanation": easy,
+        "real_life": real,
+        "strength_and_risk": strength,
+        "action_advice": action,
+    }
+
+
+def _unique_lines(lines: list[str]) -> list[str]:
+    seen: set[str] = set()
+    unique: list[str] = []
+    for line in lines:
+        text = str(line).strip()
+        if not text or text in seen:
+            continue
+        seen.add(text)
+        unique.append(text)
+    return unique

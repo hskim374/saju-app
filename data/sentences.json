@@ -1,0 +1,1553 @@
+[
+  {
+    "id": "A002",
+    "category": "action_guide",
+    "type": "adjustment",
+    "priority": 96,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "",
+      "primary_pattern": "",
+      "yongshin": "wood",
+      "dominant_element": "metal",
+      "lacking_element": "wood",
+      "has_clash": false
+    },
+    "text": "일정에 새로운 활동을 정기적으로 추가할 때 정체된 흐름이 완화되는 패턴이 형성된다.",
+    "quality_score": 100
+  },
+  {
+    "id": "D011",
+    "category": "action_guide",
+    "type": "adjustment",
+    "priority": 95,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "",
+      "primary_pattern": "",
+      "yongshin": "water",
+      "dominant_element": "fire",
+      "lacking_element": "water",
+      "has_clash": false
+    },
+    "text": "일정에 휴식과 수분 섭취 시간을 고정적으로 포함할 때 과열된 흐름이 완화되는 경향이 나타난다.",
+    "quality_score": 100
+  },
+  {
+    "id": "A001",
+    "category": "action_guide",
+    "type": "adjustment",
+    "priority": 95,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "",
+      "primary_pattern": "",
+      "yongshin": "water",
+      "dominant_element": "fire",
+      "lacking_element": "water",
+      "has_clash": false
+    },
+    "text": "하루 일정에 휴식과 수분 섭취 시간을 고정적으로 배치할 때 과열된 흐름이 완화되는 패턴이 형성된다.",
+    "quality_score": 100
+  },
+  {
+    "id": "A003",
+    "category": "action_guide",
+    "type": "adjustment",
+    "priority": 94,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "",
+      "primary_pattern": "",
+      "yongshin": "fire",
+      "dominant_element": "water",
+      "lacking_element": "fire",
+      "has_clash": false
+    },
+    "text": "활동량이 많은 일정을 의도적으로 배치할 때 침체된 에너지 흐름이 개선되는 경향이 나타난다.",
+    "quality_score": 100
+  },
+  {
+    "id": "relationship_struct_conflict_001",
+    "category": "relationship",
+    "type": "structure",
+    "priority": 92,
+    "conditions": {
+      "has_natal_conflict": true
+    },
+    "text": "관계에서 감정이 먼저 올라오기 쉬운 구조라, 결론을 늦추고 기준부터 확인하는 편이 갈등을 줄입니다.",
+    "quality_score": 100
+  },
+  {
+    "id": "career_struct_food_001",
+    "category": "career",
+    "type": "structure",
+    "priority": 92,
+    "conditions": {
+      "primary_pattern": "식상격"
+    },
+    "text": "결과를 만들어 내는 능력은 분명하지만, 마감이 겹치면 소모가 빨라져 우선순위 정리가 성패를 가르기 쉽습니다.",
+    "quality_score": 100
+  },
+  {
+    "id": "M001",
+    "category": "money",
+    "type": "base",
+    "priority": 92,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "strong",
+      "primary_pattern": "재다신약",
+      "yongshin": "",
+      "dominant_element": "earth",
+      "lacking_element": "wood",
+      "has_clash": false
+    },
+    "text": "수입이 발생해도 지출 항목이 동시에 증가하면서 자산이 축적되지 않는 흐름이 반복된다.",
+    "quality_score": 100
+  },
+  {
+    "id": "relationship_struct_harmony_001",
+    "category": "relationship",
+    "type": "structure",
+    "priority": 90,
+    "conditions": {
+      "has_natal_harmony": true
+    },
+    "text": "연결 신호가 있는 구조라, 속도만 맞추면 관계가 생각보다 안정적으로 이어지는 편입니다.",
+    "quality_score": 100
+  },
+  {
+    "id": "R003",
+    "category": "relationship",
+    "type": "base",
+    "priority": 90,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "strong",
+      "primary_pattern": "일지충",
+      "yongshin": "",
+      "dominant_element": "",
+      "lacking_element": "",
+      "has_clash": true
+    },
+    "text": "가까운 관계일수록 의견 충돌이 빈번하게 발생하며, 일정 주기로 관계 긴장이 반복되는 흐름이 나타난다.",
+    "quality_score": 100
+  },
+  {
+    "id": "C001",
+    "category": "career",
+    "type": "structure",
+    "priority": 90,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "strong",
+      "primary_pattern": "식상생재",
+      "yongshin": "",
+      "dominant_element": "earth",
+      "lacking_element": "",
+      "has_clash": false
+    },
+    "text": "아이디어를 실제 수익 구조로 연결하는 과정에서 성과가 발생하며, 결과물이 금전으로 이어지는 구조가 반복된다.",
+    "quality_score": 100
+  },
+  {
+    "id": "M004",
+    "category": "money",
+    "type": "base",
+    "priority": 89,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "weak",
+      "primary_pattern": "재약",
+      "yongshin": "",
+      "dominant_element": "",
+      "lacking_element": "earth",
+      "has_clash": false
+    },
+    "text": "수입 자체가 일정하지 않아 자금 흐름이 불규칙하게 반복되는 패턴이 나타난다.",
+    "quality_score": 100
+  },
+  {
+    "id": "R001",
+    "category": "relationship",
+    "type": "base",
+    "priority": 88,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "strong",
+      "primary_pattern": "관성혼잡",
+      "yongshin": "",
+      "dominant_element": "metal",
+      "lacking_element": "",
+      "has_clash": true
+    },
+    "text": "관계에서 역할이 명확하게 정리되지 않아 책임과 기대가 서로 엇갈리는 상황이 반복된다.",
+    "quality_score": 100
+  },
+  {
+    "id": "H003",
+    "category": "health",
+    "type": "base",
+    "priority": 88,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "",
+      "primary_pattern": "",
+      "yongshin": "",
+      "dominant_element": "earth",
+      "lacking_element": "wood",
+      "has_clash": false
+    },
+    "text": "소화 기능이 일정하지 않아 식사 후 더부룩함이 반복적으로 나타나는 패턴이 관찰된다.",
+    "quality_score": 100
+  },
+  {
+    "id": "D005",
+    "category": "money",
+    "type": "base",
+    "priority": 88,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "strong",
+      "primary_pattern": "비겁과다",
+      "yongshin": "",
+      "dominant_element": "wood",
+      "lacking_element": "earth",
+      "has_clash": true
+    },
+    "text": "수입이 증가해도 주변 관계로 인해 지출이 동시에 늘어나 자산이 유지되지 않는 흐름이 반복된다.",
+    "quality_score": 100
+  },
+  {
+    "id": "D007",
+    "category": "relationship",
+    "type": "base",
+    "priority": 87,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "strong",
+      "primary_pattern": "일지충",
+      "yongshin": "",
+      "dominant_element": "",
+      "lacking_element": "",
+      "has_clash": true
+    },
+    "text": "가까운 관계에서 의견 충돌이 반복되며 일정 주기로 거리감이 발생하는 흐름이 나타난다.",
+    "quality_score": 100
+  },
+  {
+    "id": "core_struct_autumn_balanced_001",
+    "category": "core_structure",
+    "type": "structure",
+    "priority": 86,
+    "conditions": {
+      "season": "autumn",
+      "strength_label": "balanced"
+    },
+    "text": "가을의 균형 구조는 성급한 확장보다 선택과 집중이 잘 맞아, 기준을 세우면 결과 편차가 줄어드는 편입니다.",
+    "quality_score": 100
+  },
+  {
+    "id": "action_struct_resource_001",
+    "category": "action_guide",
+    "type": "structure",
+    "priority": 86,
+    "conditions": {
+      "needs_resource_support": true
+    },
+    "text": "지금은 확장보다 기반 보강이 먼저라, 일정과 관계에서 회복 가능한 범위를 먼저 정해 두는 편이 좋습니다.",
+    "quality_score": 100
+  },
+  {
+    "id": "health_struct_strong_001",
+    "category": "health",
+    "type": "structure",
+    "priority": 84,
+    "conditions": {
+      "strength_label_contains": [
+        "strong"
+      ]
+    },
+    "text": "신강 흐름에서는 과속으로 피로를 늦게 인식할 수 있어, 일정 중간 점검을 습관화하는 편이 좋습니다.",
+    "quality_score": 100
+  },
+  {
+    "id": "R004",
+    "category": "relationship",
+    "type": "structure",
+    "priority": 84,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "weak",
+      "primary_pattern": "관성약",
+      "yongshin": "",
+      "dominant_element": "",
+      "lacking_element": "metal",
+      "has_clash": false
+    },
+    "text": "관계에서 주도권을 잡지 못하는 상황이 지속되며, 상대의 선택에 따라 흐름이 결정되는 패턴이 나타난다.",
+    "quality_score": 100
+  },
+  {
+    "id": "H004",
+    "category": "health",
+    "type": "structure",
+    "priority": 83,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "",
+      "primary_pattern": "",
+      "yongshin": "",
+      "dominant_element": "water",
+      "lacking_element": "fire",
+      "has_clash": true
+    },
+    "text": "신체 에너지 수준이 일정하지 않아 활동량이 갑자기 감소하는 시기가 반복된다.",
+    "quality_score": 100
+  },
+  {
+    "id": "core_adj_conflict_001",
+    "category": "core_structure",
+    "type": "adjustment",
+    "priority": 82,
+    "conditions": {
+      "has_natal_conflict": true
+    },
+    "text": "원국 상호작용에 충돌 신호가 있어 큰 결정보다 단계별 점검을 거치는 편이 안정적입니다.",
+    "quality_score": 100
+  },
+  {
+    "id": "career_adj_luck_pressure_001",
+    "category": "career",
+    "type": "adjustment",
+    "priority": 82,
+    "conditions": {
+      "has_luck_pressure": true
+    },
+    "text": "운 압력이 큰 시기라 새로운 일 확대보다 현재 범위를 안정시키는 선택이 더 유리합니다.",
+    "quality_score": 100
+  },
+  {
+    "id": "R002",
+    "category": "relationship",
+    "type": "structure",
+    "priority": 82,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "weak",
+      "primary_pattern": "",
+      "yongshin": "",
+      "dominant_element": "water",
+      "lacking_element": "earth",
+      "has_clash": false
+    },
+    "text": "상대의 반응에 따라 감정이 크게 흔들리며, 관계의 안정성이 외부 요인에 의해 좌우되는 흐름이 나타난다.",
+    "quality_score": 100
+  },
+  {
+    "id": "M005",
+    "category": "money",
+    "type": "structure",
+    "priority": 82,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "strong",
+      "primary_pattern": "재생관",
+      "yongshin": "",
+      "dominant_element": "earth",
+      "lacking_element": "wood",
+      "has_clash": false
+    },
+    "text": "금전이 들어오면 바로 다른 의무 지출로 연결되면서 실질적인 잉여 자금이 남지 않는 흐름이 나타난다.",
+    "quality_score": 100
+  },
+  {
+    "id": "D008",
+    "category": "relationship",
+    "type": "structure",
+    "priority": 82,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "weak",
+      "primary_pattern": "관성약",
+      "yongshin": "",
+      "dominant_element": "",
+      "lacking_element": "metal",
+      "has_clash": false
+    },
+    "text": "관계에서 주도권이 상대에게 집중되며 자신의 의사가 반영되지 않는 상황이 반복된다.",
+    "quality_score": 100
+  },
+  {
+    "id": "money_adj_conflict_001",
+    "category": "money",
+    "type": "adjustment",
+    "priority": 80,
+    "conditions": {
+      "relationship_flags_contains": [
+        "파",
+        "해"
+      ]
+    },
+    "text": "작은 변수와 일정 흔들림이 반복될 수 있어, 즉흥 결제보다 결제 시점을 늦춰 확인하는 편이 손실을 줄입니다.",
+    "quality_score": 100
+  },
+  {
+    "id": "career_adj_conflict_001",
+    "category": "career",
+    "type": "adjustment",
+    "priority": 80,
+    "conditions": {
+      "relationship_flags_contains": [
+        "충",
+        "형"
+      ]
+    },
+    "text": "일정과 역할이 충돌하기 쉬운 구조라, 한 번에 여러 갈래를 잡기보다 핵심 한두 개로 좁히는 편이 좋습니다.",
+    "quality_score": 100
+  },
+  {
+    "id": "D006",
+    "category": "money",
+    "type": "structure",
+    "priority": 80,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "weak",
+      "primary_pattern": "재약",
+      "yongshin": "",
+      "dominant_element": "",
+      "lacking_element": "earth",
+      "has_clash": false
+    },
+    "text": "수입의 변동 폭이 커서 일정한 자금 흐름이 유지되지 않는 패턴이 나타난다.",
+    "quality_score": 100
+  },
+  {
+    "id": "money_adj_officer_pressure_001",
+    "category": "money",
+    "type": "adjustment",
+    "priority": 79,
+    "conditions": {
+      "officer_pressure_high": true
+    },
+    "text": "책임 지출이 늘기 쉬운 흐름이라 즉시 결정보다 하루 유예 규칙을 두면 불필요한 지출을 줄이기 쉽습니다.",
+    "quality_score": 100
+  },
+  {
+    "id": "money_adj_movement_001",
+    "category": "money",
+    "type": "adjustment",
+    "priority": 79,
+    "conditions": {
+      "special_star_tags_contains": [
+        "역마"
+      ]
+    },
+    "text": "이동과 변화가 많은 시기에는 고정비부터 점검하고 변동 지출은 주간 한도로 묶는 편이 실속 관리에 유리합니다.",
+    "quality_score": 100
+  },
+  {
+    "id": "relationship_adj_movement_001",
+    "category": "relationship",
+    "type": "adjustment",
+    "priority": 78,
+    "conditions": {
+      "special_star_tags_contains": [
+        "역마"
+      ]
+    },
+    "text": "일정 변동이 잦아 오해가 생기기 쉬우니 만남 시간과 목적을 짧게 합의해 두는 방식이 관계 소모를 줄입니다.",
+    "quality_score": 100
+  },
+  {
+    "id": "money_adj_yongshin_001",
+    "category": "money",
+    "type": "adjustment",
+    "priority": 78,
+    "conditions": {
+      "yongshin_contains": [
+        "금",
+        "수"
+      ]
+    },
+    "text": "기준과 검토를 먼저 두는 방식이 맞는 구조라, 지출 결정보다 조건 점검을 앞세울수록 실속이 남기 쉽습니다.",
+    "quality_score": 100
+  },
+  {
+    "id": "luck_adj_conflict_001",
+    "category": "luck_flow",
+    "type": "adjustment",
+    "priority": 78,
+    "conditions": {
+      "has_luck_pressure": true
+    },
+    "text": "충돌 신호가 겹치는 해에는 새로운 확장보다 기존 틀을 유지하는 선택이 결과적으로 손실을 줄이는 편입니다.",
+    "quality_score": 100
+  },
+  {
+    "id": "R005",
+    "category": "relationship",
+    "type": "adjustment",
+    "priority": 78,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "strong",
+      "primary_pattern": "합다",
+      "yongshin": "",
+      "dominant_element": "",
+      "lacking_element": "",
+      "has_clash": false
+    },
+    "text": "관계가 빠르게 가까워지는 대신 일정 시점 이후 거리 조절이 이루어지지 않아 부담이 누적되는 흐름이 나타난다.",
+    "quality_score": 100
+  },
+  {
+    "id": "P002",
+    "category": "personality",
+    "type": "structure",
+    "priority": 78,
+    "conditions": {
+      "day_master": "을목",
+      "season": "winter",
+      "strength_label": "weak",
+      "primary_pattern": "",
+      "yongshin": "",
+      "dominant_element": "water",
+      "lacking_element": "fire",
+      "has_clash": false
+    },
+    "text": "외부 자극이 없으면 행동으로 이어지지 않는 시간이 길어지며, 결정까지 시간이 지연되는 패턴이 자주 발생한다.",
+    "quality_score": 100
+  },
+  {
+    "id": "relationship_adj_hour_theme_001",
+    "category": "relationship",
+    "type": "adjustment",
+    "priority": 76,
+    "conditions": {
+      "hour_theme_contains": [
+        "결과",
+        "마무리"
+      ]
+    },
+    "text": "후반 결실 축이 강해 관계도 결국 장기 방향을 따져 선택하는 경향이 커질 수 있습니다.",
+    "quality_score": 100
+  },
+  {
+    "id": "D002",
+    "category": "personality",
+    "type": "structure",
+    "priority": 76,
+    "conditions": {
+      "day_master": "을목",
+      "season": "winter",
+      "strength_label": "weak",
+      "primary_pattern": "",
+      "yongshin": "",
+      "dominant_element": "water",
+      "lacking_element": "fire",
+      "has_clash": false
+    },
+    "text": "외부 자극이 없으면 행동이 지연되며 결정을 내리기까지 시간이 길어지는 패턴이 나타난다.",
+    "quality_score": 100
+  },
+  {
+    "id": "M003",
+    "category": "money",
+    "type": "adjustment",
+    "priority": 75,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "weak",
+      "primary_pattern": "식상생재",
+      "yongshin": "",
+      "dominant_element": "fire",
+      "lacking_element": "metal",
+      "has_clash": false
+    },
+    "text": "능력으로 수익을 만드는 구조는 존재하지만 지속성이 부족해 일정 기간 후 수입이 끊기는 패턴이 반복된다.",
+    "quality_score": 100
+  },
+  {
+    "id": "personality_adj_ground_001",
+    "category": "personality",
+    "type": "adjustment",
+    "priority": 74,
+    "conditions": {
+      "month_branch_contains": [
+        "축",
+        "진",
+        "미",
+        "술"
+      ]
+    },
+    "text": "현실 기준을 먼저 보는 결이 강해, 관계와 일정에서 오래 갈 수 있는 방식을 선호하는 편입니다.",
+    "quality_score": 100
+  },
+  {
+    "id": "C007",
+    "category": "career",
+    "type": "adjustment",
+    "priority": 74,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "strong",
+      "primary_pattern": "재성과다",
+      "yongshin": "",
+      "dominant_element": "earth",
+      "lacking_element": "water",
+      "has_clash": true
+    },
+    "text": "수익 중심 선택이 반복되면서 업무 방향이 자주 변경되고 전문성이 축적되지 않는 흐름이 나타난다.",
+    "quality_score": 100
+  },
+  {
+    "id": "C004",
+    "category": "career",
+    "type": "adjustment",
+    "priority": 72,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "weak",
+      "primary_pattern": "재성편중",
+      "yongshin": "",
+      "dominant_element": "earth",
+      "lacking_element": "water",
+      "has_clash": false
+    },
+    "text": "단기 수익에 집중하는 선택이 누적되면서 장기적인 경력 방향이 흔들리는 패턴이 나타난다.",
+    "quality_score": 100
+  },
+  {
+    "id": "money_struct_wealth_open_001",
+    "category": "money",
+    "type": "structure",
+    "priority": 92,
+    "conditions": {
+      "wealth_flow_open": true
+    },
+    "text": "재성 통로가 열려 있어 돈이 들어오고 나가는 장면에서 판단이 빨라질 수 있으니, 선별 기준을 먼저 두는 편이 좋습니다.",
+    "quality_score": 80
+  },
+  {
+    "id": "money_struct_strong_001",
+    "category": "money",
+    "type": "structure",
+    "priority": 88,
+    "conditions": {
+      "strength_label_contains": [
+        "strong"
+      ]
+    },
+    "text": "신강 흐름에서는 실행력이 강하게 붙어 지출과 투자도 빨라질 수 있어, 상한선을 먼저 정해 두는 편이 필요합니다.",
+    "quality_score": 80
+  },
+  {
+    "id": "relationship_struct_dohwa_001",
+    "category": "relationship",
+    "type": "structure",
+    "priority": 85,
+    "conditions": {
+      "special_star_tags_contains": [
+        "도화"
+      ]
+    },
+    "text": "사람이 모이는 자리에 반응이 빠르게 붙는 흐름이라 약속 수를 줄이고 밀도 높은 대화를 선택하는 편이 더 좋습니다.",
+    "quality_score": 80
+  },
+  {
+    "id": "CV_YS_002",
+    "category": "action_guide",
+    "type": "structure",
+    "priority": 85,
+    "conditions": {
+      "yongshin": "earth"
+    },
+    "text": "지금은 일정과 지출의 바닥 규칙을 먼저 고정할수록 흐름이 안정되어, 변수 구간에서도 체력과 집중을 오래 유지하기 쉬운 편입니다.",
+    "quality_score": 80
+  },
+  {
+    "id": "CV_YS_001",
+    "category": "action_guide",
+    "type": "structure",
+    "priority": 85,
+    "conditions": {
+      "yongshin": "metal"
+    },
+    "text": "오늘은 기준과 순서를 먼저 세우고 체크 항목을 짧게 고정할수록 실수가 줄어들어, 빠른 결정이 필요한 장면에서도 안정적으로 대응하기 쉽습니다.",
+    "quality_score": 80
+  },
+  {
+    "id": "money_struct_lacking_fire_001",
+    "category": "money",
+    "type": "structure",
+    "priority": 84,
+    "conditions": {
+      "lacking_elements_contains": [
+        "화"
+      ]
+    },
+    "text": "결정 속도가 느려 기회를 놓칠 수 있어 결제·투자 판단은 체크 항목을 세 가지로 고정해 빠르게 선별하는 편이 좋습니다.",
+    "quality_score": 80
+  },
+  {
+    "id": "P005",
+    "category": "personality",
+    "type": "base",
+    "priority": 84,
+    "conditions": {
+      "day_master": "경금",
+      "season": "autumn",
+      "strength_label": "strong",
+      "primary_pattern": "",
+      "yongshin": "",
+      "dominant_element": "metal",
+      "lacking_element": "fire",
+      "has_clash": false
+    },
+    "text": "판단 기준이 명확하게 설정되어 있어 결정을 내리는 속도가 빠르며, 기준에서 벗어나는 상황을 쉽게 용납하지 않는 흐름이 나타난다.",
+    "quality_score": 80
+  },
+  {
+    "id": "CV_ST_001",
+    "category": "core_structure",
+    "type": "structure",
+    "priority": 84,
+    "conditions": {
+      "strength_label": "slightly_strong"
+    },
+    "text": "약간 신강 구간은 밀어붙이는 힘과 관리력이 함께 살아 있어, 목표를 넓히되 마감 기준을 같이 두면 성과 안정성이 높아집니다.",
+    "quality_score": 80
+  },
+  {
+    "id": "action_struct_officer_pressure_001",
+    "category": "action_guide",
+    "type": "structure",
+    "priority": 83,
+    "conditions": {
+      "officer_pressure_high": true
+    },
+    "text": "압박이 큰 날에는 할 일 세 개만 고정하고 나머지는 보류 목록으로 넘겨 결정 피로를 줄이는 편이 효과적입니다.",
+    "quality_score": 80
+  },
+  {
+    "id": "M002",
+    "category": "money",
+    "type": "structure",
+    "priority": 80,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "strong",
+      "primary_pattern": "비겁과다",
+      "yongshin": "",
+      "dominant_element": "wood",
+      "lacking_element": "earth",
+      "has_clash": true
+    },
+    "text": "지인이나 주변 관계를 통해 금전이 분산되는 상황이 자주 발생하며, 개인 자산이 외부로 빠져나가는 흐름이 나타난다.",
+    "quality_score": 80
+  },
+  {
+    "id": "personality_adj_special_hwagae_001",
+    "category": "personality",
+    "type": "adjustment",
+    "priority": 77,
+    "conditions": {
+      "special_star_tags_contains": [
+        "화개"
+      ]
+    },
+    "text": "혼자 정리하는 시간이 있어야 판단 정확도가 올라가므로 중요한 결정 전 짧은 정리 시간을 따로 확보하는 편이 좋습니다.",
+    "quality_score": 80
+  },
+  {
+    "id": "personality_adj_special_dohwa_001",
+    "category": "personality",
+    "type": "adjustment",
+    "priority": 77,
+    "conditions": {
+      "special_star_tags_contains": [
+        "도화"
+      ]
+    },
+    "text": "주목도가 올라가기 쉬운 흐름이라 표현은 부드럽게, 결론은 분명하게 나누어 말하는 방식이 관계 피로를 줄입니다.",
+    "quality_score": 80
+  },
+  {
+    "id": "luck_adj_special_star_001",
+    "category": "luck_flow",
+    "type": "adjustment",
+    "priority": 76,
+    "conditions": {
+      "special_star_tags_contains": [
+        "도화",
+        "역마",
+        "화개"
+      ]
+    },
+    "text": "신살 신호가 켜진 구간에서는 관계·변화·집중 축을 각각 분리해 계획할수록 운의 체감 편차를 줄일 수 있습니다.",
+    "quality_score": 80
+  },
+  {
+    "id": "P008",
+    "category": "personality",
+    "type": "adjustment",
+    "priority": 73,
+    "conditions": {
+      "day_master": "계수",
+      "season": "spring",
+      "strength_label": "weak",
+      "primary_pattern": "",
+      "yongshin": "",
+      "dominant_element": "wood",
+      "lacking_element": "metal",
+      "has_clash": false
+    },
+    "text": "주변 사람의 반응에 영향을 받아 판단이 바뀌는 일이 잦으며, 스스로 결정한 기준이 유지되지 않는 패턴이 나타난다.",
+    "quality_score": 80
+  },
+  {
+    "id": "CV_DM_010",
+    "category": "personality",
+    "type": "base",
+    "priority": 66,
+    "conditions": {
+      "day_master": "계"
+    },
+    "text": "겉보다 맥락을 먼저 읽는 반응이 강해 섬세한 판단에 강점이 있으나, 결정 피로를 줄이려면 처리 순서를 미리 나눠 두는 편이 좋습니다.",
+    "quality_score": 80
+  },
+  {
+    "id": "CV_DM_009",
+    "category": "personality",
+    "type": "base",
+    "priority": 66,
+    "conditions": {
+      "day_master": "임"
+    },
+    "text": "여러 가능성을 동시에 읽는 힘이 있어 큰 흐름 파악에 강하지만, 결론이 늦어질 수 있어 선택 기준을 두세 개로 고정하는 편이 유리합니다.",
+    "quality_score": 80
+  },
+  {
+    "id": "CV_DM_008",
+    "category": "personality",
+    "type": "base",
+    "priority": 66,
+    "conditions": {
+      "day_master": "신"
+    },
+    "text": "완성도와 정리 기준을 중시해 품질은 높지만, 과도한 수정으로 속도가 늦어질 수 있어 마감 기준을 먼저 합의하는 편이 좋습니다.",
+    "quality_score": 80
+  },
+  {
+    "id": "CV_DM_007",
+    "category": "personality",
+    "type": "base",
+    "priority": 66,
+    "conditions": {
+      "day_master": "경"
+    },
+    "text": "판단 기준이 분명해 결단은 빠른 편이지만 관계에서는 표현 강도가 세질 수 있어 핵심과 말투를 분리해 전달하는 편이 안정적입니다.",
+    "quality_score": 80
+  },
+  {
+    "id": "CV_DM_005",
+    "category": "personality",
+    "type": "base",
+    "priority": 66,
+    "conditions": {
+      "day_master": "무"
+    },
+    "text": "기준을 세우면 흔들림이 적어 장기 운영에 강점이 있지만, 변화가 필요한 시점에는 선택지를 먼저 열어 두는 편이 전체 흐름에 유리합니다.",
+    "quality_score": 80
+  },
+  {
+    "id": "CV_DM_004",
+    "category": "personality",
+    "type": "base",
+    "priority": 66,
+    "conditions": {
+      "day_master": "정"
+    },
+    "text": "작은 차이와 분위기 변화에 민감해 디테일을 잘 잡지만, 피로가 누적되면 결론이 늦어질 수 있어 마감 시점을 미리 두는 편이 좋습니다.",
+    "quality_score": 80
+  },
+  {
+    "id": "CV_DM_002",
+    "category": "personality",
+    "type": "base",
+    "priority": 66,
+    "conditions": {
+      "day_master": "을"
+    },
+    "text": "상황을 부드럽게 조율하며 방향을 맞추는 편이라, 관계와 일정의 결을 먼저 읽을 때 실수가 줄어드는 흐름이 나타납니다.",
+    "quality_score": 80
+  },
+  {
+    "id": "CV_DM_001",
+    "category": "personality",
+    "type": "base",
+    "priority": 66,
+    "conditions": {
+      "day_master": "갑"
+    },
+    "text": "결정이 내려지면 망설이기보다 바로 착수하는 경향이 있어, 시작 속도는 빠르지만 중간 점검을 함께 두는 편이 안정적입니다.",
+    "quality_score": 80
+  },
+  {
+    "id": "core_struct_winter_weak_001",
+    "category": "core_structure",
+    "type": "structure",
+    "priority": 92,
+    "conditions": {
+      "season": "winter",
+      "strength_label": "weak"
+    },
+    "text": "겨울 흐름의 신약 구조라 큰 확장보다 기반을 먼저 확보할 때 실제 체감이 안정되기 쉽습니다.",
+    "quality_score": 70
+  },
+  {
+    "id": "core_struct_summer_strong_001",
+    "category": "core_structure",
+    "type": "structure",
+    "priority": 92,
+    "conditions": {
+      "season": "summer",
+      "strength_label": "strong"
+    },
+    "text": "여름의 신강 구조는 추진력이 빠른 대신 과열이 쉬워, 속도보다 완성 순서를 잡는 편이 장기적으로 유리합니다.",
+    "quality_score": 70
+  },
+  {
+    "id": "C005",
+    "category": "career",
+    "type": "base",
+    "priority": 91,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "strong",
+      "primary_pattern": "식상과다",
+      "yongshin": "",
+      "dominant_element": "fire",
+      "lacking_element": "metal",
+      "has_clash": false
+    },
+    "text": "아이디어와 실행은 빠르게 진행되지만 마무리 단계에서 완성도가 떨어지는 결과가 반복된다.",
+    "quality_score": 70
+  },
+  {
+    "id": "career_struct_wealth_001",
+    "category": "career",
+    "type": "structure",
+    "priority": 90,
+    "conditions": {
+      "primary_pattern": "재성격"
+    },
+    "text": "성과와 실무 감각이 강하게 작동해 숫자와 결과를 확인할 수 있는 자리에서 경쟁력이 높게 드러나는 편입니다.",
+    "quality_score": 70
+  },
+  {
+    "id": "career_struct_officer_001",
+    "category": "career",
+    "type": "structure",
+    "priority": 90,
+    "conditions": {
+      "primary_pattern": "관성격"
+    },
+    "text": "책임과 기준이 중요한 자리에서 강점이 살아나며, 역할이 분명할수록 안정적으로 평가를 받기 쉽습니다.",
+    "quality_score": 70
+  },
+  {
+    "id": "H001",
+    "category": "health",
+    "type": "base",
+    "priority": 90,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "",
+      "primary_pattern": "",
+      "yongshin": "",
+      "dominant_element": "fire",
+      "lacking_element": "water",
+      "has_clash": false
+    },
+    "text": "체온이 쉽게 올라가고 갈증이 자주 발생하며, 수분 부족으로 인한 피로 누적이 반복된다.",
+    "quality_score": 70
+  },
+  {
+    "id": "D003",
+    "category": "career",
+    "type": "base",
+    "priority": 90,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "strong",
+      "primary_pattern": "식상생재",
+      "yongshin": "",
+      "dominant_element": "fire",
+      "lacking_element": "metal",
+      "has_clash": false
+    },
+    "text": "아이디어를 바로 결과물로 연결하지만 검증 과정이 부족해 수정이 반복되는 흐름이 나타난다.",
+    "quality_score": 70
+  },
+  {
+    "id": "D009",
+    "category": "health",
+    "type": "base",
+    "priority": 89,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "",
+      "primary_pattern": "",
+      "yongshin": "",
+      "dominant_element": "fire",
+      "lacking_element": "water",
+      "has_clash": false
+    },
+    "text": "체온이 쉽게 올라가며 피로가 누적될수록 갈증과 두통이 반복적으로 나타나는 흐름이 관찰된다.",
+    "quality_score": 70
+  },
+  {
+    "id": "personality_struct_strong_output_001",
+    "category": "personality",
+    "type": "structure",
+    "priority": 88,
+    "conditions": {
+      "strength_label_contains": [
+        "strong"
+      ],
+      "needs_output_release": true
+    },
+    "text": "강한 구조는 생각을 오래 쌓기보다 표현과 실행으로 풀 때 장점이 살아나는 편입니다.",
+    "quality_score": 70
+  },
+  {
+    "id": "money_struct_weak_001",
+    "category": "money",
+    "type": "structure",
+    "priority": 88,
+    "conditions": {
+      "strength_label_contains": [
+        "weak"
+      ]
+    },
+    "text": "신약 흐름에서는 공격적 확장보다 고정비와 현금흐름을 먼저 지키는 쪽이 장기적으로 유리합니다.",
+    "quality_score": 70
+  },
+  {
+    "id": "C002",
+    "category": "career",
+    "type": "base",
+    "priority": 88,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "weak",
+      "primary_pattern": "관인상생",
+      "yongshin": "",
+      "dominant_element": "metal",
+      "lacking_element": "",
+      "has_clash": false
+    },
+    "text": "정해진 규칙과 절차 안에서 역할을 수행할 때 안정적인 평가를 받는 흐름이 지속적으로 나타난다.",
+    "quality_score": 70
+  },
+  {
+    "id": "core_struct_spring_resource_001",
+    "category": "core_structure",
+    "type": "structure",
+    "priority": 87,
+    "conditions": {
+      "season": "spring",
+      "needs_resource_support": true
+    },
+    "text": "봄 흐름에서 자원 보강 신호가 강해 외형 확장보다 기반 점검을 먼저 할 때 전체 흐름이 안정됩니다.",
+    "quality_score": 70
+  },
+  {
+    "id": "C009",
+    "category": "career",
+    "type": "base",
+    "priority": 87,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "strong",
+      "primary_pattern": "관살혼잡",
+      "yongshin": "",
+      "dominant_element": "metal",
+      "lacking_element": "",
+      "has_clash": true
+    },
+    "text": "업무 지시 체계가 혼재된 환경에서 혼선이 발생하며, 역할 정의가 불명확한 상황이 반복된다.",
+    "quality_score": 70
+  },
+  {
+    "id": "relationship_struct_officer_001",
+    "category": "relationship",
+    "type": "structure",
+    "priority": 86,
+    "conditions": {
+      "top_visible_ten_gods_contains": [
+        "관성"
+      ]
+    },
+    "text": "책임감이 먼저 앞서는 결이 있어, 마음보다 의무를 먼저 지려는 패턴을 의식하는 편이 좋습니다.",
+    "quality_score": 70
+  },
+  {
+    "id": "career_struct_top_officer_001",
+    "category": "career",
+    "type": "structure",
+    "priority": 86,
+    "conditions": {
+      "top_visible_ten_gods_contains": [
+        "관성"
+      ]
+    },
+    "text": "기준과 책임이 분명한 업무에서 안정감이 높아져 역할 정의를 명확히 할수록 평가 편차를 줄이기 쉽습니다.",
+    "quality_score": 70
+  },
+  {
+    "id": "P001",
+    "category": "personality",
+    "type": "base",
+    "priority": 85,
+    "conditions": {
+      "day_master": "갑목",
+      "season": "spring",
+      "strength_label": "strong",
+      "primary_pattern": "",
+      "yongshin": "",
+      "dominant_element": "wood",
+      "lacking_element": "metal",
+      "has_clash": false
+    },
+    "text": "생각이 떠오르면 바로 행동으로 옮기는 속도가 빠르며, 계획보다 실행이 먼저 진행되는 경향이 반복된다.",
+    "quality_score": 70
+  },
+  {
+    "id": "H002",
+    "category": "health",
+    "type": "structure",
+    "priority": 85,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "",
+      "primary_pattern": "",
+      "yongshin": "",
+      "dominant_element": "metal",
+      "lacking_element": "wood",
+      "has_clash": true
+    },
+    "text": "호흡기나 피부 건조 증상이 반복적으로 나타나며, 계절 변화 시 증상이 심해지는 흐름이 관찰된다.",
+    "quality_score": 70
+  },
+  {
+    "id": "personality_struct_officer_001",
+    "category": "personality",
+    "type": "structure",
+    "priority": 84,
+    "conditions": {
+      "top_visible_ten_gods_contains": [
+        "관성"
+      ]
+    },
+    "text": "책임과 기준을 먼저 세우는 성향이 강해, 모호한 환경에서는 피로가 빨리 올라올 수 있습니다.",
+    "quality_score": 70
+  },
+  {
+    "id": "money_struct_lacking_metal_001",
+    "category": "money",
+    "type": "structure",
+    "priority": 84,
+    "conditions": {
+      "lacking_elements_contains": [
+        "금"
+      ]
+    },
+    "text": "기준선이 흔들리기 쉬워 예산 상한·하한을 미리 숫자로 적어 두면 소비와 투자의 편차를 줄이기 쉽습니다.",
+    "quality_score": 70
+  },
+  {
+    "id": "health_struct_weak_001",
+    "category": "health",
+    "type": "structure",
+    "priority": 84,
+    "conditions": {
+      "strength_label_contains": [
+        "weak"
+      ]
+    },
+    "text": "신약 흐름에서는 몰아서 버티는 방식보다 휴식 간격을 짧게 가져가는 편이 실제 컨디션 유지에 도움이 됩니다.",
+    "quality_score": 70
+  },
+  {
+    "id": "action_struct_output_001",
+    "category": "action_guide",
+    "type": "structure",
+    "priority": 84,
+    "conditions": {
+      "needs_output_release": true
+    },
+    "text": "지금은 준비를 오래 끌기보다 작은 결과라도 밖으로 내보내는 편이 흐름을 여는 데 유리합니다.",
+    "quality_score": 70
+  },
+  {
+    "id": "D004",
+    "category": "career",
+    "type": "structure",
+    "priority": 84,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "weak",
+      "primary_pattern": "관성강",
+      "yongshin": "",
+      "dominant_element": "metal",
+      "lacking_element": "wood",
+      "has_clash": false
+    },
+    "text": "정해진 규칙 안에서는 안정적인 결과를 유지하지만 환경 변화 시 적응 시간이 길어지는 흐름이 나타난다.",
+    "quality_score": 70
+  },
+  {
+    "id": "core_adj_special_movement_001",
+    "category": "core_structure",
+    "type": "adjustment",
+    "priority": 83,
+    "conditions": {
+      "special_star_tags_contains": [
+        "역마"
+      ]
+    },
+    "text": "변화 신호가 잡혀 한 번에 고정 전략을 밀기보다 주 단위 재조정 루틴을 두는 편이 실전 대응력이 좋아집니다.",
+    "quality_score": 70
+  },
+  {
+    "id": "D010",
+    "category": "health",
+    "type": "structure",
+    "priority": 83,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "",
+      "primary_pattern": "",
+      "yongshin": "",
+      "dominant_element": "metal",
+      "lacking_element": "wood",
+      "has_clash": true
+    },
+    "text": "건조한 환경에서 호흡기나 피부 관련 불편함이 반복적으로 나타나는 패턴이 형성된다.",
+    "quality_score": 70
+  },
+  {
+    "id": "C008",
+    "category": "career",
+    "type": "structure",
+    "priority": 83,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "weak",
+      "primary_pattern": "인성과다",
+      "yongshin": "",
+      "dominant_element": "water",
+      "lacking_element": "earth",
+      "has_clash": false
+    },
+    "text": "지식 축적에는 시간이 많이 투자되지만 실제 실행으로 이어지지 않아 결과가 지연되는 패턴이 나타난다.",
+    "quality_score": 70
+  },
+  {
+    "id": "D001",
+    "category": "personality",
+    "type": "base",
+    "priority": 82,
+    "conditions": {
+      "day_master": "갑목",
+      "season": "spring",
+      "strength_label": "strong",
+      "primary_pattern": "",
+      "yongshin": "",
+      "dominant_element": "wood",
+      "lacking_element": "metal",
+      "has_clash": false
+    },
+    "text": "판단이 내려지면 바로 행동으로 이어지며 계획을 수정하는 과정이 반복되는 흐름이 나타난다.",
+    "quality_score": 70
+  },
+  {
+    "id": "P007",
+    "category": "personality",
+    "type": "base",
+    "priority": 81,
+    "conditions": {
+      "day_master": "임수",
+      "season": "winter",
+      "strength_label": "strong",
+      "primary_pattern": "",
+      "yongshin": "",
+      "dominant_element": "water",
+      "lacking_element": "earth",
+      "has_clash": false
+    },
+    "text": "상황을 여러 각도에서 해석하려는 경향이 강해 하나의 결론에 도달하기까지 시간이 길어지는 흐름이 나타난다.",
+    "quality_score": 70
+  },
+  {
+    "id": "health_struct_focus_001",
+    "category": "health",
+    "type": "structure",
+    "priority": 80,
+    "conditions": {
+      "special_star_tags_contains": [
+        "화개"
+      ]
+    },
+    "text": "집중 구간이 길어지면 몸 신호를 놓치기 쉬워 90분 단위로 자세와 호흡을 리셋하는 루틴이 필요합니다.",
+    "quality_score": 70
+  },
+  {
+    "id": "core_adj_harmony_001",
+    "category": "core_structure",
+    "type": "adjustment",
+    "priority": 80,
+    "conditions": {
+      "has_natal_harmony": true
+    },
+    "text": "원국 안에서 연결 신호가 있어 기준만 맞추면 흐름을 매끄럽게 이어 가기 쉬운 편입니다.",
+    "quality_score": 70
+  },
+  {
+    "id": "action_adj_conflict_001",
+    "category": "action_guide",
+    "type": "adjustment",
+    "priority": 80,
+    "conditions": {
+      "relationship_flags_contains": [
+        "충",
+        "형",
+        "파",
+        "해"
+      ]
+    },
+    "text": "변수가 겹칠수록 계획을 크게 잡기보다 우선순위를 두 단계로 쪼개서 관리하는 편이 실패 확률을 줄입니다.",
+    "quality_score": 70
+  },
+  {
+    "id": "P010",
+    "category": "personality",
+    "type": "base",
+    "priority": 80,
+    "conditions": {
+      "day_master": "기토",
+      "season": "winter",
+      "strength_label": "weak",
+      "primary_pattern": "",
+      "yongshin": "",
+      "dominant_element": "water",
+      "lacking_element": "fire",
+      "has_clash": false
+    },
+    "text": "외부 환경이 안정되지 않으면 행동을 시작하지 않는 경향이 있으며, 준비 단계가 길어지는 흐름이 나타난다.",
+    "quality_score": 70
+  },
+  {
+    "id": "P006",
+    "category": "personality",
+    "type": "structure",
+    "priority": 79,
+    "conditions": {
+      "day_master": "신금",
+      "season": "summer",
+      "strength_label": "weak",
+      "primary_pattern": "",
+      "yongshin": "",
+      "dominant_element": "fire",
+      "lacking_element": "water",
+      "has_clash": true
+    },
+    "text": "외부 압박이 강하게 작용할 경우 기존 계획을 유지하지 못하고 방향이 자주 변경되는 경향이 반복된다.",
+    "quality_score": 70
+  },
+  {
+    "id": "relationship_adj_pressure_001",
+    "category": "relationship",
+    "type": "adjustment",
+    "priority": 78,
+    "conditions": {
+      "officer_pressure_high": true
+    },
+    "text": "압박이 큰 시기에는 말 수를 늘리기보다 연락 간격과 약속 범위를 먼저 조절하는 편이 낫습니다.",
+    "quality_score": 70
+  },
+  {
+    "id": "relationship_adj_conflict_plus_001",
+    "category": "relationship",
+    "type": "adjustment",
+    "priority": 78,
+    "conditions": {
+      "relationship_flags_contains": [
+        "충"
+      ]
+    },
+    "text": "말이 맞아도 속도가 다르면 갈등이 커질 수 있어 중요한 대화일수록 결론 시점을 미리 정하는 편이 좋습니다.",
+    "quality_score": 70
+  },
+  {
+    "id": "action_adj_special_movement_001",
+    "category": "action_guide",
+    "type": "adjustment",
+    "priority": 77,
+    "conditions": {
+      "special_star_tags_contains": [
+        "역마"
+      ]
+    },
+    "text": "변동성이 큰 구간에서는 하루 계획을 오전·오후 두 번 재조정하는 방식이 실행률을 안정적으로 높여 줍니다.",
+    "quality_score": 70
+  },
+  {
+    "id": "personality_adj_speed_001",
+    "category": "personality",
+    "type": "adjustment",
+    "priority": 76,
+    "conditions": {
+      "month_branch_contains": [
+        "사",
+        "오"
+      ]
+    },
+    "text": "속도가 붙는 환경에서는 판단이 앞서기 쉬우니, 결론 시점을 따로 정해 두는 편이 좋습니다.",
+    "quality_score": 70
+  },
+  {
+    "id": "health_adj_luck_pressure_001",
+    "category": "health",
+    "type": "adjustment",
+    "priority": 76,
+    "conditions": {
+      "has_luck_pressure": true
+    },
+    "text": "운 압박 구간에서는 수면, 식사, 회복 시간을 먼저 확보해야 업무 효율도 같이 지키기 쉽습니다.",
+    "quality_score": 70
+  },
+  {
+    "id": "M006",
+    "category": "money",
+    "type": "adjustment",
+    "priority": 76,
+    "conditions": {
+      "day_master": "",
+      "season": "",
+      "strength_label": "strong",
+      "primary_pattern": "비겁과다",
+      "yongshin": "",
+      "dominant_element": "wood",
+      "lacking_element": "earth",
+      "has_clash": true
+    },
+    "text": "공동 투자나 금전 협력에서 손익 분배 문제가 반복적으로 발생하는 흐름이 나타난다.",
+    "quality_score": 70
+  },
+  {
+    "id": "health_adj_movement_001",
+    "category": "health",
+    "type": "adjustment",
+    "priority": 74,
+    "conditions": {
+      "special_star_tags_contains": [
+        "역마"
+      ]
+    },
+    "text": "이동량이 늘어 피로가 누적되기 쉬우니 외출·이동일에는 수면 시간과 수분 섭취를 먼저 확보하는 편이 좋습니다.",
+    "quality_score": 70
+  },
+  {
+    "id": "P004",
+    "category": "personality",
+    "type": "adjustment",
+    "priority": 70,
+    "conditions": {
+      "day_master": "정화",
+      "season": "autumn",
+      "strength_label": "weak",
+      "primary_pattern": "",
+      "yongshin": "",
+      "dominant_element": "metal",
+      "lacking_element": "wood",
+      "has_clash": false
+    },
+    "text": "주변 환경에 따라 태도가 바뀌는 빈도가 높으며, 일관된 기준보다 상황 대응이 중심이 되는 경향이 나타난다.",
+    "quality_score": 70
+  },
+  {
+    "id": "relationship_base_001",
+    "category": "relationship",
+    "type": "base",
+    "priority": 60,
+    "conditions": {},
+    "text": "관계는 감정보다 속도와 간격을 어떻게 맞추느냐가 만족도를 크게 좌우하는 편입니다.",
+    "quality_score": 70
+  },
+  {
+    "id": "relationship_base_002",
+    "category": "relationship",
+    "type": "base",
+    "priority": 58,
+    "conditions": {},
+    "text": "가까운 관계일수록 말의 내용보다 타이밍과 생활 리듬이 맞는지가 중요하게 작동합니다.",
+    "quality_score": 70
+  },
+  {
+    "id": "money_base_002",
+    "category": "money",
+    "type": "base",
+    "priority": 58,
+    "conditions": {},
+    "text": "돈 흐름은 기회 한 번보다 기준을 반복 유지하는 힘에서 안정이 생기는 편입니다.",
+    "quality_score": 70
+  },
+  {
+    "id": "health_base_001",
+    "category": "health",
+    "type": "base",
+    "priority": 58,
+    "conditions": {},
+    "text": "건강 해석은 질병 단정보다 생활 리듬과 피로 회복 패턴을 먼저 보는 편이 안전합니다.",
+    "quality_score": 70
+  }
+]

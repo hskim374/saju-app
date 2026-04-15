@@ -287,6 +287,56 @@ REASON_TAG_SHORT_POOLS = {
     ],
 }
 
+REASON_CAUTION_SHORT_POOLS = {
+    ("용신 정합", "리듬 주의"): [
+        "좋은 흐름, 리듬 점검",
+        "기회+페이스 관리",
+        "활용하되 속도 점검",
+    ],
+    ("실행 기회", "충돌 주의"): [
+        "기회는 크나 충돌 주의",
+        "실행 전 마찰 점검",
+        "성과보다 조율 먼저",
+    ],
+    ("재물 흐름", "변동 주의"): [
+        "돈 흐름, 변동 점검",
+        "실속은 좋고 변수 주의",
+        "선별 소비가 유리함",
+    ],
+    ("관계 조율", "압력 주의"): [
+        "관계 조율+압박 관리",
+        "대화는 좋고 부담 주의",
+        "연결은 되나 속도 조절",
+    ],
+    ("정리 우선", "충돌 주의"): [
+        "정리 우선, 마찰 조심",
+        "기준 유지가 핵심",
+        "속도보다 정돈이 유리",
+    ],
+}
+
+
+def calculate_daily_fortune_for_weekly(
+    saju_result: dict,
+    target_date: date,
+    *,
+    element_analysis: dict,
+    ten_gods: dict,
+    daewoon: dict | None = None,
+    year_fortune: dict | None = None,
+) -> dict:
+    """Compute daily fortune with the same context path used by weekly cards."""
+    base_daily = calculate_daily_fortune(saju_result, target_date)
+    analysis_context = build_analysis_context(
+        saju_result=saju_result,
+        element_analysis=element_analysis,
+        ten_gods=ten_gods,
+        daewoon=daewoon,
+        year_fortune=year_fortune,
+        daily_fortune=base_daily,
+    )
+    return calculate_daily_fortune(saju_result, target_date, analysis_context=analysis_context)
+
 
 def build_weekly_fortune(
     saju_result: dict,
@@ -304,25 +354,27 @@ def build_weekly_fortune(
         resolved_daewoon = calculate_daewoon(saju_result, gender=resolved_gender)
     yearly_cache: dict[int, dict | None] = {}
     weekly_items = []
+    used_summaries: set[str] = set()
+    used_drivers: set[str] = set()
     for offset in range(7):
         target_date = start_date + timedelta(days=offset)
-        base_daily = calculate_daily_fortune(saju_result, target_date)
         year_fortune = None
         if resolved_daewoon:
             year_fortune = yearly_cache.get(target_date.year)
             if year_fortune is None:
                 year_fortune = calculate_yearly_fortune(saju_result, resolved_daewoon, target_date.year)
                 yearly_cache[target_date.year] = year_fortune
-        analysis_context = build_analysis_context(
-            saju_result=saju_result,
+        daily = calculate_daily_fortune_for_weekly(
+            saju_result,
+            target_date,
             element_analysis=element_analysis,
             ten_gods=ten_gods,
             daewoon=resolved_daewoon,
             year_fortune=year_fortune,
-            daily_fortune=base_daily,
         )
-        daily = calculate_daily_fortune(saju_result, target_date, analysis_context=analysis_context)
         score = daily["score"]
+        summary = _build_short_summary(daily, target_date, used_summaries=used_summaries)
+        driver_line = _build_weekly_driver_line(score, target_date, used_drivers=used_drivers)
         weekly_items.append(
             {
                 "date": target_date.isoformat(),
@@ -335,20 +387,45 @@ def build_weekly_fortune(
                 "reason_tag": score.get("reason_tag"),
                 "caution_tag": score.get("caution_tag"),
                 "confidence": score.get("confidence", "high"),
-                "summary": _build_short_summary(daily, target_date),
+                "confidence_label": _confidence_label(score.get("confidence", "high")),
+                "driver_line": driver_line,
+                "factor_top": (score.get("factor_highlights") or [None])[0],
+                "factor_top_compact": _compact_factor_line((score.get("factor_highlights") or [None])[0] or ""),
+                "summary": summary,
                 "score_class": _score_class(score["value"]),
             }
         )
     return weekly_items
 
 
-def _build_short_summary(daily: dict, target_date: date) -> str:
+def _build_short_summary(daily: dict, target_date: date, *, used_summaries: set[str] | None = None) -> str:
     score = daily["score"]["value"]
     bucket = _summary_bucket(score)
     reason_tag = daily["score"].get("reason_tag")
-    options = REASON_TAG_SHORT_POOLS.get(reason_tag) or SHORT_SUMMARY_POOLS[bucket]
+    caution_tag = daily["score"].get("caution_tag")
+    confidence = daily["score"].get("confidence", "high")
+    options = (
+        REASON_CAUTION_SHORT_POOLS.get((reason_tag, caution_tag))
+        or REASON_TAG_SHORT_POOLS.get(reason_tag)
+        or SHORT_SUMMARY_POOLS[bucket]
+    )
     keyword_seed = sum(sum(ord(char) for char in keyword) for keyword in daily.get("keywords", []))
-    return options[(target_date.toordinal() + score + keyword_seed) % len(options)]
+    confidence_seed = {"high": 1, "medium": 2, "low": 3}.get(confidence, 0)
+    caution_seed = sum(ord(char) for char in str(caution_tag or ""))
+    base_index = (target_date.toordinal() + score + keyword_seed + confidence_seed + caution_seed) % len(options)
+
+    if not used_summaries:
+        return options[base_index]
+
+    for offset in range(len(options)):
+        candidate = options[(base_index + offset) % len(options)]
+        if candidate not in used_summaries:
+            used_summaries.add(candidate)
+            return candidate
+
+    candidate = options[base_index]
+    used_summaries.add(candidate)
+    return candidate
 
 
 def _summary_bucket(score: int) -> str:
@@ -375,3 +452,58 @@ def _score_class(score: int) -> str:
     if score >= 50:
         return "score-normal"
     return "score-caution"
+
+
+def _confidence_label(confidence: str) -> str:
+    labels = {
+        "high": "확신 높음",
+        "medium": "확신 중간",
+        "low": "보수 해석",
+    }
+    return labels.get(confidence, "확신 중간")
+
+
+def _build_weekly_driver_line(score: dict, target_date: date, *, used_drivers: set[str] | None = None) -> str | None:
+    options: list[str] = []
+    base_driver = score.get("driver_line")
+    if base_driver:
+        options.append(base_driver)
+
+    for factor in score.get("factor_highlights") or []:
+        compact = _compact_factor_line(factor)
+        if compact:
+            options.append(compact)
+
+    reason_tag = score.get("reason_tag")
+    caution_tag = score.get("caution_tag")
+    if reason_tag and caution_tag:
+        options.append(f"{reason_tag} 중심, {caution_tag}는 점검")
+    elif reason_tag:
+        options.append(f"{reason_tag} 중심으로 운영")
+
+    if not options:
+        return None
+
+    seed = target_date.toordinal() + int(score.get("value", 0))
+    base_index = seed % len(options)
+
+    if not used_drivers:
+        return options[base_index]
+
+    for offset in range(len(options)):
+        candidate = options[(base_index + offset) % len(options)]
+        if candidate not in used_drivers:
+            used_drivers.add(candidate)
+            return candidate
+
+    candidate = options[base_index]
+    used_drivers.add(candidate)
+    return candidate
+
+
+def _compact_factor_line(factor_line: str) -> str:
+    if not factor_line:
+        return ""
+    if "·" in factor_line:
+        return factor_line.split("·", 1)[0].strip()
+    return factor_line.strip()

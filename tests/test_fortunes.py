@@ -113,7 +113,19 @@ def test_daily_fortune_is_deterministic_for_specific_date():
     assert first["score"]["grade"]
     assert first["score"]["label"]
     assert first["score"]["summary"]
+    assert first["score"]["driver_line"]
+    assert first["score"]["guide_lines"]
+    assert len(first["score"]["guide_lines"]) == len(daily_fortune_module.SCORE_GRADE_RULES)
+    assert first["score"]["guide_lines"][0].startswith("90점 이상:")
+    assert first["score"]["factor_highlights"]
+    assert len(first["score"]["factor_highlights"]) <= 3
     assert first["score"]["reason_tag"]
+    assert first["score"]["reason_tag"] in first["section"]["one_line"]
+    assert first["score"]["grade"] in first["section"]["one_line"]
+    expected_reason_line = daily_fortune_module.REASON_TAG_EXPLANATION[first["score"]["reason_tag"]]
+    expected_action_pool = daily_fortune_module.REASON_TAG_ACTION_GUIDE[first["score"]["reason_tag"]]
+    assert any(expected_reason_line in line for line in first["section"]["easy_explanation"])
+    assert any(action_line in " ".join(first["section"]["action_advice"]) for action_line in expected_action_pool)
     assert "caution_tag" in first["score"]
     assert first["score"]["confidence"] in {"high", "medium", "low"}
     assert len(first["score"]["factors"]) >= 5
@@ -149,6 +161,15 @@ def test_daily_fortune_sentence_pools_are_significantly_expanded():
     assert len(daily_fortune_module._profile_advice_options("planner")) >= 5
 
 
+def test_daily_score_label_and_summary_pools_are_expanded():
+    label_total = sum(len(pool) for pool in daily_fortune_module.GRADE_LABEL_VARIANTS.values())
+    summary_total = sum(len(pool) for pool in daily_fortune_module.REASON_TAG_SCORE_SUMMARY_VARIANTS.values())
+    summary_total += sum(len(pool) for pool in daily_fortune_module.SCORE_BUCKET_SUMMARY_VARIANTS.values())
+
+    assert label_total == 18
+    assert summary_total == 36
+
+
 def test_daily_score_can_reach_top_and_defense_grades():
     top_score = daily_fortune_module._build_daily_score(
         ten_god="정재",
@@ -169,6 +190,10 @@ def test_daily_score_can_reach_top_and_defense_grades():
     assert top_score["grade"] == "S"
     assert low_score["value"] == 9
     assert low_score["grade"] == "D"
+    assert top_score["label"]
+    assert low_score["label"]
+    assert top_score["summary"]
+    assert low_score["summary"]
 
 
 def test_daily_action_advice_uses_score_based_execution_language():
@@ -343,9 +368,15 @@ def test_weekly_fortune_returns_seven_score_cards_from_start_date():
     assert all(item["reason_tag"] for item in weekly)
     assert all("caution_tag" in item for item in weekly)
     assert all(item["confidence"] in {"high", "medium", "low"} for item in weekly)
+    assert all(item["confidence_label"] in {"확신 높음", "확신 중간", "보수 해석"} for item in weekly)
+    assert all(item["driver_line"] for item in weekly)
+    assert all(item["factor_top"] for item in weekly)
+    assert all(item["factor_top_compact"] for item in weekly)
     assert all(item["summary"] for item in weekly)
     assert all(len(item["summary"]) <= 20 for item in weekly)
     assert len({item["date"] for item in weekly}) == 7
+    assert len({item["summary"] for item in weekly}) >= 5
+    assert len({item["driver_line"] for item in weekly if item["driver_line"]}) >= 4
 
 
 def test_weekly_short_summary_can_use_reason_tag_pool():
@@ -358,6 +389,18 @@ def test_weekly_short_summary_can_use_reason_tag_pool():
     )
 
     assert summary in weekly_fortune_module.REASON_TAG_SHORT_POOLS["용신 정합"]
+
+
+def test_weekly_short_summary_can_use_reason_caution_combo_pool():
+    summary = weekly_fortune_module._build_short_summary(
+        {
+            "score": {"value": 84, "reason_tag": "실행 기회", "caution_tag": "충돌 주의", "confidence": "medium"},
+            "keywords": ["성과", "실행", "정리"],
+        },
+        date(2026, 4, 8),
+    )
+
+    assert summary in weekly_fortune_module.REASON_CAUTION_SHORT_POOLS[("실행 기회", "충돌 주의")]
 
 
 def test_weekly_fortune_short_summary_pool_has_very_high_bucket():
@@ -607,6 +650,23 @@ def test_daily_score_with_analysis_context_surfaces_reason_tag_and_confidence():
         "방어 우선",
     }
     assert daily["score"]["confidence"] in {"high", "medium", "low"}
+    factor_names = {factor["name"] for factor in daily["score"]["factors"]}
+    assert factor_names & {"구조 정합", "구조 역행", "신살 보정", "관계 플래그", "시간 테마"}
+    assert daily["score"]["reason_tag"] in daily["section"]["one_line"]
+    assert any(text.startswith("상승:") or text.startswith("주의:") for text in daily["score"]["factor_highlights"])
+    assert any(
+        token in daily["score"]["summary"]
+        for token in [
+            "체감 성과",
+            "조건표",
+            "책임 범위",
+            "핵심 정보",
+            "협업과 단독",
+            "사람이 모이는 자리",
+            "변동이 많은 날",
+            "집중 시간이 확보되면",
+        ]
+    )
 
 
 def test_v2_score_distribution_expansion_keeps_center_and_widens_extremes():

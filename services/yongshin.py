@@ -49,6 +49,12 @@ def calculate_yongshin_candidates(
     secondary = ranked_candidates[1] if len(ranked_candidates) > 1 else ranked_candidates[0]
     gap = abs(weighted_scores[secondary] - weighted_scores[primary]) if secondary != primary else 1.0
     confidence = "high" if gap >= 0.8 else "medium" if gap >= 0.3 else "low"
+    heeshin = _resolve_heeshin(primary=primary, secondary=secondary)
+    kishin = _resolve_kishin(
+        label=label,
+        weighted_scores=weighted_scores,
+        strength_analysis=strength_analysis,
+    )
 
     reasons = _build_reason_lines(
         strength_label=strength_analysis["display_label"],
@@ -62,9 +68,13 @@ def calculate_yongshin_candidates(
     return {
         "primary_candidate": primary,
         "secondary_candidate": secondary,
+        "heeshin": heeshin,
+        "kishin": kishin,
         "display": {
             "primary": ELEMENT_LABELS[primary],
             "secondary": ELEMENT_LABELS[secondary],
+            "heeshin": [ELEMENT_LABELS[item] for item in heeshin],
+            "kishin": [ELEMENT_LABELS[item] for item in kishin],
         },
         "direction": direction,
         "confidence": confidence,
@@ -107,3 +117,18 @@ def _build_cautions(*, label: str, strength_analysis: dict) -> list[str]:
     return [
         "균형형 원국은 특정 기운 하나만 밀기보다 상황에 따라 조절 방향을 같이 보는 편이 더 안전합니다.",
     ]
+
+
+def _resolve_heeshin(*, primary: str, secondary: str) -> list[str]:
+    if secondary != primary:
+        return [secondary]
+    return [primary]
+
+
+def _resolve_kishin(*, label: str, weighted_scores: dict, strength_analysis: dict) -> list[str]:
+    if label in {"weak", "slightly_weak"}:
+        return [strength_analysis["wealth_element"], strength_analysis["officer_element"]]
+    if label in {"strong", "slightly_strong"}:
+        return [strength_analysis["same_element"], strength_analysis["resource_element"]]
+    strongest = max(weighted_scores, key=weighted_scores.get)
+    return [strongest]

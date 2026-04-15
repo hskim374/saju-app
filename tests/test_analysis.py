@@ -1,6 +1,12 @@
 """Tests for element analysis, ten gods, and interpretation."""
 
+import json
+from pathlib import Path
+
 from services.analysis_context import build_analysis_context
+from services.structure_analyzer import analyze_structure
+from services.signal_extractor import extract_interpretation_signals
+from services.report_builder import build_structured_report
 from data.day_pillar_sentences import DAY_PILLAR_SENTENCES, get_day_pillar_sentence_options
 from data.month_ten_god_specialized import MONTH_TEN_GOD_CAREER_LINES, MONTH_TEN_GOD_RELATION_LINES
 from services.analysis_sentence_store import load_analysis_sentences
@@ -431,7 +437,17 @@ def test_analysis_context_builds_strength_yongshin_and_interactions():
     assert context["strength"]["draining_pressure"] >= context["strength"]["output_drain"]
     assert context["strength"]["controlling_pressure"] == context["strength"]["officer_pressure"]
     assert context["yongshin"]["display"]["primary"].endswith(")")
+    assert context["yongshin"]["heeshin"]
+    assert context["yongshin"]["kishin"]
     assert context["interactions"]["natal"]
+    assert context["relations"]["stem_combinations"] is not None
+    assert context["relations"]["branch_combinations"] is not None
+    assert context["relations"]["wonjin"] is not None
+    assert context["pillar_roles"]["hour"] == "결과/후반 인생"
+    assert context["analysis"]["day_master"] == result["saju"]["day"]["stem"]
+    assert context["analysis"]["useful_gods"]["yongshin"] == context["yongshin"]["primary_candidate"]
+    assert context["analysis"]["relations"]["breaks"] is not None
+    assert context["analysis"]["ten_gods"]["visible"]
     assert "is_day_master_weak" in context["flags"]
     assert "has_branch_conflict" in context["flags"]
     assert "wealth_flow_open" in context["flags"]
@@ -440,6 +456,15 @@ def test_analysis_context_builds_strength_yongshin_and_interactions():
     assert context["pillars"]["day"]["kor"]
     assert context["elements"]["weighted_scores"]
     assert context["ten_gods"]["kinship_mapping"]["visible"]["year_stem"]
+    assert context["structure"]["primary_pattern"]
+    assert context["structure"]["sub_pattern"]
+    assert context["structure"]["signature_key"]
+    assert context["structure"]["season"] in {"spring", "summer", "autumn", "winter"}
+    assert context["structure"]["signature"]["yongshin"] == context["yongshin"]["primary_candidate"]
+    assert context["saju_id"] == result["saju_id"]
+    assert context["special_stars"]["summary"]
+    assert "active" in context["special_stars"]
+    assert "tags" in context["special_stars"]
     assert context["evidence"]["overall"][0]["uncertainty_notes"]
 
 
@@ -469,13 +494,110 @@ def test_interpretation_uses_advanced_analysis_context_in_longform_sections():
     overall_easy = " ".join(interpretation["interpretation_sections"]["overall"]["easy_explanation"])
     overall_real = " ".join(interpretation["interpretation_sections"]["overall"]["real_life"])
     yongshin_primary = context["yongshin"]["display"]["primary"]
+    practical_focus_terms = [
+        "기준과 순서",
+        "버틸 수 있는 범위",
+        "흐름을 살피는",
+        "전달 강도",
+        "선택지를 조금 열어",
+    ]
 
-    assert yongshin_primary in interpretation["interpretation_sections"]["overall"]["one_line"]
-    assert yongshin_primary in interpretation["interpretation_sections"]["personality"]["one_line"]
-    assert yongshin_primary in interpretation["interpretation_sections"]["wealth"]["one_line"]
-    assert "용신 후보" in overall_easy or "핵심 후보" in overall_easy
+    assert yongshin_primary not in interpretation["interpretation_sections"]["overall"]["one_line"]
+    assert yongshin_primary not in interpretation["interpretation_sections"]["personality"]["one_line"]
+    assert yongshin_primary not in interpretation["interpretation_sections"]["wealth"]["one_line"]
+    assert any(term in interpretation["interpretation_sections"]["overall"]["one_line"] for term in practical_focus_terms)
+    assert "용신 후보" not in overall_easy
     assert "신강" in overall_easy or "신약" in overall_easy or "균형" in overall_easy
     assert any(term in overall_real for term in ["합", "충", "형", "파", "해"])
+
+
+def test_structure_analyzer_returns_pattern_and_signature():
+    result = get_basic_saju_result("solar", 1973, 6, 6, 20, 30)
+    analysis = analyze_elements(result["saju"])
+    ten_gods = calculate_ten_gods(result["saju"])
+    daewoon = calculate_daewoon(result, gender="male")
+    year_fortune = calculate_yearly_fortune(result, daewoon, 2026)
+    context = build_analysis_context(
+        saju_result=result,
+        element_analysis=analysis,
+        ten_gods=ten_gods,
+        daewoon=daewoon,
+        year_fortune=year_fortune,
+    )
+
+    structure = analyze_structure(
+        saju=result["saju"],
+        element_analysis=analysis,
+        ten_gods=ten_gods,
+        strength_analysis=context["strength"],
+        yongshin_analysis=context["yongshin"],
+        interactions=context["interactions"],
+    )
+
+    assert structure["primary_pattern"].endswith("격")
+    assert structure["sub_pattern"]
+    assert structure["signature"]["day_master"] == result["saju"]["day"]["stem"]
+    assert result["saju"]["month"]["branch"] in structure["signature_key"]
+
+
+def test_signal_extractor_and_report_builder_produce_sectioned_output():
+    result = get_basic_saju_result("solar", 2006, 8, 1, 10, 0)
+    analysis = analyze_elements(result["saju"])
+    ten_gods = calculate_ten_gods(result["saju"])
+    daewoon = calculate_daewoon(result, gender="male")
+    year_fortune = calculate_yearly_fortune(result, daewoon, 2026)
+    context = build_analysis_context(
+        saju_result=result,
+        element_analysis=analysis,
+        ten_gods=ten_gods,
+        daewoon=daewoon,
+        year_fortune=year_fortune,
+    )
+
+    signals = extract_interpretation_signals(context)
+    structured_report = build_structured_report(context, signals)
+
+    assert signals["core"]
+    assert signals["career"]
+    assert structured_report["headline"]
+    assert len(structured_report["summary"]) >= 3
+    assert structured_report["sections"]["core_structure"]
+    assert structured_report["sections"]["career"]
+    assert structured_report["sections"]["action_guide"]
+
+    alt_result = get_basic_saju_result("solar", 1973, 6, 6, 20, 30)
+    alt_analysis = analyze_elements(alt_result["saju"])
+    alt_ten_gods = calculate_ten_gods(alt_result["saju"])
+    alt_daewoon = calculate_daewoon(alt_result, gender="male")
+    alt_year_fortune = calculate_yearly_fortune(alt_result, alt_daewoon, 2026)
+    alt_context = build_analysis_context(
+        saju_result=alt_result,
+        element_analysis=alt_analysis,
+        ten_gods=alt_ten_gods,
+        daewoon=alt_daewoon,
+        year_fortune=alt_year_fortune,
+    )
+    alt_signals = extract_interpretation_signals(alt_context)
+    alt_structured_report = build_structured_report(alt_context, alt_signals)
+
+    assert structured_report["headline"] != alt_structured_report["headline"]
+    assert structured_report["summary"][0] != alt_structured_report["summary"][0]
+
+
+def test_structured_sentence_db_has_minimum_category_coverage():
+    sentence_db = json.loads(Path("data/structured_sentence_db.json").read_text(encoding="utf-8"))
+    assert len(sentence_db) >= 70
+
+    category_type_counts: dict[tuple[str, str], int] = {}
+    for item in sentence_db:
+        key = (item["category"], item["type"])
+        category_type_counts[key] = category_type_counts.get(key, 0) + 1
+
+    categories = ["core_structure", "personality", "career", "money", "relationship", "health", "luck_flow", "action_guide"]
+    for category in categories:
+        assert category_type_counts.get((category, "base"), 0) >= 1
+        assert category_type_counts.get((category, "structure"), 0) >= 1
+        assert category_type_counts.get((category, "adjustment"), 0) >= 1
 
 
 def test_day_pillar_and_month_ten_god_specialized_pools_exist():

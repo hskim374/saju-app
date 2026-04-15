@@ -53,6 +53,19 @@ def first_focus(values: list[str], default: str) -> str:
     return values[0] if values else default
 
 
+def _is_stem_target(target: str) -> bool:
+    left = target.split("-")[0][:1] if target else ""
+    if left in STEMS_BY_KOR:
+        return True
+    return any(left == item["hanja"] for item in STEMS_BY_KOR.values())
+
+
+def _is_branch_pressure_item(item: dict) -> bool:
+    if item.get("type") not in {"충", "형"}:
+        return False
+    return not _is_stem_target(str(item.get("target", "")))
+
+
 def build_analysis_flags(
     *,
     saju: dict,
@@ -79,11 +92,11 @@ def build_analysis_flags(
         "weak_element": weak[0],
         "day_element": day_element,
         "month_branch": month_branch,
-        "has_branch_conflict": any(item["type"] in {"충", "형", "파", "해"} for item in interaction_analysis["natal"]),
-        "has_natal_conflict": any(item["type"] in {"충", "형", "파", "해"} for item in interaction_analysis["natal"]),
+        "has_branch_conflict": any(item["type"] in {"충", "형", "파", "해", "원진"} for item in interaction_analysis["natal"]),
+        "has_natal_conflict": any(item["type"] in {"충", "형", "파", "해", "원진"} for item in interaction_analysis["natal"]),
         "has_natal_harmony": any(item["type"] == "합" for item in interaction_analysis["natal"]),
         "has_luck_pressure": any(
-            item["type"] in {"충", "형"} for key in ("with_daewoon", "with_yearly", "with_daily") for item in interaction_analysis[key]
+            _is_branch_pressure_item(item) for key in ("with_daewoon", "with_yearly", "with_daily") for item in interaction_analysis[key]
         ),
         "wealth_flow_open": any(group == "재성" for group in hidden_groups)
         or ten_god_analysis["ten_gods"].get("month") in {"편재", "정재"},

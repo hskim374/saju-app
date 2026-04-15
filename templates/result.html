@@ -237,7 +237,7 @@
             padding: 16px 18px;
             border-radius: 16px;
             background: linear-gradient(135deg, #edf4ef 0%, #e0ece5 100%);
-            border: 1px solid var(--line-soft);
+            border: 3px solid var(--line-soft);
         }
 
         .score-label {
@@ -273,10 +273,87 @@
             font-size: 13px;
         }
 
+        .score-panel.score-very-high {
+            background: linear-gradient(180deg, #fff1f1 0%, #ffd9d9 100%);
+            border-color: #bf2f2f;
+        }
+
+        .score-panel.score-very-high .score-value,
+        .score-panel.score-very-high .score-grade {
+            color: #bf2f2f;
+        }
+
+        .score-panel.score-very-high .score-grade {
+            background: #ffd6d6;
+        }
+
+        .score-panel.score-high {
+            background: linear-gradient(180deg, #fff6f6 0%, #ffe6e6 100%);
+            border-color: #d14444;
+        }
+
+        .score-panel.score-high .score-value,
+        .score-panel.score-high .score-grade {
+            color: #d14444;
+        }
+
+        .score-panel.score-high .score-grade {
+            background: #ffe6e6;
+        }
+
+        .score-panel.score-good {
+            background: linear-gradient(180deg, #f5fff8 0%, #dff5e7 100%);
+            border-color: #1f7a46;
+        }
+
+        .score-panel.score-good .score-value,
+        .score-panel.score-good .score-grade {
+            color: #1f7a46;
+        }
+
+        .score-panel.score-good .score-grade {
+            background: #dff3e7;
+        }
+
+        .score-panel.score-normal {
+            background: linear-gradient(180deg, #f7fff9 0%, #e7f6ec 100%);
+            border-color: #2f8354;
+        }
+
+        .score-panel.score-normal .score-value,
+        .score-panel.score-normal .score-grade {
+            color: #2f8354;
+        }
+
+        .score-panel.score-normal .score-grade {
+            background: #e2f3e8;
+        }
+
+        .score-panel.score-caution {
+            background: linear-gradient(180deg, #eef7ff 0%, #d6eaff 100%);
+            border-color: #2c5f99;
+        }
+
+        .score-panel.score-caution .score-value,
+        .score-panel.score-caution .score-grade {
+            color: #2c5f99;
+        }
+
+        .score-panel.score-caution .score-grade {
+            background: #d4e7fb;
+        }
+
         .score-summary {
             margin: 0 0 12px;
             color: var(--deep-3);
             font-size: 14px;
+        }
+
+        .score-driver {
+            margin: -4px 0 12px;
+            color: var(--text-soft);
+            font-size: 13px;
+            line-height: 1.5;
         }
 
         .score-factors {
@@ -288,6 +365,11 @@
 
         .score-factors li {
             margin-bottom: 5px;
+        }
+
+        .score-factors.compact li {
+            margin-bottom: 4px;
+            font-size: 12px;
         }
 
         .score-paragraphs {
@@ -434,41 +516,71 @@
 
         .weekly-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(142px, 1fr));
             gap: 12px;
             margin-top: 14px;
         }
 
         .weekly-card {
-            padding: 14px;
-            border-radius: 16px;
-            background: #f7fbf8;
+            padding: 12px;
+            border-radius: 14px;
+            background: #fff;
             border: 1px solid var(--line-soft);
-            box-shadow: 0 8px 18px rgba(33, 70, 60, 0.06);
+            box-shadow: 0 3px 10px rgba(33, 70, 60, 0.05);
         }
 
         .weekly-card.is-today {
-            border: 2px solid var(--deep);
-            box-shadow: 0 10px 22px rgba(47, 93, 80, 0.14);
+            border-width: 3px;
+            box-shadow: 0 6px 16px rgba(47, 93, 80, 0.12);
         }
 
         .weekly-date {
-            color: var(--text-soft);
-            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #4a5a54;
+            background: #edf4ef;
+            border: 1px solid #d0ddd6;
+            border-radius: 999px;
+            padding: 3px 8px;
+            font-size: 12px;
             font-weight: 700;
             margin-bottom: 8px;
         }
 
-        .weekly-score {
-            font-size: 26px;
+        .weekly-today-badge {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 2px 6px;
+            font-size: 10px;
             font-weight: 800;
-            line-height: 1;
+            color: #1f5f3c;
+            background: #dff1e7;
+            border: 1px solid #b9dac9;
+        }
+
+        .weekly-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
             margin-bottom: 8px;
         }
 
+        .weekly-score {
+            font-size: 32px;
+            font-weight: 800;
+            line-height: 1.05;
+            margin: 0;
+            display: inline-flex;
+            align-items: center;
+        }
+
         .weekly-grade {
-            display: inline-block;
-            margin-bottom: 8px;
+            display: inline-flex;
+            align-items: center;
+            margin: 0;
             padding: 4px 8px;
             border-radius: 999px;
             font-size: 12px;
@@ -478,57 +590,158 @@
         .weekly-summary {
             margin: 0;
             color: var(--deep-3);
-            font-size: 13px;
+            font-size: 12px;
+            line-height: 1.5;
+            min-height: 40px;
+            font-weight: 700;
+        }
+
+        .weekly-factor {
+            margin: 8px 0 0;
+            color: var(--text-soft);
+            font-size: 11px;
+            line-height: 1.4;
+        }
+
+        .weekly-driver {
+            margin: 8px 0 0;
+            color: var(--text-soft);
+            font-size: 11px;
             line-height: 1.45;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .weekly-confidence {
+            display: inline-flex;
+            align-items: center;
+            margin-top: 10px;
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-soft);
+            background: rgba(47, 93, 80, 0.08);
+            border: 1px solid rgba(47, 93, 80, 0.12);
+        }
+
+        .weekly-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 8px 0 0;
+        }
+
+        .weekly-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            line-height: 1.2;
+            border: 1px solid rgba(47, 93, 80, 0.14);
+            background: rgba(47, 93, 80, 0.08);
+            color: var(--deep);
+        }
+
+        .weekly-tag.caution {
+            border-color: rgba(166, 74, 53, 0.22);
+            background: rgba(166, 74, 53, 0.1);
+            color: #8f3f2d;
+        }
+
+        .weekly-card.score-very-high {
+            background: linear-gradient(180deg, #fff1f1 0%, #ffd9d9 100%);
+            border-color: #f0b3b3;
         }
 
         .weekly-card.score-very-high .weekly-score,
         .weekly-card.score-very-high .weekly-grade {
-            color: #174f32;
+            color: #bf2f2f;
         }
 
         .weekly-card.score-very-high .weekly-grade {
-            background: #cfeada;
+            background: #ffd6d6;
         }
 
-        .weekly-card.score-very-high {
-            background: linear-gradient(180deg, #f3fbf6 0%, #e4f3ea 100%);
+        .weekly-card.score-very-high.is-today {
+            border-color: #bf2f2f;
+        }
+
+        .weekly-card.score-high {
+            background: linear-gradient(180deg, #fff6f6 0%, #ffe6e6 100%);
+            border-color: #f2c8c8;
         }
 
         .weekly-card.score-high .weekly-score,
         .weekly-card.score-high .weekly-grade {
-            color: #1f5f3c;
+            color: #d14444;
         }
 
         .weekly-card.score-high .weekly-grade {
-            background: #dff1e7;
+            background: #ffe6e6;
+        }
+
+        .weekly-card.score-high.is-today {
+            border-color: #d14444;
+        }
+
+        .weekly-card.score-good {
+            background: linear-gradient(180deg, #f5fff8 0%, #dff5e7 100%);
+            border-color: #bcdcc8;
         }
 
         .weekly-card.score-good .weekly-score,
         .weekly-card.score-good .weekly-grade {
-            color: var(--deep);
+            color: #1f7a46;
         }
 
         .weekly-card.score-good .weekly-grade {
-            background: var(--chip-bg);
+            background: #dff3e7;
+        }
+
+        .weekly-card.score-good.is-today {
+            border-color: #1f7a46;
+        }
+
+        .weekly-card.score-normal {
+            background: linear-gradient(180deg, #f7fff9 0%, #e7f6ec 100%);
+            border-color: #c9e2d1;
         }
 
         .weekly-card.score-normal .weekly-score,
         .weekly-card.score-normal .weekly-grade {
-            color: #7a5a24;
+            color: #2f8354;
         }
 
         .weekly-card.score-normal .weekly-grade {
-            background: #f2ead7;
+            background: #e2f3e8;
+        }
+
+        .weekly-card.score-normal.is-today {
+            border-color: #2f8354;
+        }
+
+        .weekly-card.score-caution {
+            background: linear-gradient(180deg, #eef7ff 0%, #d6eaff 100%);
+            border-color: #a9c8e8;
         }
 
         .weekly-card.score-caution .weekly-score,
         .weekly-card.score-caution .weekly-grade {
-            color: #9a4a35;
+            color: #2c5f99;
         }
 
         .weekly-card.score-caution .weekly-grade {
-            background: #f7e4de;
+            background: #d4e7fb;
+        }
+
+        .weekly-card.score-caution.is-today {
+            border-color: #2c5f99;
         }
 
         .score-guide {
@@ -848,6 +1061,508 @@
             padding-top: 14px;
         }
 
+        .saju-core-card {
+            margin-top: 14px;
+            padding: 18px;
+            border-radius: 16px;
+            border: 1px solid var(--line-soft);
+            background: linear-gradient(180deg, #f5faf7 0%, #edf4ef 100%);
+        }
+
+        .saju-core-kicker {
+            font-size: 12px;
+            color: var(--deep-2);
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            margin-bottom: 8px;
+        }
+
+        .saju-core-title {
+            margin: 0 0 8px;
+            font-size: 21px;
+            color: var(--deep-3);
+        }
+
+        .saju-core-line {
+            margin: 0 0 8px;
+            font-size: 15px;
+            color: #293730;
+            line-height: 1.7;
+        }
+
+        .saju-core-sub {
+            margin: 0;
+            font-size: 14px;
+            color: var(--text-soft);
+            line-height: 1.6;
+        }
+
+        .saju-eight-panel {
+            margin-top: 14px;
+            padding: 16px;
+            border: 1px solid var(--line-soft);
+            border-radius: 16px;
+            background: #f9fcfa;
+        }
+
+        .saju-eight-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .saju-pill-card {
+            border: 1px solid var(--line-soft);
+            border-radius: 14px;
+            background: #fff;
+            padding: 12px;
+        }
+
+        .saju-pill-card.is-scroll-link {
+            cursor: pointer;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        .saju-pill-card.is-scroll-link:hover {
+            border-color: #9fb4ab;
+            box-shadow: 0 6px 16px rgba(40, 62, 54, 0.08);
+            transform: translateY(-1px);
+        }
+
+        .saju-pill-card.is-scroll-link:focus-visible {
+            outline: 2px solid #7f9e91;
+            outline-offset: 2px;
+        }
+
+        .saju-pill-card.is-disabled {
+            opacity: 0.7;
+            cursor: default;
+        }
+
+        .saju-pill-label {
+            font-size: 13px;
+            color: var(--text-soft);
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .saju-pill-main {
+            margin-bottom: 8px;
+        }
+
+        .saju-pill-stem {
+            display: block;
+            font-size: 19px;
+            font-weight: 700;
+            color: var(--deep-3);
+            line-height: 1.25;
+        }
+
+        .saju-pill-branch {
+            display: block;
+            font-size: 18px;
+            font-weight: 700;
+            color: #7e5a36;
+            line-height: 1.25;
+        }
+
+        .saju-pill-meta {
+            font-size: 12px;
+            color: #55635d;
+            line-height: 1.55;
+        }
+
+        .saju-quick-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .saju-quick-card {
+            border: 1px solid var(--line-soft);
+            border-radius: 14px;
+            background: #fff;
+            padding: 14px;
+        }
+
+        .saju-quick-title {
+            margin: 0 0 12px;
+            font-size: 17px;
+            color: var(--deep-3);
+        }
+
+        .saju-quick-head {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .saju-quick-sub {
+            margin: 0;
+            font-size: 12px;
+            color: var(--text-soft);
+            line-height: 1.5;
+        }
+
+        .element-guide {
+            margin: 14px 0 12px;
+            padding-left: 18px;
+            color: #3d4d46;
+            font-size: 12px;
+            line-height: 1.55;
+        }
+
+        .element-guide li {
+            margin-bottom: 4px;
+        }
+
+        .element-bars {
+            display: grid;
+            gap: 8px;
+        }
+
+        .element-row {
+            display: grid;
+            grid-template-columns: 64px 1fr 52px;
+            gap: 8px;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-soft);
+        }
+
+        .element-label {
+            font-weight: 700;
+            color: #33423b;
+        }
+
+        .element-track {
+            position: relative;
+            height: 9px;
+            border-radius: 999px;
+            background: #e6ece8;
+            overflow: hidden;
+        }
+
+        .element-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            border-radius: 999px;
+        }
+
+        .element-fill.wood {
+            background: #4caf50;
+        }
+
+        .element-fill.fire {
+            background: #ff6b6b;
+        }
+
+        .element-fill.earth {
+            background: #c7a17a;
+        }
+
+        .element-fill.metal {
+            background: #9e9e9e;
+        }
+
+        .element-fill.water {
+            background: #4a90e2;
+        }
+
+        .element-tags {
+            margin: 12px 0 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .element-tag {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 4px 8px;
+            font-size: 12px;
+            border: 1px solid var(--line-soft);
+            color: #405149;
+            background: #f6faf7;
+        }
+
+        .element-tag.dominant {
+            border-color: #97b6a7;
+            background: #e8f1ec;
+            color: #2b4f44;
+        }
+
+        .element-tag.weak {
+            border-color: #d9c4ad;
+            background: #f7efe6;
+            color: #815f41;
+        }
+
+        .tengod-summary {
+            display: grid;
+            gap: 9px;
+            margin-bottom: 10px;
+        }
+
+        .tengod-row {
+            display: grid;
+            grid-template-columns: 76px 1fr 40px;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .tengod-name {
+            font-weight: 700;
+            color: #33423b;
+        }
+
+        .tengod-track {
+            height: 8px;
+            border-radius: 999px;
+            background: #e6ece8;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .tengod-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            border-radius: 999px;
+            background: #5f8374;
+        }
+
+        .tengod-count {
+            text-align: right;
+            color: #5b6963;
+            font-size: 12px;
+        }
+
+        .tengod-chip-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .tengod-chip {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 4px 8px;
+            font-size: 12px;
+            color: #3a4a43;
+            background: #eef4f0;
+            border: 1px solid #d1ddd7;
+        }
+
+        .tengod-meaning {
+            margin: 10px 0;
+            padding-left: 18px;
+            color: #3d4d46;
+            font-size: 12px;
+            line-height: 1.55;
+        }
+
+        .tengod-meaning li {
+            margin-bottom: 4px;
+        }
+
+        .saju-insight-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .saju-insight-card {
+            border: 1px solid var(--line-soft);
+            border-radius: 14px;
+            background: #fff;
+            padding: 14px;
+        }
+
+        .saju-insight-card h3 {
+            margin: 0 0 10px;
+            font-size: 16px;
+            color: var(--deep-3);
+        }
+
+        .saju-insight-card p {
+            margin: 0 0 8px;
+            text-align: left;
+            color: #31413a;
+            font-size: 14px;
+            line-height: 1.65;
+        }
+
+        .pillar-nav {
+            margin-top: 12px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .pillar-back-button {
+            border: 1px solid #b8c8c1;
+            background: #f7fbf8;
+            color: #2f4a41;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 6px 12px;
+            cursor: pointer;
+            transition: background 0.2s ease, border-color 0.2s ease;
+        }
+
+        .pillar-back-button:hover {
+            background: #edf5f0;
+            border-color: #9fb4ab;
+        }
+
+        .saju-insight-list {
+            margin: 0;
+            padding-left: 18px;
+            color: #31413a;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .saju-insight-list li {
+            margin-bottom: 6px;
+        }
+
+        .saju-luck-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .saju-luck-card {
+            border: 1px solid var(--line-soft);
+            border-radius: 14px;
+            background: #fff;
+            padding: 14px;
+        }
+
+        .saju-luck-card.is-scroll-link {
+            cursor: pointer;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        .saju-luck-card.is-scroll-link:hover {
+            border-color: #9fb4ab;
+            box-shadow: 0 6px 16px rgba(40, 62, 54, 0.08);
+            transform: translateY(-1px);
+        }
+
+        .saju-luck-card.is-scroll-link:focus-visible {
+            outline: 2px solid #7f9e91;
+            outline-offset: 2px;
+        }
+
+        .saju-luck-kicker {
+            margin: 0 0 8px;
+            font-size: 12px;
+            color: var(--text-soft);
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .saju-luck-title {
+            margin: 0 0 8px;
+            font-size: 15px;
+            color: var(--deep-3);
+            line-height: 1.45;
+        }
+
+        .saju-luck-desc {
+            margin: 0;
+            font-size: 13px;
+            color: #4b5a54;
+            line-height: 1.55;
+        }
+
+        .saju-action-box {
+            margin-top: 14px;
+            border: 1px solid var(--line-soft);
+            border-radius: 14px;
+            background: #fff;
+            padding: 16px;
+        }
+
+        .saju-action-box h3 {
+            margin: 0 0 10px;
+            font-size: 17px;
+            color: var(--deep-3);
+        }
+
+        .saju-action-box .muted {
+            margin-top: 8px;
+        }
+
+        .saju-premium-box {
+            margin-top: 14px;
+            border: 1px solid var(--line-soft);
+            border-radius: 14px;
+            background: linear-gradient(180deg, #f7fbf8 0%, #edf5f0 100%);
+            padding: 16px;
+        }
+
+        .saju-premium-box h3 {
+            margin: 0 0 8px;
+            font-size: 17px;
+            color: var(--deep-3);
+        }
+
+        .saju-premium-box p {
+            margin: 0 0 12px;
+            text-align: left;
+            color: #43534c;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .saju-overall-moved {
+            margin-top: 20px;
+        }
+
+        .saju-core-summary {
+            margin-top: 14px;
+            border: 1px solid var(--line-soft);
+            border-radius: 14px;
+            background: #f7fbf8;
+            padding: 16px;
+        }
+
+        .saju-core-summary-grid {
+            margin-top: 12px;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .saju-core-summary-item {
+            border: 1px solid var(--line-soft);
+            border-radius: 12px;
+            background: #fff;
+            padding: 12px;
+        }
+
+        .saju-core-summary-item h4 {
+            margin: 0 0 8px;
+            font-size: 14px;
+            color: var(--deep-3);
+        }
+
         .affiliate-box {
             margin: 20px 0 0;
             width: 100%;
@@ -912,6 +1627,26 @@
                 padding: 11px 14px 9px;
                 font-size: 14px;
             }
+
+            .saju-eight-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .saju-quick-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .saju-insight-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .saju-luck-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .saju-core-summary-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -937,7 +1672,7 @@
 
             <div id="tab-today" class="tab-panel active" data-tab-panel="today">
                 <div class="section">
-                    <div class="section-label">오늘의 운세</div>
+                    <div class="section-label">운세</div>
                     <p class="tab-context">오늘 흐름과 올해 방향, 직장과 관계 운세를 먼저 읽을 수 있도록 묶었습니다.</p>
                     <div class="single-column-grid">
                         <div class="card">
@@ -945,28 +1680,47 @@
                                 <h2>오늘의 운세</h2>
                                 <div class="section-date">{{ result.daily_fortune.date }}</div>
                             </div>
-                            <div class="score-panel">
+                            {% set daily_score_class = "score-caution" %}
+                            {% if result.daily_fortune.score.value >= 90 %}
+                            {% set daily_score_class = "score-very-high" %}
+                            {% elif result.daily_fortune.score.value >= 80 %}
+                            {% set daily_score_class = "score-high" %}
+                            {% elif result.daily_fortune.score.value >= 65 %}
+                            {% set daily_score_class = "score-good" %}
+                            {% elif result.daily_fortune.score.value >= 50 %}
+                            {% set daily_score_class = "score-normal" %}
+                            {% endif %}
+                            <div class="score-panel {{ daily_score_class }}">
                                 <div class="score-label">{{ result.daily_fortune.score.title }}</div>
                                 <div class="score-head">
                                     <div class="score-value">{{ result.daily_fortune.score.value }}점</div>
                                     <div class="score-grade">{{ result.daily_fortune.score.grade }}/ {{ result.daily_fortune.score.label }}</div>
                                 </div>
                                 <p class="score-summary">{{ result.daily_fortune.score.summary }}</p>
-                                {% if result.sensitivity.notes or result.analysis_context.uncertainty_notes %}
-                                <div class="context-caution">
-                                    <strong>해석 유의점</strong>
-                                    {{ (result.sensitivity.notes[0] if result.sensitivity.notes else result.analysis_context.uncertainty_notes[0]) }}
-                                </div>
+                                <p class="score-driver">{{ result.daily_fortune.score.driver_line }}</p>
+                                {% if result.daily_fortune.score.factor_highlights %}
+                                <strong class="score-block-title">점수 근거 Top</strong>
+                                <ul class="score-factors compact">
+                                    {% for item in result.daily_fortune.score.factor_highlights %}
+                                    <li>{{ item }}</li>
+                                    {% endfor %}
+                                </ul>
                                 {% endif %}
                                 <div class="score-guide">
                                     <strong class="score-guide-title">활용도 등급 기준</strong>
                                     <ul class="score-guide-grid">
+                                        {% if result.daily_fortune.score.guide_lines %}
+                                        {% for line in result.daily_fortune.score.guide_lines %}
+                                        <li>{{ line }}</li>
+                                        {% endfor %}
+                                        {% else %}
                                         <li>90점 이상: S / 활용도가 매우 높은 날</li>
                                         <li>80점 이상: A+ / 활용도가 높은 날</li>
                                         <li>65점 이상: A / 활용하기 좋은 날</li>
                                         <li>50점 이상: B / 관리형 보통의 날</li>
                                         <li>35점 이상: C / 주의가 필요한 날</li>
                                         <li>9점 이상: D / 방어가 우선인 날</li>
+                                        {% endif %}
                                     </ul>
                                 </div>
                                 <strong class="score-block-title">장점과 주의점</strong>
@@ -996,15 +1750,103 @@
                             </ul>
                         </div>
                         <div class="card">
+                            <div class="section-head">
+                                <h2>내일의 운세</h2>
+                                <div class="section-date">{{ result.tomorrow_fortune.date }}</div>
+                            </div>
+                            {% set tomorrow_score_class = "score-caution" %}
+                            {% if result.tomorrow_fortune.score.value >= 90 %}
+                            {% set tomorrow_score_class = "score-very-high" %}
+                            {% elif result.tomorrow_fortune.score.value >= 80 %}
+                            {% set tomorrow_score_class = "score-high" %}
+                            {% elif result.tomorrow_fortune.score.value >= 65 %}
+                            {% set tomorrow_score_class = "score-good" %}
+                            {% elif result.tomorrow_fortune.score.value >= 50 %}
+                            {% set tomorrow_score_class = "score-normal" %}
+                            {% endif %}
+                            <div class="score-panel {{ tomorrow_score_class }}">
+                                <div class="score-label">{{ result.tomorrow_fortune.score.title | replace("오늘", "내일") }}</div>
+                                <div class="score-head">
+                                    <div class="score-value">{{ result.tomorrow_fortune.score.value }}점</div>
+                                    <div class="score-grade">{{ result.tomorrow_fortune.score.grade }}/ {{ result.tomorrow_fortune.score.label }}</div>
+                                </div>
+                                <p class="score-summary">{{ result.tomorrow_fortune.score.summary }}</p>
+                                <p class="score-driver">{{ result.tomorrow_fortune.score.driver_line }}</p>
+                                {% if result.tomorrow_fortune.score.factor_highlights %}
+                                <strong class="score-block-title">점수 근거 Top</strong>
+                                <ul class="score-factors compact">
+                                    {% for item in result.tomorrow_fortune.score.factor_highlights %}
+                                    <li>{{ item }}</li>
+                                    {% endfor %}
+                                </ul>
+                                {% endif %}
+                                <div class="score-guide">
+                                    <strong class="score-guide-title">활용도 등급 기준</strong>
+                                    <ul class="score-guide-grid">
+                                        {% if result.tomorrow_fortune.score.guide_lines %}
+                                        {% for line in result.tomorrow_fortune.score.guide_lines %}
+                                        <li>{{ line }}</li>
+                                        {% endfor %}
+                                        {% else %}
+                                        <li>90점 이상: S / 활용도가 매우 높은 날</li>
+                                        <li>80점 이상: A+ / 활용도가 높은 날</li>
+                                        <li>65점 이상: A / 활용하기 좋은 날</li>
+                                        <li>50점 이상: B / 관리형 보통의 날</li>
+                                        <li>35점 이상: C / 주의가 필요한 날</li>
+                                        <li>9점 이상: D / 방어가 우선인 날</li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                                <strong class="score-block-title">장점과 주의점</strong>
+                                <div class="score-paragraphs">
+                                    {% for item in result.tomorrow_fortune.section.strength_and_risk %}
+                                    <div>{{ item }}</div>
+                                    {% endfor %}
+                                </div>
+                                <strong class="score-block-title">행동 조언</strong>
+                                <ul class="score-factors">
+                                    {% for item in result.tomorrow_fortune.section.action_advice %}
+                                    <li>{{ item }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <div class="narrative-step"><strong>한 줄 요약</strong>
+                                <div>{{ result.tomorrow_fortune.section.one_line }}</div>
+                            </div>
+                            <div class="highlight-line">{{ result.tomorrow_fortune.section.highlight }}</div>
+                            <div class="narrative-step"><strong>쉬운 설명</strong>{% for item in
+                                result.tomorrow_fortune.section.easy_explanation %}<div>{{ item }}</div>{% endfor %}</div>
+                            <div class="narrative-step"><strong>현실에서 이렇게 나타납니다</strong>{% for item in
+                                result.tomorrow_fortune.section.real_life %}<div>{{ item }}</div>{% endfor %}</div>
+                            <ul>
+                                <li>일운: {{ result.tomorrow_fortune.pillar_display }} / {{ result.tomorrow_fortune.ten_god }}</li>
+                                <li>키워드: {{ result.tomorrow_fortune.keywords | join(", ") }}</li>
+                            </ul>
+                        </div>
+                        <div class="card">
                             <h2>주간 운세</h2>
                             <p class="muted">오늘부터 7일간의 활용도만 빠르게 볼 수 있게 정리했습니다.</p>
                             <div class="weekly-grid">
                                 {% for item in result.weekly_fortune %}
                                 <div class="weekly-card {{ item.score_class }}{% if item.is_today %} is-today{% endif %}">
-                                    <div class="weekly-date">{{ item.date_label }} {{ item.weekday }}</div>
-                                    <div class="weekly-score">{{ item.score }}점</div>
-                                    <div class="weekly-grade">{{ item.grade }}/ {{ item.label }}</div>
+                                    <div class="weekly-date">
+                                        {{ item.date_label }} {{ item.weekday }}
+                                        {% if item.is_today %}
+                                        <span class="weekly-today-badge">오늘</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="weekly-head">
+                                        <div class="weekly-score">{{ item.score }}</div>
+                                        <div class="weekly-grade">{{ item.grade }}/ {{ item.label }}</div>
+                                    </div>
                                     <p class="weekly-summary">{{ item.summary }}</p>
+                                    <div class="weekly-confidence">{{ item.confidence_label }}</div>
+                                    <div class="weekly-tags">
+                                        <span class="weekly-tag">{{ item.reason_tag }}</span>
+                                        {% if item.caution_tag %}
+                                        <span class="weekly-tag caution">{{ item.caution_tag }}</span>
+                                        {% endif %}
+                                    </div>
                                 </div>
                                 {% endfor %}
                             </div>
@@ -1048,22 +1890,24 @@
                     <div class="single-column-grid">
                         <div class="card">
                             <h2>직장운</h2>
+                            {% set career_card = result.main_cards.career %}
                             <div class="narrative-step"><strong>한 줄 요약</strong>
-                                <div>{{ result.career_fortune.section.one_line }}</div>
+                                <div>{{ career_card.one_line }}</div>
                             </div>
-                            <div class="highlight-line">{{ result.career_fortune.section.highlight }}</div>
+                            <div class="highlight-line">{{ career_card.highlight }}</div>
                             <div class="narrative-step"><strong>쉬운 설명</strong>{% for item in
-                                result.career_fortune.section.easy_explanation %}<div>{{ item }}</div>{% endfor %}</div>
+                                career_card.easy_explanation %}<div>{{ item }}</div>{% endfor %}</div>
                             <div class="narrative-step"><strong>현실에서 이렇게 나타납니다</strong>{% for item in
-                                result.career_fortune.section.real_life %}<div>{{ item }}</div>{% endfor %}</div>
+                                career_card.real_life %}<div>{{ item }}</div>{% endfor %}</div>
                             <div class="narrative-step"><strong>장점과 주의점</strong>{% for item in
-                                result.career_fortune.section.strength_and_risk %}<div>{{ item }}</div>{% endfor %}</div>
+                                career_card.strength_and_risk %}<div>{{ item }}</div>{% endfor %}</div>
                             <div class="narrative-step"><strong>행동 조언</strong>{% for item in
-                                result.career_fortune.section.action_advice %}<div>{{ item }}</div>{% endfor %}</div>
+                                career_card.action_advice %}<div>{{ item }}</div>{% endfor %}</div>
                             <ul class="stack">
                                 <li class="chip">흐름 {{ result.career_fortune.trend_kor }}</li>
                                 <li class="chip">강도 {{ result.career_fortune.intensity_kor }}</li>
                                 <li class="chip">분위기 {{ result.career_fortune.tone_kor }}</li>
+                                <li class="chip">문장 {{ "신규DB" if career_card.source == "structured" else "기존엔진" }}</li>
                             </ul>
                             <ul>
                                 {% for item in result.career_fortune.strengths %}
@@ -1076,21 +1920,23 @@
                         </div>
                         <div class="card">
                             <h2>결혼운 / 연애운</h2>
+                            {% set relationship_card = result.main_cards.relationship %}
                             <div class="narrative-step"><strong>한 줄 요약</strong>
-                                <div>{{ result.relationship_fortune.section.one_line }}</div>
+                                <div>{{ relationship_card.one_line }}</div>
                             </div>
-                            <div class="highlight-line">{{ result.relationship_fortune.section.highlight }}</div>
+                            <div class="highlight-line">{{ relationship_card.highlight }}</div>
                             <div class="narrative-step"><strong>쉬운 설명</strong>{% for item in
-                                result.relationship_fortune.section.easy_explanation %}<div>{{ item }}</div>{% endfor %}</div>
+                                relationship_card.easy_explanation %}<div>{{ item }}</div>{% endfor %}</div>
                             <div class="narrative-step"><strong>현실에서 이렇게 나타납니다</strong>{% for item in
-                                result.relationship_fortune.section.real_life %}<div>{{ item }}</div>{% endfor %}</div>
+                                relationship_card.real_life %}<div>{{ item }}</div>{% endfor %}</div>
                             <div class="narrative-step"><strong>장점과 주의점</strong>{% for item in
-                                result.relationship_fortune.section.strength_and_risk %}<div>{{ item }}</div>{% endfor %}</div>
+                                relationship_card.strength_and_risk %}<div>{{ item }}</div>{% endfor %}</div>
                             <div class="narrative-step"><strong>행동 조언</strong>{% for item in
-                                result.relationship_fortune.section.action_advice %}<div>{{ item }}</div>{% endfor %}</div>
+                                relationship_card.action_advice %}<div>{{ item }}</div>{% endfor %}</div>
                             <ul class="stack">
                                 <li class="chip">흐름 {{ result.relationship_fortune.trend }}</li>
                                 <li class="chip">강도 {{ result.relationship_fortune.intensity_kor }}</li>
+                                <li class="chip">문장 {{ "신규DB" if relationship_card.source == "structured" else "기존엔진" }}</li>
                             </ul>
                             <ul>
                                 {% for item in result.relationship_fortune.strengths %}
@@ -1140,7 +1986,7 @@
             <div id="tab-saju" class="tab-panel" data-tab-panel="saju">
                 <div class="section">
                     <div class="hero">
-                        <div class="section-label">입력 정보</div>
+                        <div class="section-label">사주풀이</div>
                         <h1>사주 결과</h1>
                         <p class="hero-meta">
                             {% if result.raw_input.calendar_type == "solar" %}양력{% else %}음력{% endif %}
@@ -1168,10 +2014,16 @@
                             </script>
                         </div>
 
+                        <div class="saju-core-card">
+                            <div class="saju-core-kicker">핵심 요약</div>
+                            <h2 class="saju-core-title">{{ result.saju.day.stem_display }} 일간 · {{
+                                result.analysis_context.structure.primary_pattern }}</h2>
+                            <p class="saju-core-line">{{ result.interpretation_sections.overall.one_line }}</p>
+                            <p class="saju-core-sub">{{ result.interpretation_sections.overall.highlight }}</p>
+                        </div>
                         <div class="summary-grid">
                             <div class="card summary-card">
-                                <div class="summary-label">핵심 요약</div>
-                                <div class="summary-title">올해 흐름</div>
+                                <div class="summary-label">올해 흐름</div>
                                 <div class="summary-value">{{ result.summary_card.year_trend }}</div>
                             </div>
                             <div class="card">
@@ -1188,111 +2040,304 @@
                             </div>
                         </div>
                     </div>
-                    <div class="section-label">사주</div>
-                    <p class="tab-context">원국 구조와 4주 해석, 오행·십성, 대운과 기본 풀이를 한 흐름으로 정리했습니다.</p>
-                    <div class="summary-box">{{ result.interpretation_sections.overall.headline }}</div>
-                    <div class="narrative-box">
-                        <div class="highlight-line">{{ result.interpretation_sections.overall.highlight }}</div>
-                        <div class="narrative-step">
-                            <strong>쉬운 설명</strong>
-                            {% for item in result.interpretation_sections.overall.easy_explanation %}
-                            <div>{{ item }}</div>
-                            {% endfor %}
+                    <div id="saju-eight-panel" class="saju-eight-panel">
+                        <div class="section-head">
+                            <h2>사주 8자</h2>
+                            <div class="section-date">연 · 월 · 일 · 시</div>
                         </div>
-                        <div class="narrative-step">
-                            <strong>현실에서 이렇게 나타납니다</strong>
-                            {% for item in result.interpretation_sections.overall.real_life %}
-                            <div>{{ item }}</div>
-                            {% endfor %}
-                        </div>
-                        <div class="narrative-step">
-                            <strong>장점과 주의점</strong>
-                            {% for item in result.interpretation_sections.overall.strength_and_risk %}
-                            <div>{{ item }}</div>
-                            {% endfor %}
-                        </div>
-                        <div class="narrative-step">
-                            <strong>행동 조언</strong>
-                            {% for item in result.interpretation_sections.overall.action_advice %}
-                            <div>{{ item }}</div>
-                            {% endfor %}
+                        <div class="saju-eight-grid">
+                            <div class="saju-pill-card is-scroll-link" data-scroll-target="pillar-section-year" role="button" tabindex="0" aria-label="년주 해석으로 이동">
+                                <div class="saju-pill-label">년주</div>
+                                <div class="saju-pill-main">
+                                    <span class="saju-pill-stem">{{ result.saju.year.stem_display }}</span>
+                                    <span class="saju-pill-branch">{{ result.saju.year.branch_display }}</span>
+                                </div>
+                                <div class="saju-pill-meta">십성: {{ result.ten_gods.year or "기준점" }}</div>
+                                <div class="saju-pill-meta">12운성: 준비중</div>
+                            </div>
+                            <div class="saju-pill-card is-scroll-link" data-scroll-target="pillar-section-month" role="button" tabindex="0" aria-label="월주 해석으로 이동">
+                                <div class="saju-pill-label">월주</div>
+                                <div class="saju-pill-main">
+                                    <span class="saju-pill-stem">{{ result.saju.month.stem_display }}</span>
+                                    <span class="saju-pill-branch">{{ result.saju.month.branch_display }}</span>
+                                </div>
+                                <div class="saju-pill-meta">십성: {{ result.ten_gods.month or "기준점" }}</div>
+                                <div class="saju-pill-meta">12운성: 준비중</div>
+                            </div>
+                            <div class="saju-pill-card is-scroll-link" data-scroll-target="pillar-section-day" role="button" tabindex="0" aria-label="일주 해석으로 이동">
+                                <div class="saju-pill-label">일주</div>
+                                <div class="saju-pill-main">
+                                    <span class="saju-pill-stem">{{ result.saju.day.stem_display }}</span>
+                                    <span class="saju-pill-branch">{{ result.saju.day.branch_display }}</span>
+                                </div>
+                                <div class="saju-pill-meta">십성: 일간(본체)</div>
+                                <div class="saju-pill-meta">12운성: 준비중</div>
+                            </div>
+                            <div class="saju-pill-card {% if result.saju.time %}is-scroll-link{% else %}is-disabled{% endif %}" {% if result.saju.time %}data-scroll-target="pillar-section-time" role="button" tabindex="0" aria-label="시주 해석으로 이동"{% endif %}>
+                                <div class="saju-pill-label">시주</div>
+                                {% if result.saju.time %}
+                                <div class="saju-pill-main">
+                                    <span class="saju-pill-stem">{{ result.saju.time.stem_display }}</span>
+                                    <span class="saju-pill-branch">{{ result.saju.time.branch_display }}</span>
+                                </div>
+                                <div class="saju-pill-meta">십성: {{ result.ten_gods.time or "기준점" }}</div>
+                                <div class="saju-pill-meta">12운성: 준비중</div>
+                                {% else %}
+                                <div class="saju-pill-main">
+                                    <span class="saju-pill-stem">미산출</span>
+                                    <span class="saju-pill-branch">시간 미입력</span>
+                                </div>
+                                <div class="saju-pill-meta">십성: 미산출</div>
+                                <div class="saju-pill-meta">12운성: 미산출</div>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
-                    <div class="saju-grid">
-                        <div class="saju-card">
-                            <span class="saju-label">년주</span>
-                            <div class="saju-value">{{ result.saju.year.display }}</div>
-                            <div class="saju-sub">천간/지지: {{ result.saju.year.stem_display }} / {{ result.saju.year.branch_display }}</div>
+                    <div class="saju-quick-grid">
+                        {% set weighted = result.analysis_context.elements.weighted_scores %}
+                        {% set total_element = weighted.wood + weighted.fire + weighted.earth + weighted.metal + weighted.water %}
+                        <div class="saju-quick-card">
+                            <div class="saju-quick-head">
+                                <h3 class="saju-quick-title">오행 분석</h3>
+                            </div>
+                            <div class="element-bars">
+                                <div class="element-row">
+                                    <span class="element-label">목(木)</span>
+                                    <div class="element-track"><span class="element-fill wood" style="width: {{ ((weighted.wood / total_element) * 100 if total_element else 0) | round(1) }}%;"></span></div>
+                                    <span>{{ ((weighted.wood / total_element) * 100 if total_element else 0) | round(1) }}%</span>
+                                </div>
+                                <div class="element-row">
+                                    <span class="element-label">화(火)</span>
+                                    <div class="element-track"><span class="element-fill fire" style="width: {{ ((weighted.fire / total_element) * 100 if total_element else 0) | round(1) }}%;"></span></div>
+                                    <span>{{ ((weighted.fire / total_element) * 100 if total_element else 0) | round(1) }}%</span>
+                                </div>
+                                <div class="element-row">
+                                    <span class="element-label">토(土)</span>
+                                    <div class="element-track"><span class="element-fill earth" style="width: {{ ((weighted.earth / total_element) * 100 if total_element else 0) | round(1) }}%;"></span></div>
+                                    <span>{{ ((weighted.earth / total_element) * 100 if total_element else 0) | round(1) }}%</span>
+                                </div>
+                                <div class="element-row">
+                                    <span class="element-label">금(金)</span>
+                                    <div class="element-track"><span class="element-fill metal" style="width: {{ ((weighted.metal / total_element) * 100 if total_element else 0) | round(1) }}%;"></span></div>
+                                    <span>{{ ((weighted.metal / total_element) * 100 if total_element else 0) | round(1) }}%</span>
+                                </div>
+                                <div class="element-row">
+                                    <span class="element-label">수(水)</span>
+                                    <div class="element-track"><span class="element-fill water" style="width: {{ ((weighted.water / total_element) * 100 if total_element else 0) | round(1) }}%;"></span></div>
+                                    <span>{{ ((weighted.water / total_element) * 100 if total_element else 0) | round(1) }}%</span>
+                                </div>
+                            </div>
+                            <ul class="element-guide">
+                                <li>목(木) / 성장, 방향성</li>
+                                <li>화(火) / 표현, 활동</li>
+                                <li>토(土) / 안정, 현실</li>
+                                <li>금(金) / 정리, 구조</li>
+                                <li>수(水) / 사고, 흐름</li>
+                            </ul>
+                            <div class="element-tags">
+                                {% for item in result.analysis_context.elements.dominant_kor %}
+                                <span class="element-tag dominant">강점: {{ item }}</span>
+                                {% endfor %}
+                                {% for item in result.analysis_context.elements.weak_kor %}
+                                <span class="element-tag weak">보완: {{ item }}</span>
+                                {% endfor %}
+                            </div>
                         </div>
-                        <div class="saju-card">
-                            <span class="saju-label">월주</span>
-                            <div class="saju-value">{{ result.saju.month.display }}</div>
-                            <div class="saju-sub">천간/지지: {{ result.saju.month.stem_display }} / {{ result.saju.month.branch_display }}</div>
+                        {% set visible_ten = result.analysis_context.analysis.ten_gods.visible %}
+                        {% set hidden_ten = result.analysis_context.analysis.ten_gods.hidden %}
+                        {% set all_ten = visible_ten + hidden_ten %}
+                        {% set total_ten = all_ten|length %}
+                        {% set tg = namespace(officer=0, wealth=0, output=0, resource=0, peer=0) %}
+                        {% for item in all_ten %}
+                            {% if item in ["정관", "편관"] %}{% set tg.officer = tg.officer + 1 %}{% endif %}
+                            {% if item in ["정재", "편재"] %}{% set tg.wealth = tg.wealth + 1 %}{% endif %}
+                            {% if item in ["식신", "상관"] %}{% set tg.output = tg.output + 1 %}{% endif %}
+                            {% if item in ["정인", "편인"] %}{% set tg.resource = tg.resource + 1 %}{% endif %}
+                            {% if item in ["비견", "겁재"] %}{% set tg.peer = tg.peer + 1 %}{% endif %}
+                        {% endfor %}
+                        <div class="saju-quick-card">
+                            <div class="saju-quick-head">
+                                <h3 class="saju-quick-title">십성 분석</h3>
+                                <p class="saju-quick-sub">일간 기준으로 바깥에서 들어오는 역할 성향을 간단히 읽은 결과</p>
+                            </div>
+                            <div class="tengod-summary">
+                                <div class="tengod-row">
+                                    <span class="tengod-name">관성</span>
+                                    <div class="tengod-track"><span class="tengod-fill" style="width: {{ ((tg.officer / total_ten) * 100 if total_ten else 0) | round(1) }}%;"></span></div>
+                                    <span class="tengod-count">{{ tg.officer }}</span>
+                                </div>
+                                <div class="tengod-row">
+                                    <span class="tengod-name">재성</span>
+                                    <div class="tengod-track"><span class="tengod-fill" style="width: {{ ((tg.wealth / total_ten) * 100 if total_ten else 0) | round(1) }}%;"></span></div>
+                                    <span class="tengod-count">{{ tg.wealth }}</span>
+                                </div>
+                                <div class="tengod-row">
+                                    <span class="tengod-name">식상</span>
+                                    <div class="tengod-track"><span class="tengod-fill" style="width: {{ ((tg.output / total_ten) * 100 if total_ten else 0) | round(1) }}%;"></span></div>
+                                    <span class="tengod-count">{{ tg.output }}</span>
+                                </div>
+                                <div class="tengod-row">
+                                    <span class="tengod-name">인성</span>
+                                    <div class="tengod-track"><span class="tengod-fill" style="width: {{ ((tg.resource / total_ten) * 100 if total_ten else 0) | round(1) }}%;"></span></div>
+                                    <span class="tengod-count">{{ tg.resource }}</span>
+                                </div>
+                                <div class="tengod-row">
+                                    <span class="tengod-name">비겁</span>
+                                    <div class="tengod-track"><span class="tengod-fill" style="width: {{ ((tg.peer / total_ten) * 100 if total_ten else 0) | round(1) }}%;"></span></div>
+                                    <span class="tengod-count">{{ tg.peer }}</span>
+                                </div>
+                            </div>
+                            <ul class="tengod-meaning">
+                                <li>관성(정관/편관): 책임, 규칙, 직장 내 역할, 압박 대응, 기준 의식</li>
+                                <li>재성(정재/편재): 돈의 흐름, 현실 감각, 성과 회수, 자원 관리</li>
+                                <li>식상(식신/상관): 표현력, 실행/산출, 말·콘텐츠 생산, 아이디어 발현</li>
+                                <li>인성(정인/편인): 학습, 분석, 문서/지식, 보호·회복, 내면 정리</li>
+                                <li>비겁(비견/겁재): 자아주도, 독립성, 협업·경쟁, 사람/관계 에너지</li>
+                            </ul>
+                            <div class="tengod-chip-wrap">
+                                {% for item in visible_ten %}
+                                <span class="tengod-chip">천간 {{ item }}</span>
+                                {% endfor %}
+                                {% for item in result.analysis_context.ten_gods.hidden_ten_god_groups %}
+                                <span class="tengod-chip">지장간 핵심 {{ item }}</span>
+                                {% endfor %}
+                            </div>
                         </div>
-                        <div class="saju-card">
-                            <span class="saju-label">일주</span>
-                            <div class="saju-value">{{ result.saju.day.display }}</div>
-                            <div class="saju-sub">천간/지지: {{ result.saju.day.stem_display }} / {{ result.saju.day.branch_display }}</div>
+                    </div>
+                    {% if result.structured_report %}
+                    <div class="saju-core-summary">
+                        <div class="section-head">
+                            <h2>사주 핵심 요약</h2>
+                            <div class="section-date">{{ result.structured_report.headline }}</div>
                         </div>
-                        <div class="saju-card">
-                            <span class="saju-label">시주</span>
-                            {% if result.saju.time %}
-                            <div class="saju-value">{{ result.saju.time.display }}</div>
-                            <div class="saju-sub">천간/지지: {{ result.saju.time.stem_display }} / {{ result.saju.time.branch_display }}</div>
-                            {% else %}
-                            <div class="saju-value">미산출</div>
-                            <div class="saju-sub">출생시간이 없어 시주는 생략했습니다.</div>
+                        <ul class="saju-insight-list">
+                            {% for item in result.structured_report.summary %}
+                            <li>{{ item }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% if false and result.structured_report.match_logs %}
+                        <details class="evidence-item" style="margin-bottom: 10px;">
+                            <summary><strong>매칭 로그(디버그)</strong></summary>
+                            {% for section_key, log in result.structured_report.match_logs.items() %}
+                            <div class="muted">
+                                {{ section_key }}: matched {{ log.matched_count }} / candidates {{ log.candidate_count }}
+                                {% if log.matched_ids %} / ids {{ log.matched_ids | join(", ") }}{% endif %}
+                                {% if log.used_fallback %} / fallback{% endif %}
+                            </div>
+                            {% endfor %}
+                        </details>
+                        {% endif %}
+                        <div class="saju-core-summary-grid">
+                            {% for section_key, section_title in [("core_structure", "사주 구조 요약"), ("career", "직업/일 스타일"), ("money", "재물 흐름"), ("relationship", "관계/연애"), ("action_guide", "실전 조언")] %}
+                            {% if result.structured_report.sections[section_key] %}
+                            <div class="saju-core-summary-item">
+                                <h4>{{ section_title }}</h4>
+                                <ul class="saju-insight-list">
+                                    {% for item in result.structured_report.sections[section_key] %}
+                                    <li>{{ item }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
                             {% endif %}
+                            {% endfor %}
                         </div>
                     </div>
+                    {% endif %}
+                    {% set strength_label = result.analysis_context.strength.label %}
+                    {% if strength_label in ["weak", "slightly_weak"] %}
+                    {% set balance_state_title = "기운이 쉽게 소모되는 편" %}
+                    {% set balance_state_desc = "무리해서 밀어붙이면 피로가 빨리 쌓일 수 있어, 일정과 책임을 잘게 나눠 운영하는 것이 유리합니다." %}
+                    {% elif strength_label in ["strong", "slightly_strong"] %}
+                    {% set balance_state_title = "기운이 강하게 몰리는 편" %}
+                    {% set balance_state_desc = "추진력은 좋지만 과속하기 쉬워, 중간 점검과 속도 조절을 같이 두는 것이 안정적입니다." %}
+                    {% else %}
+                    {% set balance_state_title = "기운이 비교적 균형적인 편" %}
+                    {% set balance_state_desc = "큰 쏠림은 적지만 상황에 따라 반응이 달라질 수 있어, 우선순위를 짧게 유지하는 습관이 좋습니다." %}
+                    {% endif %}
+
+                    {% set primary = result.analysis_context.yongshin.primary_candidate %}
+                    {% set secondary = result.analysis_context.yongshin.secondary_candidate %}
+                    {% if primary == "wood" %}
+                    {% set primary_action = "막힌 일을 작게 쪼개 시작하고, 새 방향을 하나씩 추가하세요." %}
+                    {% elif primary == "fire" %}
+                    {% set primary_action = "미뤄둔 대화·보고·발표처럼 바깥으로 표현하는 일을 먼저 처리하세요." %}
+                    {% elif primary == "earth" %}
+                    {% set primary_action = "생활 루틴, 마감 순서, 고정 일정부터 정리해 기반을 먼저 안정시키세요." %}
+                    {% elif primary == "metal" %}
+                    {% set primary_action = "우선순위, 기준, 정리 목록을 먼저 세워 판단 낭비를 줄이세요." %}
+                    {% else %}
+                    {% set primary_action = "속도를 조금 낮추고 휴식·정보 정리 시간을 확보해 흐름을 정돈하세요." %}
+                    {% endif %}
+
+                    {% if secondary == "wood" %}
+                    {% set secondary_action = "새 시도는 한 번에 많이 벌리기보다 한 가지씩 테스트하세요." %}
+                    {% elif secondary == "fire" %}
+                    {% set secondary_action = "말로 꺼내야 할 내용은 짧게라도 바로 표현해 쌓이지 않게 하세요." %}
+                    {% elif secondary == "earth" %}
+                    {% set secondary_action = "반복되는 고정비·고정일정을 점검해 생활 리듬을 지키세요." %}
+                    {% elif secondary == "metal" %}
+                    {% set secondary_action = "체크리스트를 짧게 만들어 실수 포인트를 먼저 막으세요." %}
+                    {% else %}
+                    {% set secondary_action = "결정 전 10분만 멈춰 전체 흐름을 다시 보는 습관을 두세요." %}
+                    {% endif %}
+
+                    {% set confidence = result.analysis_context.yongshin.confidence %}
+                    {% if confidence == "high" %}
+                    {% set confidence_line = "현재 해석 신뢰도는 높은 편이라, 지금 운영 기준을 유지해도 안정적입니다." %}
+                    {% elif confidence == "medium" %}
+                    {% set confidence_line = "현재 해석 신뢰도는 중간 수준이라, 큰 결정은 한 번 더 확인하면 안전합니다." %}
+                    {% else %}
+                    {% set confidence_line = "현재 해석은 변동 여지가 있어 단정하기보다 유연하게 보는 편이 좋습니다." %}
+                    {% endif %}
+
                     <div class="card balance-card">
                         <div class="section-head">
                             <h2>균형 해석</h2>
-                            <div class="section-date">용신 확신도 {{ result.analysis_context.yongshin.confidence_display }}</div>
+                            <div class="section-date">현재 기운 밸런스 한눈에 보기</div>
                         </div>
                         <div class="balance-summary">
-                            {{ result.analysis_context.strength.display_label }} 구조이며, 용신 후보는
-                            {{ result.analysis_context.yongshin.display.primary }}, 보조 후보는
-                            {{ result.analysis_context.yongshin.display.secondary }}입니다.
+                            지금은 <strong>{{ balance_state_title }}</strong> 상태입니다.
+                            핵심은 {{ result.analysis_context.yongshin.display.primary }} 성향을 먼저 챙기고,
+                            {{ result.analysis_context.yongshin.display.secondary }} 습관으로 보완하는 운영입니다.
                         </div>
                         <div class="balance-grid">
                             <div class="balance-item">
-                                <strong>핵심 이유</strong>
-                                <div>{{ result.analysis_context.yongshin.reasons[0] }}</div>
+                                <strong>현재 상태</strong>
+                                <div>{{ balance_state_desc }}</div>
+                                <div class="muted">중간 판정: {{ result.analysis_context.strength.display_label }} ({{ result.analysis_context.strength.score }}점)</div>
                             </div>
                             <div class="balance-item">
-                                <strong>중심 근거</strong>
-                                <div>{{ result.analysis_context.strength.key_reasons[0] }}</div>
+                                <strong>강한 쪽 / 약한 쪽</strong>
+                                <div>강한 쪽: {{ result.analysis_context.elements.dominant_kor | join(", ") }}</div>
+                                <div>약한 쪽: {{ result.analysis_context.elements.weak_kor | join(", ") }}</div>
                             </div>
                             <div class="balance-item">
-                                <strong>숨은 흐름</strong>
+                                <strong>생활에서 자주 보이는 패턴</strong>
                                 <div>
-                                    {% if result.analysis_context.flags.hidden_group_focus %}
-                                    숨은 십성은 {{ result.analysis_context.flags.hidden_group_focus }} 쪽이 먼저 깔려 있습니다.
+                                    {% if result.analysis_context.flags.has_natal_conflict %}
+                                    일정과 사람 이슈가 겹칠 때 선택 충돌이 생기기 쉬워, 한 번에 처리할 범위를 줄이는 편이 좋습니다.
+                                    {% elif result.analysis_context.flags.has_natal_harmony %}
+                                    기준만 맞추면 흐름이 매끄럽게 연결되는 편이라, 협업과 조율에서 강점을 살리기 좋습니다.
                                     {% else %}
-                                    숨은 십성의 편중은 비교적 단순한 편입니다.
+                                    큰 충돌 신호는 적어, 루틴을 지키며 안정적으로 성과를 쌓는 운영이 맞습니다.
                                     {% endif %}
                                 </div>
                             </div>
                             <div class="balance-item">
-                                <strong>원국 상호작용</strong>
-                                <div>
-                                    {% if result.analysis_context.interactions.natal %}
-                                    {{ result.analysis_context.interactions.natal[0].target }}
-                                    {{ result.analysis_context.interactions.natal[0].type }} 흐름이 있어
-                                    {{ result.analysis_context.interactions.natal[0].meaning }}
-                                    {% else %}
-                                    원국 내부 상호작용은 비교적 단순한 편입니다.
-                                    {% endif %}
-                                </div>
+                                <strong>지금 바로 할 행동 1순위</strong>
+                                <div>{{ primary_action }}</div>
                             </div>
                             <div class="balance-item">
-                                <strong>불확실성</strong>
-                                <div>{{ result.analysis_context.uncertainty_notes | join(" ") }}</div>
+                                <strong>보조로 같이 챙길 습관</strong>
+                                <div>{{ secondary_action }}</div>
+                            </div>
+                            <div class="balance-item">
+                                <strong>해석 참고사항</strong>
+                                <div>{{ confidence_line }}</div>
                             </div>
                         </div>
                         <details class="evidence-toggle">
-                            <summary>근거 보기</summary>
+                            <summary>전문 용어 기준 보기</summary>
                             <div class="evidence-panel">
                                 <div class="evidence-grid">
                                     <div class="evidence-item">
@@ -1336,11 +2381,118 @@
                             </div>
                         </details>
                     </div>
+                    {% set personality_card = result.main_cards.personality %}
+                    {% set wealth_card = result.main_cards.wealth %}
+                    {% set career_card = result.main_cards.career %}
+                    {% set relationship_card = result.main_cards.relationship %}
+                    {% set structured_sections = result.structured_report.sections if result.structured_report else {} %}
+                    {% set health_lines = structured_sections.health if structured_sections and structured_sections.health else result.analysis_context.uncertainty_notes %}
+                    {% set action_lines = structured_sections.action_guide if structured_sections and structured_sections.action_guide else result.interpretation_sections.overall.action_advice %}
+                    <div class="saju-insight-grid">
+                        <div class="saju-insight-card">
+                            <h3>성향</h3>
+                            <p><strong>{{ personality_card.one_line }}</strong></p>
+                            {% if personality_card.easy_explanation %}
+                            <p>{{ personality_card.easy_explanation[0] }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="saju-insight-card">
+                            <h3>직업/돈</h3>
+                            <p><strong>{{ career_card.one_line }}</strong></p>
+                            <p>{{ wealth_card.one_line }}</p>
+                        </div>
+                        <div class="saju-insight-card">
+                            <h3>관계</h3>
+                            <p><strong>{{ relationship_card.one_line }}</strong></p>
+                            {% if relationship_card.easy_explanation %}
+                            <p>{{ relationship_card.easy_explanation[0] }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="saju-insight-card">
+                            <h3>건강</h3>
+                            <ul class="saju-insight-list">
+                                {% for item in health_lines[:2] %}
+                                <li>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="saju-luck-grid">
+                        <div id="saju-current-daewoon-card" class="saju-luck-card is-scroll-link" data-scroll-target="daewoon-flow-section" role="button" tabindex="0" aria-label="대운 흐름으로 이동">
+                            <p class="saju-luck-kicker">현재 대운</p>
+                            <p class="saju-luck-title">{{ result.daewoon.active_cycle_summary.pillar_display }}</p>
+                            <p class="saju-luck-desc">{{ result.daewoon.active_cycle_summary.section.one_line }}</p>
+                        </div>
+                        <div class="saju-luck-card">
+                            <p class="saju-luck-kicker">올해 세운</p>
+                            <p class="saju-luck-title">{{ result.year_fortune.year }}년 / {{ result.year_fortune.pillar_display }}</p>
+                            <p class="saju-luck-desc">{{ result.year_fortune.section.one_line }}</p>
+                        </div>
+                        <div class="saju-luck-card">
+                            <p class="saju-luck-kicker">선택 월</p>
+                            {% if result.selected_month_fortune %}
+                            <p class="saju-luck-title">{{ result.selected_month_fortune.month }}월 / {{ result.selected_month_fortune.pillar_display }}</p>
+                            <p class="saju-luck-desc">{{ result.selected_month_fortune.headline }}</p>
+                            {% else %}
+                            <p class="saju-luck-title">{{ result.raw_input.target_year }}년 월운</p>
+                            <p class="saju-luck-desc">확인할 월을 선택하면 해당 월 흐름을 카드로 먼저 보여드립니다.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="saju-action-box">
+                        <h3>행동 가이드 (30일)</h3>
+                        <ul class="saju-insight-list">
+                            {% for item in action_lines[:3] %}
+                            <li>{{ item }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% if result.weekly_fortune %}
+                        <p class="muted">이번 주 시작 포인트: {{ result.weekly_fortune[0].date }} / {{ result.weekly_fortune[0].grade }} {{
+                            result.weekly_fortune[0].summary }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="saju-premium-box">
+                        <h3>프리미엄 리포트</h3>
+                        <p>관계·재물·직업의 3개월 실행전략과 우선순위를 심화 리포트로 이어서 볼 수 있습니다.</p>
+                        <button class="cta-button" type="button" data-tab-target="premium" aria-selected="false">프리미엄 리포트 보기</button>
+                    </div>
+                    <div class="saju-overall-moved">
+                        <div class="section-label">사주</div>
+                        <p class="tab-context">원국 구조와 4주 해석, 오행·십성, 대운과 기본 풀이를 한 흐름으로 정리했습니다.</p>
+                        <div class="summary-box">{{ result.interpretation_sections.overall.headline }}</div>
+                        <div class="narrative-box">
+                            <div class="highlight-line">{{ result.interpretation_sections.overall.highlight }}</div>
+                            <div class="narrative-step">
+                                <strong>쉬운 설명</strong>
+                                {% for item in result.interpretation_sections.overall.easy_explanation %}
+                                <div>{{ item }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="narrative-step">
+                                <strong>현실에서 이렇게 나타납니다</strong>
+                                {% for item in result.interpretation_sections.overall.real_life %}
+                                <div>{{ item }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="narrative-step">
+                                <strong>장점과 주의점</strong>
+                                {% for item in result.interpretation_sections.overall.strength_and_risk %}
+                                <div>{{ item }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="narrative-step">
+                                <strong>행동 조언</strong>
+                                {% for item in result.interpretation_sections.overall.action_advice %}
+                                <div>{{ item }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
                     <div class="pillar-interpretation-grid">
                         {% for pillar_key in ["year", "month", "day", "time"] %}
                         {% set pillar_section = result.interpretation_sections.pillars[pillar_key] %}
                         {% if pillar_section %}
-                        <div class="card">
+                        <div id="pillar-section-{{ pillar_key }}" class="card">
                             <h2>{{ pillar_section.title }}</h2>
                             <div class="narrative-step"><strong>한 줄 요약</strong>
                                 <div>{{ pillar_section.one_line }}</div>
@@ -1366,92 +2518,16 @@
                                 <div>{{ item }}</div>
                                 {% endfor %}
                             </div>
+                            <div class="pillar-nav">
+                                <button class="pillar-back-button" type="button" data-scroll-target="saju-eight-panel">위로 이동</button>
+                            </div>
                         </div>
                         {% endif %}
                         {% endfor %}
                     </div>
                 </div>
 
-                <div class="section">
-                    <div class="section-label">오행</div>
-                    <div class="analysis-grid">
-                        <div class="card">
-                            <h2>오행 분포</h2>
-                            <p class="lead"><strong>강한 오행은 {{ result.dominant_kor | join(", ") }}, 약한 오행은 {{ result.weak_kor |
-                                    join(", ") }}입니다.</strong></p>
-                            <ul>
-                                <li>목(木): {{ result.elements.wood }} / 성장, 방향성</li>
-                                <li>화(火): {{ result.elements.fire }} / 표현, 활동</li>
-                                <li>토(土): {{ result.elements.earth }} / 안정, 현실</li>
-                                <li>금(金): {{ result.elements.metal }} / 정리, 구조</li>
-                                <li>수(水): {{ result.elements.water }} / 사고, 흐름</li>
-                            </ul>
-                        </div>
-                        <div class="card">
-                            <h2>십성</h2>
-                            <p class="lead"><strong>일간 기준으로 바깥에서 들어오는 역할 성향을 간단히 읽은 결과입니다.</strong></p>
-                            <ul>
-                                <li>년간: {{ result.ten_gods.year }} - {{ result.ten_gods_labels.year }} ({{
-                                    result.ten_gods_details.year }})<br><span class="muted">{{ result.ten_gods_explanations.year
-                                        }}</span></li>
-                                <li>월간: {{ result.ten_gods.month }} - {{ result.ten_gods_labels.month }} ({{
-                                    result.ten_gods_details.month }})<br><span class="muted">{{
-                                        result.ten_gods_explanations.month }}</span></li>
-                                <li>시간:
-                                    {% if result.ten_gods.time %}
-                                    {{ result.ten_gods.time }} - {{ result.ten_gods_labels.time }} ({{
-                                    result.ten_gods_details.time }})<br><span class="muted">{{ result.ten_gods_explanations.time
-                                        }}</span>
-                                    {% else %}
-                                    미산출
-                                    {% endif %}
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="section">
-                    <div class="section-label">해석</div>
-                    <div class="single-column-grid">
-                        <div class="card">
-                            <h2>성격</h2>
-                            <div class="narrative-step"><strong>한 줄 요약</strong>
-                                <div>{{ result.interpretation_sections.personality.one_line }}</div>
-                            </div>
-                            <div class="highlight-line">{{ result.interpretation_sections.personality.highlight }}</div>
-                            <div class="narrative-step"><strong>쉬운 설명</strong>{% for item in
-                                result.interpretation_sections.personality.easy_explanation %}<div>{{ item }}</div>{% endfor %}
-                            </div>
-                            <div class="narrative-step"><strong>현실에서 이렇게 나타납니다</strong>{% for item in
-                                result.interpretation_sections.personality.real_life %}<div>{{ item }}</div>{% endfor %}</div>
-                            <div class="narrative-step"><strong>장점과 주의점</strong>{% for item in
-                                result.interpretation_sections.personality.strength_and_risk %}<div>{{ item }}</div>{% endfor %}
-                            </div>
-                            <div class="narrative-step"><strong>행동 조언</strong>{% for item in
-                                result.interpretation_sections.personality.action_advice %}<div>{{ item }}</div>{% endfor %}
-                            </div>
-                        </div>
-                        <div class="card">
-                            <h2>재물</h2>
-                            <div class="narrative-step"><strong>한 줄 요약</strong>
-                                <div>{{ result.interpretation_sections.wealth.one_line }}</div>
-                            </div>
-                            <div class="highlight-line">{{ result.interpretation_sections.wealth.highlight }}</div>
-                            <div class="narrative-step"><strong>쉬운 설명</strong>{% for item in
-                                result.interpretation_sections.wealth.easy_explanation %}<div>{{ item }}</div>{% endfor %}</div>
-                            <div class="narrative-step"><strong>현실에서 이렇게 나타납니다</strong>{% for item in
-                                result.interpretation_sections.wealth.real_life %}<div>{{ item }}</div>{% endfor %}</div>
-                            <div class="narrative-step"><strong>장점과 주의점</strong>{% for item in
-                                result.interpretation_sections.wealth.strength_and_risk %}<div>{{ item }}</div>{% endfor %}
-                            </div>
-                            <div class="narrative-step"><strong>행동 조언</strong>{% for item in
-                                result.interpretation_sections.wealth.action_advice %}<div>{{ item }}</div>{% endfor %}</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="section">
+                <div id="daewoon-flow-section" class="section">
                     <div class="section-label">대운</div>
                     <h2>대운 흐름</h2>
                     <p class="lead"><strong>{{ result.daewoon.direction_kor }} / 대운 시작: {{ result.daewoon.start_age_display
@@ -1488,6 +2564,9 @@
                         </li>
                         {% endfor %}
                     </ul>
+                    <div class="pillar-nav">
+                        <button class="pillar-back-button" type="button" data-scroll-target="saju-current-daewoon-card">위로 이동</button>
+                    </div>
                 </div>
 
                 <div class="section">
@@ -1645,9 +2724,21 @@
                     }
                 }
 
+                function scrollToTabTop(tabName) {
+                    var panel = document.querySelector("[data-tab-panel='" + tabName + "']");
+                    if (!panel) return;
+                    window.requestAnimationFrame(function () {
+                        panel.scrollIntoView({ behavior: "smooth", block: "start" });
+                    });
+                }
+
                 buttons.forEach(function (button) {
                     button.addEventListener("click", function () {
-                        activateTab(button.getAttribute("data-tab-target"), true);
+                        var targetTab = button.getAttribute("data-tab-target");
+                        activateTab(targetTab, true);
+                        if (targetTab === "premium") {
+                            scrollToTabTop("premium");
+                        }
                     });
                 });
 
@@ -1666,6 +2757,36 @@
                 var initialHash = window.location.hash.replace("#", "");
                 var initialTab = validTabs.indexOf(initialHash) >= 0 ? initialHash : defaultTab;
                 activateTab(initialTab, false);
+
+                function scrollToTarget(targetId) {
+                    if (!targetId) return;
+                    var target = document.getElementById(targetId);
+                    if (!target) return;
+                    var sajuPanel = document.getElementById("tab-saju");
+                    if (sajuPanel && !sajuPanel.classList.contains("active")) {
+                        activateTab("saju", false);
+                    }
+                    window.requestAnimationFrame(function () {
+                        target.scrollIntoView({ behavior: "smooth", block: "start" });
+                    });
+                }
+
+                var scrollTriggers = document.querySelectorAll("[data-scroll-target]");
+                scrollTriggers.forEach(function (trigger) {
+                    var targetId = trigger.getAttribute("data-scroll-target");
+                    trigger.addEventListener("click", function (event) {
+                        event.preventDefault();
+                        scrollToTarget(targetId);
+                    });
+                    if (trigger.getAttribute("role") === "button") {
+                        trigger.addEventListener("keydown", function (event) {
+                            if (event.key === "Enter" || event.key === " ") {
+                                event.preventDefault();
+                                scrollToTarget(targetId);
+                            }
+                        });
+                    }
+                });
             })();
         </script>
     </div>

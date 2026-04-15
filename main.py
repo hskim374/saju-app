@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
 from datetime import date, datetime, timedelta, timezone
 import logging
 import os
@@ -20,7 +21,7 @@ try:
 except ImportError:  # pragma: no cover - optional runtime helper
     def load_dotenv() -> bool:
         return False
-from fastapi import FastAPI, Form, Request
+from fastapi import FastAPI, Form, HTTPException, Request
 from fastapi.responses import PlainTextResponse, Response
 from fastapi.templating import Jinja2Templates
 
@@ -35,6 +36,7 @@ from services.lead_store import build_lead_payload, save_lead
 from services.monthly_fortune import calculate_monthly_fortune
 from services.pdf_generator import generate_pdf_bytes
 from services.premium_report import build_premium_report
+from services.report_builder import ReportBuilder, build_structured_report, clear_sentence_db_cache
 from services.report_display import build_display_result
 from services.relationship_fortune import build_relationship_fortune
 from services.saju_calculator import (
@@ -44,7 +46,11 @@ from services.saju_calculator import (
 )
 from services.summary_card import build_summary_card
 from services.ten_gods import calculate_ten_gods
-from services.weekly_fortune import build_weekly_fortune
+from services.sentence_filter import SentenceFilter
+from services.sentence_matcher import SentenceMatcher
+from services.signal_extractor import extract_interpretation_signals
+from services.structure_analyzer import StructureAnalyzer
+from services.weekly_fortune import build_weekly_fortune, calculate_daily_fortune_for_weekly
 from services.yearly_fortune import calculate_yearly_fortune
 
 load_dotenv()
@@ -55,6 +61,8 @@ logger = logging.getLogger(__name__)
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 EMAIL_REQUEST_LOG: dict[str, float] = {}
 EMAIL_RATE_LIMIT_SECONDS = 60
+ANALYSIS_CONTEXT_CACHE: dict[str, dict] = {}
+ANALYSIS_CONTEXT_CACHE_MAX = 256
 
 try:
     SEOUL_TZ = ZoneInfo("Asia/Seoul") if ZoneInfo else timezone(timedelta(hours=9))
@@ -209,6 +217,39 @@ def _build_report_query_params(result_data: dict, premium: bool = False) -> dict
     }
 
 
+def _build_analysis_context_cache_key(
+    *,
+    saju_id: str,
+    gender: str,
+    target_year: int,
+    target_month: int | None,
+    target_date: date,
+) -> str:
+    return "|".join(
+        [
+            saju_id,
+            gender,
+            str(target_year),
+            str(target_month or 0),
+            target_date.isoformat(),
+        ]
+    )
+
+
+def _get_cached_analysis_context(cache_key: str) -> dict | None:
+    cached = ANALYSIS_CONTEXT_CACHE.get(cache_key)
+    if cached is None:
+        return None
+    return deepcopy(cached)
+
+
+def _set_cached_analysis_context(cache_key: str, context: dict) -> None:
+    if len(ANALYSIS_CONTEXT_CACHE) >= ANALYSIS_CONTEXT_CACHE_MAX and cache_key not in ANALYSIS_CONTEXT_CACHE:
+        oldest_key = next(iter(ANALYSIS_CONTEXT_CACHE))
+        ANALYSIS_CONTEXT_CACHE.pop(oldest_key, None)
+    ANALYSIS_CONTEXT_CACHE[cache_key] = deepcopy(context)
+
+
 def _is_checked(value: str | bool | None) -> bool:
     if isinstance(value, bool):
         return value
@@ -258,19 +299,32 @@ def _build_result_data(
         time_slot=time_slot or None,
         is_leap_month=_is_checked(is_leap_month),
     )
+    analysis_context_cache_key = _build_analysis_context_cache_key(
+        saju_id=result_data["saju_id"],
+        gender=gender,
+        target_year=parsed_target_year,
+        target_month=parsed_target_month,
+        target_date=parsed_target_date,
+    )
+
     element_analysis = analyze_elements(result_data["saju"])
     ten_gods = calculate_ten_gods(result_data["saju"])
     daewoon = calculate_daewoon(result_data, gender=gender)
     year_fortune = calculate_yearly_fortune(result_data, daewoon, parsed_target_year)
     daily_fortune = calculate_daily_fortune(result_data, parsed_target_date)
-    analysis_context = build_analysis_context(
-        saju_result=result_data,
-        element_analysis=element_analysis,
-        ten_gods=ten_gods,
-        daewoon=daewoon,
-        year_fortune=year_fortune,
-        daily_fortune=daily_fortune,
-    )
+    analysis_context = _get_cached_analysis_context(analysis_context_cache_key)
+    if analysis_context is None:
+        analysis_context = build_analysis_context(
+            saju_result=result_data,
+            element_analysis=element_analysis,
+            ten_gods=ten_gods,
+            daewoon=daewoon,
+            year_fortune=year_fortune,
+            daily_fortune=daily_fortune,
+        )
+        _set_cached_analysis_context(analysis_context_cache_key, analysis_context)
+    interpretation_signals = extract_interpretation_signals(analysis_context)
+    structured_report = build_structured_report(analysis_context, interpretation_signals)
     daily_fortune = calculate_daily_fortune(result_data, parsed_target_date, analysis_context=analysis_context)
     year_fortune = calculate_yearly_fortune(
         result_data,
@@ -288,6 +342,18 @@ def _build_result_data(
         parsed_target_date,
         gender=gender,
         daewoon=daewoon,
+    )
+    tomorrow_target_date = parsed_target_date + timedelta(days=1)
+    tomorrow_year_fortune = (
+        calculate_yearly_fortune(result_data, daewoon, tomorrow_target_date.year) if daewoon else None
+    )
+    tomorrow_fortune = calculate_daily_fortune_for_weekly(
+        result_data,
+        tomorrow_target_date,
+        element_analysis=element_analysis,
+        ten_gods=ten_gods,
+        daewoon=daewoon,
+        year_fortune=tomorrow_year_fortune,
     )
     career_fortune = build_career_fortune(result_data, year_fortune, analysis_context=analysis_context)
     relationship_fortune = build_relationship_fortune(
@@ -319,8 +385,10 @@ def _build_result_data(
             "target_year": parsed_target_year,
             "target_month": parsed_target_month,
             "target_date": parsed_target_date.isoformat(),
+            "saju_id": result_data["saju_id"],
         }
     )
+    result_data["cache_key"] = analysis_context_cache_key
     result_data["normalized_solar_input"] = result_data["resolved_solar"]
     result_data["report_generated_on"] = _today_in_seoul().isoformat()
     result_data.update(element_analysis)
@@ -335,11 +403,14 @@ def _build_result_data(
         else None
     )
     result_data["daily_fortune"] = daily_fortune
+    result_data["tomorrow_fortune"] = tomorrow_fortune
     result_data["weekly_fortune"] = weekly_fortune
     result_data["career_fortune"] = career_fortune
     result_data["relationship_fortune"] = relationship_fortune
     result_data["summary_card"] = summary_card
     result_data["analysis_context"] = analysis_context
+    result_data["interpretation_signals"] = interpretation_signals
+    result_data["structured_report"] = structured_report
     result_data["premium_report"] = build_premium_report(
         saju_result=result_data,
         element_analysis=element_analysis,
@@ -381,6 +452,50 @@ async def index(request: Request):
         name="index.html",
         context=_build_index_context(),
     )
+
+
+@app.post("/api/sentences/filter")
+async def api_filter_sentences(payload: dict | None = None):
+    """Run duplicate/quality filtering and save the refined sentence DB."""
+    data = payload or {}
+    try:
+        threshold = float(data.get("threshold", 0.85))
+        min_quality = int(data.get("min_quality", 60))
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail="threshold/min_quality 형식이 올바르지 않습니다.") from exc
+
+    if not 0.0 <= threshold <= 1.0:
+        raise HTTPException(status_code=400, detail="threshold는 0~1 범위여야 합니다.")
+    if not 0 <= min_quality <= 100:
+        raise HTTPException(status_code=400, detail="min_quality는 0~100 범위여야 합니다.")
+
+    summary = SentenceFilter().filter_and_save(threshold=threshold, min_quality=min_quality)
+    clear_sentence_db_cache()
+    return summary
+
+
+@app.post("/api/result")
+async def api_result(saju_input: dict):
+    """Return analysis+report payload from direct pillar input."""
+    chart = saju_input.get("saju", saju_input)
+    if not isinstance(chart, dict):
+        raise HTTPException(status_code=400, detail="입력 형식이 올바르지 않습니다.")
+
+    if "hour" in chart and "time" not in chart:
+        chart = {**chart, "time": chart["hour"]}
+
+    for key in ("year", "month", "day"):
+        if key not in chart or not isinstance(chart[key], dict):
+            raise HTTPException(status_code=400, detail=f"{key} 기둥 정보가 필요합니다.")
+        if "stem" not in chart[key] or "branch" not in chart[key]:
+            raise HTTPException(status_code=400, detail=f"{key} 기둥은 stem/branch를 포함해야 합니다.")
+
+    analyzer = StructureAnalyzer()
+    matcher = SentenceMatcher()
+    builder = ReportBuilder(matcher)
+    analysis = analyzer.analyze(chart)
+    report = builder.build(analysis)
+    return {"analysis": analysis, "report": report}
 
 
 @app.post("/result")

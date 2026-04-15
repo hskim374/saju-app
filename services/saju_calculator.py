@@ -12,6 +12,7 @@ from lunar_python import Solar
 
 from data.branches import BRANCHES
 from data.stems import STEMS
+from services.identification import build_saju_identity
 
 try:
     import sxtwl  # type: ignore
@@ -160,13 +161,17 @@ def get_basic_saju_result(
     )
     _log_day_pillar_diagnostics(day_diagnostics)
 
+    saju = {
+        "year": _build_pillar_from_hanja(year_month_eight_char.getYear()),
+        "month": _build_pillar_from_hanja(year_month_eight_char.getMonth()),
+        "day": day_pillar,
+        "time": time_pillar,
+    }
+    identity = build_saju_identity(saju)
+
     return {
-        "saju": {
-            "year": _build_pillar_from_hanja(year_month_eight_char.getYear()),
-            "month": _build_pillar_from_hanja(year_month_eight_char.getMonth()),
-            "day": day_pillar,
-            "time": time_pillar,
-        },
+        "saju": saju,
+        **identity,
         "raw_input": {
             "calendar_type": calendar_type,
             "year": year,

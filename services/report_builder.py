@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import json
 from functools import lru_cache
-from pathlib import Path
 
 from services.sentence_matcher import compose_section
 from services.sentence_filter import load_filtered_sentences
@@ -134,6 +132,16 @@ FLOW_HEADLINE_FOCUS = [
     "집중 신호가 살아 있어 마무리 품질 관리에서 강점이 드러납니다.",
 ]
 
+FLOW_HEADLINE_SUPPORT = [
+    "천을귀인 흐름이 있어 도움과 완충이 붙는 구간이라 협업 활용도가 높습니다.",
+    "지원 신호가 감지되어 혼자 버티기보다 도움을 연결할수록 효율이 올라갑니다.",
+]
+
+FLOW_HEADLINE_GUARD = [
+    "백호 흐름이 있어 과속·충돌 관리가 중요하며 안전 여지를 남기는 운영이 필요합니다.",
+    "강한 압박 신호가 있어 이동·결정 속도를 낮추는 쪽이 손실을 줄이기 좋습니다.",
+]
+
 FLOW_HEADLINE_DEFAULT = [
     "과열보다 리듬 유지에 초점을 두면 안정적인 결과를 만들 수 있습니다.",
     "속도와 안정의 균형을 맞출 때 같은 조건에서도 결과 차이가 커집니다.",
@@ -241,6 +249,10 @@ def _build_headline(analysis_context: dict) -> str:
         flow_candidates.extend(FLOW_HEADLINE_RELATIONSHIP)
     if special_stars.get("has_focus_star"):
         flow_candidates.extend(FLOW_HEADLINE_FOCUS)
+    if special_stars.get("has_support_star"):
+        flow_candidates.extend(FLOW_HEADLINE_SUPPORT)
+    if special_stars.get("has_guard_star"):
+        flow_candidates.extend(FLOW_HEADLINE_GUARD)
     if not flow_candidates:
         flow_candidates = FLOW_HEADLINE_DEFAULT
 
@@ -388,10 +400,6 @@ def clear_sentence_db_cache() -> None:
 
 @lru_cache(maxsize=1)
 def _load_sentence_db() -> list[dict]:
-    filtered_path = Path("data/sentences.json")
-    if filtered_path.exists():
-        with filtered_path.open(encoding="utf-8") as file:
-            payload = json.load(file)
-        if isinstance(payload, list) and payload:
-            return payload
+    # Keep web rendering aligned with API matcher behavior:
+    # filtered sentences + raw DB (including structured_sentence_db_extra) merged by id.
     return load_filtered_sentences()

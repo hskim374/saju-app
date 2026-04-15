@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+from collections import defaultdict, deque
 from datetime import date
+from threading import Lock
 
 from data.branches import BRANCHES_BY_KOR
 from data.day_pillar_sentences import get_day_pillar_sentence_options
@@ -12,6 +14,12 @@ from services.interpretation_engine import build_daily_section
 from services.report_display import format_branch_label, format_stem_label
 from services.saju_calculator import get_day_pillar_for_solar_date
 from services.ten_gods import calculate_ten_god_for_stem, calculate_ten_gods
+
+VARIANT_COOLDOWN_WINDOW = 2
+_VARIANT_RECENT_INDEXES: dict[str, deque[int]] = defaultdict(
+    lambda: deque(maxlen=VARIANT_COOLDOWN_WINDOW)
+)
+_VARIANT_COOLDOWN_LOCK = Lock()
 
 DAILY_RULES = {
     "비견": {
@@ -164,6 +172,129 @@ DAILY_PROFILE_HEADLINES = {
     "observer": "오늘은 바로 결론보다 흐름을 읽는 판단이 더 중요해지는 날입니다.",
 }
 
+TEN_GOD_FOCUS_OPTIONS = {
+    "비견": [
+        "내 페이스를 지키는 방식",
+        "주도권과 경계 관리",
+        "독립 실행과 협업 균형",
+        "기준 유지와 역할 분리",
+        "자기 결정력 관리",
+        "속도보다 기준 고정",
+        "주도권 유지와 조율 순서",
+        "자기 몫 집중 운영",
+        "의견 충돌 최소화",
+        "판단선 분명히 잡기",
+    ],
+    "겁재": [
+        "경쟁과 분산 관리",
+        "자원 분배와 경계 설정",
+        "관계 에너지 분산 통제",
+        "비교 심리와 지출 관리",
+        "승부욕 강도 조절",
+        "기회 선별과 손실 차단",
+        "사람 이슈 우선순위 조정",
+        "확장 욕구 속도 제어",
+        "협업 경쟁 균형 관리",
+        "리스크 대비 운영",
+    ],
+    "식신": [
+        "실무 결과 만들기",
+        "생산성 중심 마감 운영",
+        "작은 산출물 누적",
+        "완료 기준 선행 설정",
+        "실행 단위 분할 운영",
+        "성과 체감 강화",
+        "품질과 속도 균형",
+        "루틴형 실행 관리",
+        "일감 정리와 마감",
+        "가시 성과 확보",
+    ],
+    "상관": [
+        "표현과 조율",
+        "메시지 강도 조절",
+        "결론 타이밍 관리",
+        "말과 문서 균형",
+        "피드백 수위 통제",
+        "논점 정리 우선",
+        "설득 순서 설계",
+        "충돌 완화 소통",
+        "의견 전달 정확도",
+        "표현 피로 관리",
+    ],
+    "편재": [
+        "기회 선별",
+        "외부 제안 우선순위",
+        "접점 확장과 집중 유지",
+        "선택과 포기 기준",
+        "대외활동 밀도 조절",
+        "수익 기회 필터링",
+        "관계 네트워크 운영",
+        "분산 방지 선별 운영",
+        "기회 대응 속도 조절",
+        "확장 범위 관리",
+    ],
+    "정재": [
+        "생활 관리",
+        "지출 기준 정리",
+        "현금흐름 안정 운영",
+        "고정비 점검 우선",
+        "실속 중심 선택",
+        "예산·일정 동시 관리",
+        "수입·지출 균형 맞춤",
+        "누수 차단 운영",
+        "관리 루틴 고정",
+        "재정 안정화 실행",
+    ],
+    "편관": [
+        "압박 대응",
+        "긴장 구간 우선순위",
+        "리스크 선제 차단",
+        "부담 분할 처리",
+        "강도 조절 운영",
+        "요청 선별 수용",
+        "과부하 방지 기준",
+        "책임 경계 설정",
+        "위험 신호 관리",
+        "보수적 실행 통제",
+    ],
+    "정관": [
+        "책임과 신뢰",
+        "규칙 준수와 역할 정리",
+        "약속 이행 관리",
+        "평가 기준 대응",
+        "마감 신뢰도 확보",
+        "공적 커뮤니케이션 정돈",
+        "책임 범위 선명화",
+        "역할 우선순위 유지",
+        "조직 기준 적응",
+        "안정적 수행 운영",
+    ],
+    "편인": [
+        "관점 전환",
+        "정보 탐색과 비교",
+        "가설 점검 운영",
+        "대안 시나리오 탐색",
+        "실험 범위 통제",
+        "해석 다각화",
+        "우회로 설계",
+        "인사이트 정리",
+        "선택지 검토 관리",
+        "탐색-실행 균형",
+    ],
+    "정인": [
+        "정리와 준비",
+        "학습 루틴 고정",
+        "문서·자료 정돈",
+        "기반 다지기",
+        "확인 절차 선행",
+        "기초 체력 회복 운영",
+        "준비-실행 밸런스",
+        "지식 정리 우선",
+        "정보 품질 관리",
+        "안정적 준비 실행",
+    ],
+}
+
 DAILY_PROFILE_EXPLANATIONS = {
     "planner": "원국의 판단 축이 방향과 우선순위를 먼저 세우는 쪽에 있어, 오늘도 무엇을 먼저 할지 정하는 순간 흐름이 안정되기 쉽습니다.",
     "connector": "원국에서는 사람과 조건을 같이 보는 힘이 강해, 오늘도 단독 판단보다 조율이 붙을 때 결과가 더 자연스럽게 이어질 수 있습니다.",
@@ -302,58 +433,215 @@ REASON_TAG_SCORE_SUMMARY_VARIANTS = {
     "용신 정합": [
         "오늘은 내가 잘하는 방식이 잘 맞아떨어져, 같은 힘을 써도 결과가 비교적 잘 남기 쉬운 날입니다.{confidence_tail}",
         "오늘은 평소 장점이 자연스럽게 살아나는 날이라, 기준만 지키면 한 일의 성과가 또렷하게 남기 쉽습니다.{confidence_tail}",
+        "오늘은 강점을 쓰는 순서만 맞추면 체감 효율이 빠르게 올라가는 날입니다.{confidence_tail}",
+        "오늘은 준비한 역량이 바로 실전에 연결되기 쉬워, 밀도 있는 실행이 유리합니다.{confidence_tail}",
+        "오늘은 무리하게 넓히지 않아도 잘하는 영역에서 성과를 만들기 좋은 흐름입니다.{confidence_tail}",
+        "오늘은 익숙한 방식이 결과로 이어지기 쉬워, 우선순위를 좁혀 밀면 효과가 큽니다.{confidence_tail}",
+        "오늘은 기준을 먼저 세우면 판단과 실행이 자연스럽게 맞물리는 편입니다.{confidence_tail}",
+        "오늘은 장점이 분명히 작동하는 날이라 핵심 일에 시간을 몰아주기 좋습니다.{confidence_tail}",
+        "오늘은 평소 잘 맞던 방식이 다시 살아나, 결론과 마감이 또렷해지기 쉽습니다.{confidence_tail}",
+        "오늘은 강점 활용도가 높아 작은 실행도 성과로 남기 좋은 구간입니다.{confidence_tail}",
     ],
     "균형 회복": [
         "오늘은 크게 벌리기보다 내 페이스를 지키는 선택이 마음과 일정을 함께 안정시키기 쉽습니다.{confidence_tail}",
         "오늘은 속도보다 균형이 중요한 날이라, 할 일을 줄여 정리하면 훨씬 편하게 운영할 수 있습니다.{confidence_tail}",
+        "오늘은 과한 확장보다 리듬을 맞추는 쪽이 결과 안정성을 높입니다.{confidence_tail}",
+        "오늘은 해야 할 일의 밀도를 조절하면 피로 없이 흐름을 이어가기 쉽습니다.{confidence_tail}",
+        "오늘은 한 번에 많이 하기보다 간격을 맞춰 가는 운영이 더 유리합니다.{confidence_tail}",
+        "오늘은 감정과 일정의 균형을 먼저 맞추면 실수 가능성을 줄일 수 있습니다.{confidence_tail}",
+        "오늘은 속도보다 지속 가능성을 챙길수록 하루 품질이 좋아집니다.{confidence_tail}",
+        "오늘은 무리수를 줄이고 기본 리듬을 지키면 체감 안정이 커집니다.{confidence_tail}",
+        "오늘은 우선순위를 정리해 균형 있게 움직일 때 성과 편차가 줄어듭니다.{confidence_tail}",
+        "오늘은 적당한 속도로 오래 가는 방식이 가장 효과적인 날입니다.{confidence_tail}",
     ],
     "재물 흐름": [
         "오늘은 돈이 드나드는 기준을 분명히 할수록 실속이 남기 쉬운 날입니다.{confidence_tail}",
         "오늘은 벌기보다 새는 돈을 막는 쪽이 유리해, 지출과 결제를 선별하면 체감 안정이 커집니다.{confidence_tail}",
+        "오늘은 지출 순서와 결제 기준을 먼저 맞추면 재정 피로를 줄일 수 있습니다.{confidence_tail}",
+        "오늘은 작은 누수를 줄이는 선택이 하루 전체 실속을 키우기 좋습니다.{confidence_tail}",
+        "오늘은 수입보다 관리 기준이 성과를 가르는 날이라 선별이 중요합니다.{confidence_tail}",
+        "오늘은 충동 결제만 줄여도 체감 자금 여유가 크게 달라질 수 있습니다.{confidence_tail}",
+        "오늘은 돈 쓰는 타이밍을 늦춰 확인할수록 손실 가능성을 낮출 수 있습니다.{confidence_tail}",
+        "오늘은 재정 결정을 숫자 기준으로 정리하면 안정적인 운영이 가능합니다.{confidence_tail}",
+        "오늘은 현금흐름 점검을 먼저 하면 불필요한 지출을 효과적으로 막기 쉽습니다.{confidence_tail}",
+        "오늘은 실속 중심으로 선택할수록 재물 흐름이 더 또렷해지는 날입니다.{confidence_tail}",
     ],
     "관계 조율": [
         "오늘은 말의 내용보다 타이밍과 간격 조절이 더 중요한 날입니다.{confidence_tail}",
         "오늘은 사람 사이 속도만 잘 맞춰도 불필요한 오해와 피로를 줄이기 쉽습니다.{confidence_tail}",
+        "오늘은 결론을 서두르기보다 대화 순서를 맞추는 편이 관계에 유리합니다.{confidence_tail}",
+        "오늘은 짧고 분명한 소통이 관계 에너지 소모를 줄여 줍니다.{confidence_tail}",
+        "오늘은 상대 반응을 한 박자 보고 움직일 때 갈등을 줄이기 쉽습니다.{confidence_tail}",
+        "오늘은 약속 수를 줄이고 밀도 있는 대화를 택하는 편이 좋습니다.{confidence_tail}",
+        "오늘은 말의 강도를 조절하면 같은 내용도 훨씬 부드럽게 전달됩니다.{confidence_tail}",
+        "오늘은 관계 속도 조절이 만족도를 결정하는 핵심 포인트가 됩니다.{confidence_tail}",
+        "오늘은 서로의 조건을 먼저 맞춘 뒤 결론을 정해야 흐름이 안정됩니다.{confidence_tail}",
+        "오늘은 대화 간격을 적절히 두면 피로 없이 관계를 이어가기 쉽습니다.{confidence_tail}",
     ],
     "정리 우선": [
         "오늘은 속도보다 정리가 먼저인 날이라, 할 일 순서와 기준을 먼저 잡는 편이 좋습니다.{confidence_tail}",
         "오늘은 여러 일을 동시에 벌리기보다 정리 중심으로 움직여야 실수와 피로를 줄일 수 있습니다.{confidence_tail}",
+        "오늘은 시작보다 마감 기준을 먼저 정할 때 성과가 또렷해집니다.{confidence_tail}",
+        "오늘은 핵심 두세 가지를 먼저 정리하면 흐름이 훨씬 가벼워집니다.{confidence_tail}",
+        "오늘은 체크리스트를 짧게 고정해 운영하는 편이 실수를 줄이기 좋습니다.{confidence_tail}",
+        "오늘은 우선순위를 좁혀 정리할수록 결과 품질이 안정됩니다.{confidence_tail}",
+        "오늘은 해야 할 일의 순서를 번호로 나누면 판단 피로를 줄일 수 있습니다.{confidence_tail}",
+        "오늘은 흩어진 일을 묶어 정리하는 선택이 가장 효율적인 구간입니다.{confidence_tail}",
+        "오늘은 계획을 단순화해 정리 중심으로 밀면 마감 성공률이 높아집니다.{confidence_tail}",
+        "오늘은 결론을 늘리기보다 정리와 점검을 먼저 챙기는 편이 유리합니다.{confidence_tail}",
     ],
     "속도 조절": [
         "오늘은 반응 속도를 한 단계 낮추면 과열을 막고 완성도를 높이기 쉽습니다.{confidence_tail}",
         "오늘은 바로 확정하기보다 한 번 더 확인하는 편이 결과를 더 또렷하게 만듭니다.{confidence_tail}",
+        "오늘은 빠르게 답하기보다 정확한 순서로 처리할 때 실수가 줄어듭니다.{confidence_tail}",
+        "오늘은 템포를 낮춰 판단하면 같은 일도 부담이 훨씬 덜합니다.{confidence_tail}",
+        "오늘은 즉시 반응보다 점검 후 실행이 더 좋은 결과로 이어집니다.{confidence_tail}",
+        "오늘은 속도를 조절할수록 피로 누적을 줄이고 집중을 유지하기 쉽습니다.{confidence_tail}",
+        "오늘은 결론 시점을 늦추는 짧은 여유가 품질을 크게 바꿉니다.{confidence_tail}",
+        "오늘은 과속보다 정확도를 먼저 챙길 때 전체 흐름이 안정됩니다.{confidence_tail}",
+        "오늘은 반응을 다듬는 한 번의 확인이 마찰을 줄여 줄 수 있습니다.{confidence_tail}",
+        "오늘은 속도와 완성도의 균형을 맞추는 운영이 가장 효과적입니다.{confidence_tail}",
     ],
     "변동 관리": [
         "오늘은 계획보다 변수가 먼저 생기기 쉬워, 범위를 작게 나눠 움직이는 편이 유리합니다.{confidence_tail}",
         "오늘은 한꺼번에 처리하기보다 할 일을 작게 끊어 관리해야 흔들림을 줄일 수 있습니다.{confidence_tail}",
+        "오늘은 변수 대응표를 간단히 만들어 두면 판단 속도가 더 안정됩니다.{confidence_tail}",
+        "오늘은 선택지를 줄여 관리할수록 예상치 못한 흔들림을 막기 쉽습니다.{confidence_tail}",
+        "오늘은 변동성이 있어도 핵심 한 가지를 고정하면 흐름을 지킬 수 있습니다.{confidence_tail}",
+        "오늘은 일정을 짧은 구간으로 나눠 점검하는 편이 안전합니다.{confidence_tail}",
+        "오늘은 즉흥 결정보다 단계별 확인이 전체 리듬을 살립니다.{confidence_tail}",
+        "오늘은 변수를 작게 다루는 전략이 체감 피로를 크게 줄여 줍니다.{confidence_tail}",
+        "오늘은 관리 범위를 좁혀야 결과 편차를 줄이기 쉬운 날입니다.{confidence_tail}",
+        "오늘은 변동 구간을 예상해 여유 시간을 남겨 두는 편이 유리합니다.{confidence_tail}",
     ],
     "변동 주의": [
         "오늘은 큰 문제보다 작은 흔들림이 먼저 쌓일 수 있어, 일정 간격을 넉넉하게 잡는 편이 안전합니다.{confidence_tail}",
         "오늘은 약속과 일정의 빈틈을 미리 줄여 두면 하루가 훨씬 덜 흔들립니다.{confidence_tail}",
+        "오늘은 작은 변수도 체감이 커질 수 있어 중간 점검이 필요합니다.{confidence_tail}",
+        "오늘은 예상 밖 변경에 대비해 확정 수를 줄여 두는 편이 좋습니다.{confidence_tail}",
+        "오늘은 일정 과밀을 피하고 여유 구간을 확보해야 안정적입니다.{confidence_tail}",
+        "오늘은 사소한 변경이 누적되기 쉬워 우선순위 재정리가 필요합니다.{confidence_tail}",
+        "오늘은 흔들림을 줄이려면 선택지를 미리 줄여 두는 편이 유리합니다.{confidence_tail}",
+        "오늘은 약속 간격을 벌려야 변수 충돌을 막기 쉽습니다.{confidence_tail}",
+        "오늘은 변동 가능성을 전제로 짧은 확인 루틴을 두는 편이 안전합니다.{confidence_tail}",
+        "오늘은 작게 흔들리는 구간이라 속도보다 관리 중심이 더 낫습니다.{confidence_tail}",
     ],
     "리듬 주의": [
         "오늘은 일 자체보다 페이스가 먼저 흔들리기 쉬워, 속도와 휴식 간격을 먼저 맞추는 편이 좋습니다.{confidence_tail}",
         "오늘은 빨리 끝내려 하기보다 회복 간격을 챙겨야 하루 리듬을 지키기 쉽습니다.{confidence_tail}",
+        "오늘은 집중 시간과 쉬는 시간을 분리해야 피로 누적을 막을 수 있습니다.{confidence_tail}",
+        "오늘은 페이스를 무리하게 끌어올리면 후반 집중력이 떨어질 수 있습니다.{confidence_tail}",
+        "오늘은 일정 간격 조절이 성과보다 먼저 챙길 포인트입니다.{confidence_tail}",
+        "오늘은 리듬이 깨지기 쉬워 한 번에 오래 몰입하는 방식은 피하는 편이 좋습니다.{confidence_tail}",
+        "오늘은 중간 휴식 구간을 고정하면 판단 정확도를 유지하기 쉽습니다.{confidence_tail}",
+        "오늘은 속도보다 호흡을 맞추는 운영이 결과를 더 안정적으로 만듭니다.{confidence_tail}",
+        "오늘은 리듬 관리가 되면 같은 일도 훨씬 가볍게 처리할 수 있습니다.{confidence_tail}",
+        "오늘은 템포를 일정하게 유지하는 것이 실수 방지에 효과적입니다.{confidence_tail}",
     ],
     "압력 주의": [
         "오늘은 해야 할 일보다 부담이 먼저 커질 수 있어, 감당할 범위를 먼저 정하는 편이 좋습니다.{confidence_tail}",
         "오늘은 한 번에 다 처리하려 하지 말고, 한도와 우선순위를 먼저 고정하는 편이 안전합니다.{confidence_tail}",
+        "오늘은 책임이 겹치기 쉬워 요청을 선별해 받는 편이 좋습니다.{confidence_tail}",
+        "오늘은 압박이 커질수록 일을 작게 쪼개야 실행이 유지됩니다.{confidence_tail}",
+        "오늘은 과부하 신호가 오기 전에 일정 강도를 낮춰 두는 편이 안전합니다.{confidence_tail}",
+        "오늘은 부담을 혼자 들지 말고 범위와 기한을 먼저 조정해야 합니다.{confidence_tail}",
+        "오늘은 긴장 상태가 길어지기 쉬워 우선순위를 줄이는 편이 유리합니다.{confidence_tail}",
+        "오늘은 무리한 완벽주의보다 완료 가능한 범위를 지키는 편이 좋습니다.{confidence_tail}",
+        "오늘은 압박 대응이 핵심이라 즉시 확정보다 단계별 처리로 가야 안정적입니다.{confidence_tail}",
+        "오늘은 할 일을 줄여 깊이 처리하는 방식이 부담을 줄여 줍니다.{confidence_tail}",
     ],
     "충돌 주의": [
         "오늘은 방향이 엇갈리기 쉬워, 반응 속도를 낮추고 결정을 줄이는 편이 안전합니다.{caution_tail}{confidence_tail}",
         "오늘은 충돌이 커질 만한 장면을 먼저 피하고, 꼭 필요한 일만 처리하는 편이 좋습니다.{caution_tail}{confidence_tail}",
+        "오늘은 말이 빠르면 마찰이 커질 수 있어 합의 순서를 먼저 맞추는 편이 좋습니다.{caution_tail}{confidence_tail}",
+        "오늘은 강한 확정보다 조건 정리를 먼저 해야 충돌 가능성을 줄일 수 있습니다.{caution_tail}{confidence_tail}",
+        "오늘은 반응을 줄이고 기록 중심으로 대응할 때 안전합니다.{caution_tail}{confidence_tail}",
+        "오늘은 같은 이슈가 반복 충돌로 번지기 쉬워 대화 간격 조절이 필요합니다.{caution_tail}{confidence_tail}",
+        "오늘은 결론보다 공통 조건을 먼저 맞춰야 관계 소모를 줄이기 쉽습니다.{caution_tail}{confidence_tail}",
+        "오늘은 즉시 판단보다 잠깐의 유예가 마찰 방지에 효과적입니다.{caution_tail}{confidence_tail}",
+        "오늘은 사람·일정 이슈가 겹치기 쉬워 우선순위 충돌을 먼저 정리해야 합니다.{caution_tail}{confidence_tail}",
+        "오늘은 부딪힘 신호가 커질 수 있으니 핵심 대화만 남기고 범위를 줄이는 편이 좋습니다.{caution_tail}{confidence_tail}",
     ],
     "운 압박": [
         "오늘은 전체적으로 압박이 느껴지기 쉬워, 장점을 쓰더라도 범위를 줄여 가는 편이 좋습니다.{confidence_tail}",
         "오늘은 무게를 한꺼번에 지지 말고 일을 나눠 처리해야 피로를 줄일 수 있습니다.{confidence_tail}",
+        "오늘은 흐름이 무겁게 느껴질 수 있어 일정 강도를 미리 낮춰 두는 편이 좋습니다.{confidence_tail}",
+        "오늘은 잘하는 일도 과하게 벌리면 부담으로 돌아올 수 있어 선별이 필요합니다.{confidence_tail}",
+        "오늘은 압력 구간이라 속도보다 기준 유지가 결과를 지켜 줍니다.{confidence_tail}",
+        "오늘은 체감 부담이 커지기 쉬워 확정 수를 줄여 운영하는 편이 유리합니다.{confidence_tail}",
+        "오늘은 한 번에 해결하려 하지 말고 단계별 마감으로 나눠야 안정적입니다.{confidence_tail}",
+        "오늘은 장점 활용은 하되 페이스를 낮춰야 피로 누적을 막을 수 있습니다.{confidence_tail}",
+        "오늘은 부담 신호가 먼저 올라오는 날이라 일정 상한선을 정해 두는 편이 좋습니다.{confidence_tail}",
+        "오늘은 운의 압력이 큰 편이므로 선택을 줄이고 핵심 과제에 집중해야 합니다.{confidence_tail}",
     ],
     "방어 우선": [
         "오늘은 기회를 넓히기보다 방어와 정리가 우선이라, 일정과 감정 반응을 줄여 운영하는 편이 좋습니다.{confidence_tail}",
         "오늘은 잘하려고 무리하기보다 흔들리지 않는 데 집중해야 하며, 해야 할 범위를 작게 잡는 편이 안전합니다.{confidence_tail}",
+        "오늘은 확장보다 손실을 막는 선택이 훨씬 유리하게 작동할 수 있습니다.{confidence_tail}",
+        "오늘은 공격적 실행보다 일정 보호와 에너지 보존이 먼저입니다.{confidence_tail}",
+        "오늘은 큰 결정보다 기존 계획 정리와 리스크 점검이 더 중요합니다.{confidence_tail}",
+        "오늘은 해내는 양보다 흔들림을 줄이는 운영이 결과를 지켜 줍니다.{confidence_tail}",
+        "오늘은 외부 자극을 줄이고 기본 루틴을 지키는 편이 안전합니다.{confidence_tail}",
+        "오늘은 무리한 승부를 피하고 방어 기준을 먼저 세워야 안정됩니다.{confidence_tail}",
+        "오늘은 선택 폭을 좁혀 안전한 결론부터 처리하는 편이 좋습니다.{confidence_tail}",
+        "오늘은 방어형 운영이 맞는 날이라 일정과 지출 모두 보수적으로 가져가야 합니다.{confidence_tail}",
     ],
 }
 
-SCORE_BUCKET_SUMMARY_VARIANTS = {
+def _expand_variant_lines(
+    base_lines: list[str],
+    *,
+    target_size: int,
+    suffixes: list[str],
+    confidence_aware: bool = False,
+) -> list[str]:
+    unique_lines = list(dict.fromkeys(base_lines))
+    if not unique_lines or len(unique_lines) >= target_size:
+        return unique_lines[:target_size]
+
+    index = 0
+    guard = 0
+    while len(unique_lines) < target_size and guard < 1000:
+        source = base_lines[index % len(base_lines)]
+        suffix = suffixes[(index // len(base_lines)) % len(suffixes)].strip()
+        if confidence_aware and "{confidence_tail}" in source:
+            head = source.replace("{confidence_tail}", "").rstrip()
+            if not head.endswith("."):
+                head = f"{head}."
+            candidate = f"{head} {suffix}{{confidence_tail}}"
+        else:
+            base = source.rstrip()
+            if base.endswith("."):
+                candidate = f"{base} {suffix}"
+            else:
+                candidate = f"{base}. {suffix}"
+        if candidate not in unique_lines:
+            unique_lines.append(candidate)
+        index += 1
+        guard += 1
+
+    return unique_lines[:target_size]
+
+
+def _expand_variant_pool(
+    base_pool: dict[str, list[str]],
+    *,
+    target_size: int,
+    suffixes: list[str],
+    confidence_aware: bool = False,
+) -> dict[str, list[str]]:
+    return {
+        key: _expand_variant_lines(
+            lines,
+            target_size=target_size,
+            suffixes=suffixes,
+            confidence_aware=confidence_aware,
+        )
+        for key, lines in base_pool.items()
+    }
+
+
+SCORE_BUCKET_SUMMARY_VARIANTS_BASE = {
     "very_high": [
         "오늘은 힘을 쓴 만큼 결과가 남기 쉬운 날이라, 중요한 일을 앞당겨 처리하기 좋습니다.{confidence_tail}",
         "오늘은 성과가 붙기 쉬운 날이니 우선순위 높은 일을 먼저 끝내는 편이 좋습니다.{confidence_tail}",
@@ -376,7 +664,26 @@ SCORE_BUCKET_SUMMARY_VARIANTS = {
     ],
 }
 
-PATTERN_SCORE_SUMMARY_TAILS = {
+SCORE_BUCKET_SUMMARY_SUFFIXES = [
+    "핵심 과제 하나만 먼저 확정하면 성과 체감이 더 커집니다.",
+    "진행 중인 일의 마감 순서를 고정하면 흐름이 안정됩니다.",
+    "속도보다 완료 기준을 먼저 맞추는 편이 실수를 줄입니다.",
+    "일정과 에너지 상한선을 정해 두면 하루 품질이 올라갑니다.",
+    "중요 대화와 실행 시간을 분리하면 흔들림을 줄이기 쉽습니다.",
+    "확정할 일과 보류할 일을 초반에 나누면 운영이 가벼워집니다.",
+    "하루 목표를 작게 쪼개면 피로 없이 결과를 남기기 좋습니다.",
+    "기준표를 먼저 맞추면 같은 조건에서도 성과 편차가 줄어듭니다.",
+]
+
+SCORE_BUCKET_SUMMARY_VARIANTS = _expand_variant_pool(
+    SCORE_BUCKET_SUMMARY_VARIANTS_BASE,
+    target_size=10,
+    suffixes=SCORE_BUCKET_SUMMARY_SUFFIXES,
+    confidence_aware=True,
+)
+
+
+PATTERN_SCORE_SUMMARY_TAILS_BASE = {
     "식상격": [
         "실행 단위를 작게 끊어 마감하면 체감 성과가 더 또렷해집니다.",
         "아이디어보다 완료 기준을 먼저 정하면 결과 품질이 안정됩니다.",
@@ -399,7 +706,25 @@ PATTERN_SCORE_SUMMARY_TAILS = {
     ],
 }
 
-SPECIAL_STAR_SCORE_TAILS = {
+PATTERN_SCORE_SUMMARY_SUFFIXES = [
+    "작은 완료를 누적하면 중간 이탈 없이 흐름을 이어가기 쉽습니다.",
+    "핵심 기준을 한 줄로 고정하면 판단 오차가 크게 줄어듭니다.",
+    "동시에 여러 갈래를 벌리기보다 우선순위 두 개만 유지하세요.",
+    "초반에 범위를 좁혀 두면 마감 단계에서 품질이 더 안정됩니다.",
+    "결론 시점을 정해 두면 과도한 고민으로 인한 지연을 줄일 수 있습니다.",
+    "사람 이슈와 실무 이슈를 분리해서 처리하면 피로가 줄어듭니다.",
+    "변수 대응 시간을 일정에 포함하면 갑작스러운 흔들림을 막기 좋습니다.",
+    "지속 가능한 페이스를 먼저 확보하면 결과 변동 폭이 줄어듭니다.",
+]
+
+PATTERN_SCORE_SUMMARY_TAILS = _expand_variant_pool(
+    PATTERN_SCORE_SUMMARY_TAILS_BASE,
+    target_size=10,
+    suffixes=PATTERN_SCORE_SUMMARY_SUFFIXES,
+)
+
+
+SPECIAL_STAR_SCORE_TAILS_BASE = {
     "도화": [
         "사람이 모이는 자리에서는 말의 속도와 결론 시점을 분리하는 편이 좋습니다.",
         "대화량이 늘어도 약속 범위를 작게 유지하면 관계 피로를 줄일 수 있습니다.",
@@ -412,7 +737,40 @@ SPECIAL_STAR_SCORE_TAILS = {
         "집중 시간이 확보되면 품질이 올라가니 정리 시간을 짧게라도 확보해 보세요.",
         "마무리 단계에서 체크리스트를 쓰면 작은 누락을 줄일 수 있습니다.",
     ],
+    "천을귀인": [
+        "도움을 받을 수 있는 창구를 열어 두면 같은 문제도 훨씬 수월하게 풀릴 수 있습니다.",
+        "혼자 버티기보다 확인 요청 한 번을 먼저 넣으면 피로를 크게 줄일 수 있습니다.",
+    ],
+    "문창귀인": [
+        "기록과 체크리스트를 남기면 오해와 누락을 줄이고 마감 품질을 높이기 쉽습니다.",
+        "말로만 정리하지 말고 문서로 기준을 남기는 편이 오늘 특히 유리합니다.",
+    ],
+    "홍염": [
+        "관계 반응이 빨리 붙는 날이라 말의 강도보다 간격 조절이 만족도를 좌우합니다.",
+        "호감 신호가 있어도 속도를 천천히 맞추면 관계 피로를 줄일 수 있습니다.",
+    ],
+    "백호": [
+        "서두를수록 실수가 커질 수 있어 이동·운전·기계 작업은 한 템포 늦추는 편이 안전합니다.",
+        "강한 반응이 올라오기 쉬운 날이라 중요한 결론은 한 번 더 확인하는 편이 좋습니다.",
+    ],
 }
+
+SPECIAL_STAR_SCORE_SUFFIXES = [
+    "오늘은 반응 속도보다 간격 조절이 결과 품질을 크게 좌우합니다.",
+    "상대 조건을 한 번 더 확인하면 불필요한 마찰을 줄이기 쉽습니다.",
+    "핵심 일정 하나를 먼저 고정하면 변수 대응이 훨씬 수월해집니다.",
+    "결론을 서두르지 말고 확인 단계를 넣으면 손실 가능성을 낮출 수 있습니다.",
+    "기록을 남기며 진행하면 오해와 누락을 동시에 줄일 수 있습니다.",
+    "에너지 소모가 큰 구간은 미리 줄여 두는 편이 안정적입니다.",
+    "도움 요청 한 번이 전체 난이도를 크게 낮출 수 있는 흐름입니다.",
+    "안전 여지를 남기고 움직이면 같은 조건에서도 체감이 훨씬 편해집니다.",
+]
+
+SPECIAL_STAR_SCORE_TAILS = _expand_variant_pool(
+    SPECIAL_STAR_SCORE_TAILS_BASE,
+    target_size=10,
+    suffixes=SPECIAL_STAR_SCORE_SUFFIXES,
+)
 
 ALL_REASON_TAGS = (
     "용신 정합",
@@ -449,6 +807,12 @@ REASON_TAG_PRIORITY = [
 ]
 WARNING_TAG_PRIORITY = ["충돌 주의", "압력 주의", "변동 주의", "리듬 주의", "방어 우선"]
 
+CAUTION_TAG_SUMMARY_VARIANTS = {
+    tag: REASON_TAG_SCORE_SUMMARY_VARIANTS[tag]
+    for tag in WARNING_REASON_TAGS
+    if tag in REASON_TAG_SCORE_SUMMARY_VARIANTS
+}
+
 REASON_TAG_EXPLANATION = {
     "용신 정합": "오늘은 해야 할 일의 기준을 먼저 세우면 체감 효율이 빠르게 붙는 편입니다.",
     "균형 회복": "오늘은 무리하게 넓히기보다 리듬을 맞추면 흐름이 안정되기 쉽습니다.",
@@ -465,15 +829,47 @@ REASON_TAG_EXPLANATION = {
     "방어 우선": "오늘은 확장보다 손실 방지와 유지 관리에 초점을 두는 편이 맞습니다.",
 }
 
-CAUTION_TAG_EXPLANATION = {
-    "변동 주의": "변수 대응을 위해 일정 여유를 10~20% 남겨 두는 편이 좋습니다.",
-    "리듬 주의": "집중 시간이 길어지면 짧게라도 휴식 구간을 끼워 넣는 편이 좋습니다.",
-    "압력 주의": "오늘은 해야 할 일을 셋 이하로 줄여 과부하를 막는 편이 좋습니다.",
-    "충돌 주의": "중요한 대화는 결론보다 합의 순서를 먼저 맞추는 편이 유리합니다.",
-    "방어 우선": "큰 결정은 하루 유예하고 기존 계획을 정리하는 편이 더 안전합니다.",
+CAUTION_TAG_EXPLANATION_BASE = {
+    "변동 주의": [
+        "변수 대응을 위해 일정 여유를 10~20% 남겨 두는 편이 좋습니다.",
+        "예상치 못한 변경이 겹치기 쉬워 중간 점검 시간을 확보하는 편이 좋습니다.",
+    ],
+    "리듬 주의": [
+        "집중 시간이 길어지면 짧게라도 휴식 구간을 끼워 넣는 편이 좋습니다.",
+        "한 번에 몰아붙이기보다 호흡을 나눠 가야 체력 소모를 줄일 수 있습니다.",
+    ],
+    "압력 주의": [
+        "오늘은 해야 할 일을 셋 이하로 줄여 과부하를 막는 편이 좋습니다.",
+        "부담이 겹치기 쉬운 날이라 요청을 선별해 받는 편이 안전합니다.",
+    ],
+    "충돌 주의": [
+        "중요한 대화는 결론보다 합의 순서를 먼저 맞추는 편이 유리합니다.",
+        "반응이 올라오더라도 답변 속도를 늦추면 마찰을 줄일 수 있습니다.",
+    ],
+    "방어 우선": [
+        "큰 결정은 하루 유예하고 기존 계획을 정리하는 편이 더 안전합니다.",
+        "새 확장보다 손실 가능성 점검을 먼저 하면 하루 흐름이 안정됩니다.",
+    ],
 }
 
-REASON_TAG_ACTION_GUIDE = {
+CAUTION_TAG_EXPLANATION_SUFFIXES = [
+    "핵심 일정 한두 개만 고정하면 체감 부담을 크게 줄일 수 있습니다.",
+    "확정할 항목을 줄이고 보류 목록을 분리해 운영하는 편이 좋습니다.",
+    "중요 선택은 확인 단계를 하나 더 넣는 편이 안전합니다.",
+    "사람 이슈와 실무 이슈를 나눠 처리하면 피로 누적을 줄일 수 있습니다.",
+    "오늘은 속도보다 정확도와 회복 여지를 먼저 챙기세요.",
+    "중간 점검 한 번이 큰 흔들림을 막는 데 효과적입니다.",
+    "한 번에 해결하려 하지 말고 구간별로 마감하는 편이 좋습니다.",
+    "운영 범위를 좁힐수록 실수 가능성을 낮추기 쉽습니다.",
+]
+
+CAUTION_TAG_EXPLANATION = _expand_variant_pool(
+    CAUTION_TAG_EXPLANATION_BASE,
+    target_size=10,
+    suffixes=CAUTION_TAG_EXPLANATION_SUFFIXES,
+)
+
+REASON_TAG_ACTION_GUIDE_BASE = {
     "용신 정합": [
         "오늘은 기준 하나를 먼저 정하고 그 기준 안에서만 밀어붙이세요.",
         "할 일 순서를 고정해 실행하면 체감 성과가 더 또렷해질 수 있습니다.",
@@ -528,7 +924,25 @@ REASON_TAG_ACTION_GUIDE = {
     ],
 }
 
-CAUTION_TAG_ACTION_GUIDE = {
+REASON_TAG_ACTION_SUFFIXES = [
+    "중요한 일은 시작 전에 완료 기준부터 적어 두세요.",
+    "오늘 처리할 양을 줄이고 마감 품질을 우선하세요.",
+    "결론은 바로 내리지 말고 확인 단계 하나를 넣으세요.",
+    "사람 이슈와 실무 이슈를 분리해 순서대로 처리하세요.",
+    "핵심 한 가지를 끝낸 뒤 다음 선택으로 넘어가세요.",
+    "일정 여유를 남겨 돌발 변수에 대응할 공간을 확보하세요.",
+    "기록을 남기며 진행하면 같은 실수를 반복하지 않기 쉽습니다.",
+    "확정할 항목과 보류할 항목을 구분해 운영 부담을 줄이세요.",
+]
+
+REASON_TAG_ACTION_GUIDE = _expand_variant_pool(
+    REASON_TAG_ACTION_GUIDE_BASE,
+    target_size=10,
+    suffixes=REASON_TAG_ACTION_SUFFIXES,
+)
+
+
+CAUTION_TAG_ACTION_GUIDE_BASE = {
     "변동 주의": [
         "오늘은 즉흥 일정 추가를 줄이고 기존 계획부터 닫아 보세요.",
     ],
@@ -545,6 +959,24 @@ CAUTION_TAG_ACTION_GUIDE = {
         "오늘은 확정 숫자를 줄이고 보류 리스트를 별도로 관리하세요.",
     ],
 }
+
+CAUTION_TAG_ACTION_SUFFIXES = [
+    "오늘은 즉시 확정보다 중간 점검을 한 번 더 넣으세요.",
+    "무리한 약속과 추가 요청은 가능한 범위 안으로 줄이세요.",
+    "한 번에 처리하려 하지 말고 구간을 나눠 진행하세요.",
+    "감정 반응이 올라오면 답변 시점을 늦춰 오차를 줄이세요.",
+    "일정 상한선을 먼저 정해 과부하를 막는 편이 좋습니다.",
+    "지출과 시간 사용을 보수적으로 운영해 손실 가능성을 낮추세요.",
+    "오늘은 핵심 업무 외에는 보류로 넘겨 집중력을 지키세요.",
+    "중요 대화는 결론보다 합의 조건 확인을 먼저 진행하세요.",
+    "작은 완료 하나를 남기고 나머지는 내일로 분산하세요.",
+]
+
+CAUTION_TAG_ACTION_GUIDE = _expand_variant_pool(
+    CAUTION_TAG_ACTION_GUIDE_BASE,
+    target_size=10,
+    suffixes=CAUTION_TAG_ACTION_SUFFIXES,
+)
 
 ACTION_BY_SCORE_BUCKET = {
     "very_high": [
@@ -1089,6 +1521,11 @@ def _profile_headline_options(profile: str) -> list[str]:
         f"오늘은 {meta['gain']} 흐름을 살릴수록 하루 운영이 편해질 수 있습니다.",
         f"오늘은 {meta['risk']} 쪽으로 흐르지 않게 순서를 먼저 잡는 편이 좋습니다.",
         f"오늘은 {meta['action']} 방식이 실제 체감 만족도를 높이기 쉽습니다.",
+        f"오늘은 {meta['focus']} 기준이 흐려지면 체감 피로가 커질 수 있어 초반 고정이 중요합니다.",
+        f"오늘은 {meta['focus']}을 좁혀서 잡을수록 결과 편차를 줄이기 쉽습니다.",
+        f"오늘은 {meta['gain']} 쪽을 먼저 살리면 하루 밀도가 올라가기 쉽습니다.",
+        f"오늘은 {meta['action']} 운영을 초반 2시간에 먼저 적용하는 편이 좋습니다.",
+        f"오늘은 {meta['risk']} 흐름을 막기 위해 결론 시점을 미리 정해 두는 편이 유리합니다.",
     )
 
 
@@ -1101,6 +1538,12 @@ def _profile_explanation_options(profile: str) -> list[str]:
         f"오늘은 {meta['gain']} 방식이 맞을 가능성이 커서, 섣부른 확정보다 이 리듬을 살리는 편이 좋습니다.",
         f"다만 {meta['risk']} 흐름이 함께 붙을 수 있어, 초반에 기준을 잡아 두는 편이 유리합니다.",
         f"결국 오늘은 {meta['action']} 쪽으로 운영할수록 피로를 줄이면서 결과를 남기기 쉬울 수 있습니다.",
+        f"오늘은 {meta['focus']} 기준이 흔들리지 않게 체크 항목을 짧게 고정해 두면 체감이 더 안정되기 쉽습니다.",
+        f"급한 장면이 들어와도 {meta['gain']} 축을 먼저 챙기면 불필요한 소모를 줄이기 좋습니다.",
+        f"{meta['risk']} 쪽 반응이 올라오기 쉬운 날이라, 답을 빨리 내기보다 한 번 더 구분하는 편이 맞습니다.",
+        f"오늘은 {meta['action']} 흐름을 초반에 적용할수록 후반의 결정 피로를 낮추기 쉽습니다.",
+        f"여러 선택지가 보여도 {meta['focus']} 순서만 지키면 결과 편차를 크게 줄일 수 있습니다.",
+        f"오늘은 {meta['gain']}을 살리고 {meta['risk']}를 줄이는 운영 분리가 핵심이 되는 날입니다.",
     )
 
 
@@ -1113,6 +1556,12 @@ def _profile_advice_options(profile: str) -> list[str]:
         f"오늘은 {meta['gain']} 흐름을 살릴 수 있도록 할 일과 미룰 일을 분명히 나누는 편이 좋습니다.",
         f"오늘은 {meta['risk']} 쪽으로 길어지지 않도록 마감 시점을 먼저 잡아 두는 편이 좋습니다.",
         f"오늘은 {meta['action']} 방식으로 하루 구조를 단순하게 만드는 편이 실제 도움이 됩니다.",
+        f"오늘은 {meta['focus']} 기준을 메모로 남기고 그 기준 밖의 요청은 잠시 보류하세요.",
+        f"{meta['gain']} 장면이 보여도 한 번에 다 잡지 말고 가장 효과가 큰 한 가지만 먼저 실행하세요.",
+        f"{meta['risk']} 반응이 올라오면 답장을 늦추고 확인 순서부터 다시 맞추는 편이 좋습니다.",
+        f"오늘은 {meta['action']} 방식을 오전·오후 한 번씩 반복해 리듬을 고정해 보세요.",
+        f"우선순위 두 개만 확정하고 나머지는 보류 리스트로 넘기면 {meta['focus']} 유지가 쉬워집니다.",
+        f"오늘은 {meta['gain']}을 살리되 {meta['risk']}를 막기 위해 결론 시점을 미리 정해 두는 편이 좋습니다.",
     )
 
 
@@ -1124,6 +1573,13 @@ def _rule_explanation_options(ten_god: str) -> list[str]:
         f"오늘은 {keyword_a}과 {keyword_b} 축이 같이 움직여, 초반에 기준을 잡아 두면 체감 부담을 줄이기 쉬울 수 있습니다.",
         f"{keyword_a} 쪽 자극이 올라와도 {keyword_b}를 먼저 챙기면 하루 흐름이 비교적 흔들리지 않기 쉽습니다.",
         f"오늘은 {keyword_c} 문제까지 한꺼번에 보이기 쉬워, 하나씩 나눠 대응하는 편이 결과를 남기기 좋습니다.",
+        f"{keyword_a}이(가) 먼저 튀어도 {keyword_b} 기준을 고정하면 의사결정 오차를 줄이는 데 도움이 됩니다.",
+        f"오늘은 {keyword_b}과 {keyword_c}가 엮여 체감 난이도가 올라갈 수 있어, 단계 분리가 중요합니다.",
+        f"{keyword_a} 흐름이 강한 날일수록 {keyword_c}를 바로 확정하지 않는 편이 안정적입니다.",
+        f"오늘은 {keyword_b}를 먼저 닫아 두면 {keyword_a}에서 생기는 분산을 줄이기 쉽습니다.",
+        f"{keyword_c}까지 동시에 다루면 피로가 커질 수 있어, 먼저 {keyword_a} 또는 {keyword_b} 한 축을 정하는 편이 맞습니다.",
+        f"오늘은 {keyword_a}-{keyword_b}-{keyword_c} 순서를 미리 정해 두면 실수 가능성을 낮추기 쉽습니다.",
+        f"결론을 서두르면 {keyword_c}에서 흔들릴 수 있어, 오늘은 {keyword_b} 확인을 먼저 두는 편이 유리합니다.",
     )
 
 
@@ -1135,6 +1591,13 @@ def _rule_advice_options(ten_god: str) -> list[str]:
         f"오늘은 {keyword_a}보다 {keyword_b}를 먼저 고정하는 편이 전체 흐름을 다루기 쉽습니다.",
         f"{keyword_c}까지 한꺼번에 챙기려 하지 말고, 가장 체감이 큰 한 가지부터 처리하는 편이 좋습니다.",
         f"오늘은 {keyword_a}, {keyword_b}, {keyword_c}를 다 잡기보다 우선순위 두 개만 남기는 편이 좋습니다.",
+        f"오늘은 {keyword_a} 관련 결정은 시간을 끌지 말고, {keyword_b} 확인 뒤 바로 확정하는 편이 좋습니다.",
+        f"{keyword_c} 이슈는 즉시 결론보다 보류 기준을 먼저 세워 두는 편이 안정적입니다.",
+        f"오늘은 {keyword_b} 체크리스트를 먼저 만들고 {keyword_a} 실행으로 넘어가면 실수를 줄이기 쉽습니다.",
+        f"{keyword_a}과 {keyword_c}가 충돌하면 {keyword_b} 기준을 우선해 정리하는 편이 좋습니다.",
+        f"오늘은 {keyword_a} 범위를 절반으로 줄이고 {keyword_b} 품질을 높이는 쪽이 유리합니다.",
+        f"{keyword_c} 대응은 하루 한 번만 점검하고, 나머지 시간은 {keyword_a}/{keyword_b} 실행에 집중하세요.",
+        f"오늘은 {keyword_a}-{keyword_b}-{keyword_c} 중 핵심 한 축만 선명하게 잡아도 결과가 훨씬 안정됩니다.",
     )
 
 
@@ -1148,6 +1611,10 @@ def _day_stem_headline_options(day_stem: str) -> list[str]:
         f"{meta['strength']} 힘이 살아나지만, 동시에 강약 조절이 필요한 날입니다.",
         f"{meta['risk']} 쪽으로 흐르지 않게 기준을 먼저 세우는 편이 좋은 날입니다.",
         f"{meta['action']} 방식이 하루 품질을 좌우하기 쉬운 날입니다.",
+        f"오늘은 {meta['headline']} 판단이 강해질수록 반대 조건도 같이 점검하는 편이 좋습니다.",
+        f"오늘은 {meta['daily']} 리듬을 초반에 고정하면 후반 피로를 줄이기 쉽습니다.",
+        f"오늘은 {meta['action']} 운영을 하면 작은 충돌을 줄이며 마감하기 좋습니다.",
+        f"오늘은 {meta['risk']} 흐름을 막기 위해 할 일 수를 줄이는 편이 유리합니다.",
     )
 
 
@@ -1160,6 +1627,11 @@ def _month_branch_headline_options(month_branch: str) -> list[str]:
         f"{meta['daily']} 결이 강하게 작동해 속도보다 순서가 중요해질 수 있습니다.",
         f"{meta['strength']} 장점이 살아나지만, 동시에 균형 조절도 필요합니다.",
         f"{meta['risk']} 쪽으로 흐르지 않게 페이스를 조절하는 편이 좋습니다.",
+        f"오늘은 {meta['action']} 방식으로 범위를 좁혀야 체감 안정이 커질 수 있습니다.",
+        f"오늘은 {meta['headline']} 흐름이 강해 초반 우선순위 고정이 특히 중요합니다.",
+        f"오늘은 {meta['daily']} 결이 살아나므로 일정 간격을 먼저 맞추는 편이 좋습니다.",
+        f"오늘은 {meta['risk']} 구간을 줄이기 위해 즉시 확정을 줄이는 편이 유리합니다.",
+        f"오늘은 {meta['strength']} 장점을 쓰되 속도 상한선을 정해 두는 편이 안전합니다.",
     )
 
 
@@ -1339,7 +1811,7 @@ def calculate_daily_fortune(
     year_data = sentence_data["year_stem"][year_stem]
     time_data = sentence_data["time_branch"].get(time_branch) if time_branch else None
     month_ten_god_data = sentence_data["month_ten_god"].get(month_ten_god) if month_ten_god else None
-    seed = target_date.toordinal()
+    seed = _daily_seed(saju_result, target_date)
     natal_day_pillar_line = _pick(get_day_pillar_sentence_options(natal_day_pillar_kor, "daily"), seed + 5)
     daily_profile = _resolve_daily_profile(day_stem, month_branch)
     headline = _build_daily_headline(
@@ -1388,6 +1860,7 @@ def calculate_daily_fortune(
                 f"오늘 판단에서는 {_pick(month_ten_god_data['personality_modifier'], seed + 17).lower()}"
             )
         )
+    context_easy_lines = _rotate_dedup_lines(context_easy_lines, seed + 101)
 
     context_real_lines = [
         f"실제로는 회의나 답장, 결제처럼 바로 판단해야 하는 장면에서 {_strip_scene_prefix(stripped_day_line)}",
@@ -1400,17 +1873,21 @@ def calculate_daily_fortune(
     context_real_lines = [_normalize_daily_support_line(line) for line in context_real_lines]
     if time_data:
         context_real_lines.append(_normalize_daily_support_line(_pick(time_data["intimate_reaction"], seed + 19)))
+    context_real_lines = _rotate_dedup_lines(context_real_lines, seed + 131)
 
-    context_action_lines = [
-        *score_linked_actions,
-        *_daily_execution_action_lines(
-            score=score["value"],
-            ten_god=ten_god,
-            keywords=rule["keywords"],
-            seed=seed + 21,
-        ),
-    ]
-    advice = score_linked_actions[0] if score_linked_actions else context_action_lines[0]
+    execution_action_lines = _daily_execution_action_lines(
+        score=score["value"],
+        ten_god=ten_god,
+        keywords=rule["keywords"],
+        seed=seed + 21,
+    )
+    execution_action_lines = _rotate_dedup_lines(execution_action_lines, seed + 151)
+    if score["value"] >= 80:
+        # High-score days should read confident first, then caution as secondary.
+        context_action_lines = _dedup_lines_preserve_order([*score_linked_actions, *execution_action_lines])
+    else:
+        context_action_lines = _rotate_dedup_lines([*score_linked_actions, *execution_action_lines], seed + 151)
+    advice = context_action_lines[0] if context_action_lines else _pick(_profile_advice_options(daily_profile), seed + 23)
 
     strength_lines = [
         _pick(_daily_strength_options(ten_god), seed + 27),
@@ -1418,6 +1895,7 @@ def calculate_daily_fortune(
         _pick(_month_branch_strength_options(month_branch), seed + 31),
         *advanced_lines["strengths"],
     ]
+    strength_lines = _rotate_dedup_lines(strength_lines, seed + 171)
     risk_lines = [
         _pick(_daily_risk_options(ten_god), seed + 33),
         _pick(_day_stem_risk_options(day_stem), seed + 35),
@@ -1426,6 +1904,7 @@ def calculate_daily_fortune(
     ]
     if time_branch and time_data:
         risk_lines.append(_pick(time_data["intimate_reaction"], seed + 31))
+    risk_lines = _rotate_dedup_lines(risk_lines, seed + 191)
 
     section = build_daily_section(
         headline=headline,
@@ -1462,6 +1941,49 @@ def calculate_daily_fortune(
         "score": score,
         "day_context": natal_day_pillar_kor,
     }
+
+
+def _daily_seed(saju_result: dict, target_date: date) -> int:
+    """Build a deterministic but person-specific seed to reduce cross-user sentence repeats."""
+    base_seed = target_date.toordinal()
+    signature = saju_result.get("saju_id")
+    if not signature:
+        saju = saju_result.get("saju", {})
+        parts: list[str] = []
+        for pillar_key in ("year", "month", "day", "time"):
+            pillar = saju.get(pillar_key) or {}
+            parts.append(f"{pillar.get('stem', '')}{pillar.get('branch', '')}")
+        signature = "|".join(parts)
+    profile_seed = sum(ord(char) for char in str(signature))
+    return base_seed + profile_seed
+
+
+def _rotate_dedup_lines(lines: list[str], seed: int) -> list[str]:
+    """Deduplicate and rotate line priority so repeated fixed openers are reduced."""
+    cleaned: list[str] = []
+    seen: set[str] = set()
+    for line in lines:
+        normalized = (line or "").strip()
+        if not normalized or normalized in seen:
+            continue
+        cleaned.append(normalized)
+        seen.add(normalized)
+    if not cleaned:
+        return []
+    shift = seed % len(cleaned)
+    return [*cleaned[shift:], *cleaned[:shift]]
+
+
+def _dedup_lines_preserve_order(lines: list[str]) -> list[str]:
+    cleaned: list[str] = []
+    seen: set[str] = set()
+    for line in lines:
+        normalized = (line or "").strip()
+        if not normalized or normalized in seen:
+            continue
+        cleaned.append(normalized)
+        seen.add(normalized)
+    return cleaned
 
 
 def _pick(options: list[str], seed: int) -> str:
@@ -2110,6 +2632,42 @@ def _structure_adjustment(
             factors.append({"name": "신살 보정", "value": "화개 흐름에서 분산 주의", "delta": -1})
             delta -= 1
             _add_tag_score(tag_scores, "속도 조절", 1)
+    if "천을귀인" in star_tags:
+        if ten_god in {"정인", "편인", "정관", "정재"}:
+            factors.append({"name": "신살 보정", "value": "천을귀인 흐름과 보완형 일운 정합", "delta": 2})
+            delta += 2
+            _add_tag_score(tag_scores, "균형 회복", 2)
+        elif ten_god in {"편관", "겁재"}:
+            factors.append({"name": "신살 보정", "value": "천을귀인 흐름에서 부담 완충 필요", "delta": -1})
+            delta -= 1
+            _add_tag_score(tag_scores, "압력 주의", 1)
+    if "문창귀인" in star_tags:
+        if ten_god in {"정인", "편인", "정관", "식신"}:
+            factors.append({"name": "신살 보정", "value": "문창귀인 흐름과 정리·기록형 일운 정합", "delta": 2})
+            delta += 2
+            _add_tag_score(tag_scores, "정리 우선", 2)
+        elif ten_god in {"편재", "겁재"}:
+            factors.append({"name": "신살 보정", "value": "문창귀인 흐름에서 분산 관리 필요", "delta": -1})
+            delta -= 1
+            _add_tag_score(tag_scores, "속도 조절", 1)
+    if "홍염" in star_tags:
+        if ten_god in {"정재", "편재", "정관", "식신"}:
+            factors.append({"name": "신살 보정", "value": "홍염 흐름과 관계·호감형 일운 정합", "delta": 1})
+            delta += 1
+            _add_tag_score(tag_scores, "관계 조율", 2)
+        elif ten_god in {"상관", "겁재"}:
+            factors.append({"name": "신살 보정", "value": "홍염 흐름에서 반응 과열 주의", "delta": -1})
+            delta -= 1
+            _add_tag_score(tag_scores, "리듬 주의", 2)
+    if "백호" in star_tags:
+        if ten_god in {"편관", "겁재", "상관"}:
+            factors.append({"name": "신살 보정", "value": "백호 흐름과 충돌·과속형 일운 겹침", "delta": -2})
+            delta -= 2
+            _add_tag_score(tag_scores, "충돌 주의", 2)
+        elif ten_god in {"정관", "정재"}:
+            factors.append({"name": "신살 보정", "value": "백호 흐름에서 압박 관리 필요", "delta": -1})
+            delta -= 1
+            _add_tag_score(tag_scores, "압력 주의", 1)
 
     if "결과" in hour_theme and ten_god in {"식신", "정재", "정관"}:
         factors.append({"name": "시간 테마", "value": "후반 결과 테마와 일운 정합", "delta": 2})
@@ -2302,11 +2860,58 @@ def _score_variant_seed(*parts: object) -> int:
     return total
 
 
-def _pick_scored_variant(options: list[str], *parts: object) -> str:
+def _variant_scope_key(prefix: str, analysis_context: dict | None = None) -> str:
+    signature = ""
+    if analysis_context:
+        signature = analysis_context.get("structure", {}).get("signature_key", "")
+    return f"{signature or 'default'}:{prefix}"
+
+
+def _pick_scored_variant(
+    options: list[str],
+    *parts: object,
+    cooldown_key: str | None = None,
+) -> str:
     if not options:
         return ""
     seed = _score_variant_seed(*parts)
-    return options[seed % len(options)]
+    base_index = seed % len(options)
+    if not cooldown_key or len(options) <= 1:
+        return options[base_index]
+
+    with _VARIANT_COOLDOWN_LOCK:
+        recent = _VARIANT_RECENT_INDEXES[cooldown_key]
+        selected_index = base_index
+        if base_index in recent:
+            for step in range(1, len(options)):
+                candidate = (base_index + step) % len(options)
+                if candidate not in recent:
+                    selected_index = candidate
+                    break
+        recent.append(selected_index)
+    return options[selected_index]
+
+
+def _score_bucket_tone_line(
+    *,
+    score: int,
+    reason_tag: str,
+    caution_tag: str | None,
+    analysis_context: dict | None,
+) -> str:
+    bucket = _score_bucket(score)
+    if reason_tag in WARNING_REASON_TAGS:
+        options = WARNING_BUCKET_TONE_LINES[bucket]
+    else:
+        options = POSITIVE_BUCKET_TONE_LINES[bucket]
+    return _pick_scored_variant(
+        options,
+        score,
+        bucket,
+        reason_tag,
+        caution_tag or "",
+        cooldown_key=_variant_scope_key(f"tone:{reason_tag}:{bucket}", analysis_context),
+    )
 
 
 def _score_bucket(score: int) -> str:
@@ -2319,6 +2924,73 @@ def _score_bucket(score: int) -> str:
     if score >= 35:
         return "caution"
     return "defense"
+
+
+POSITIVE_BUCKET_TONE_LINES = {
+    "very_high": [
+        "오늘은 강점을 자신 있게 밀어붙여도 결과로 연결될 확률이 높은 구간입니다.",
+        "오늘은 주도권을 잡아도 흐름이 받쳐 주는 편이라 중요한 결정을 앞당기기 좋습니다.",
+        "오늘은 실행 강도를 높여도 완성도까지 함께 가져가기 좋은 타이밍입니다.",
+        "오늘은 공격적으로 움직여도 손실보다 성과가 남기 쉬운 날입니다.",
+    ],
+    "high": [
+        "오늘은 안정권에서 성과를 만들 수 있어 핵심 과제를 먼저 잡는 편이 유리합니다.",
+        "오늘은 무리만 피하면 기대한 결과를 현실로 연결하기 쉬운 구간입니다.",
+        "오늘은 평소보다 실행 반응이 좋아 중요한 일을 한 단계 밀기 좋습니다.",
+        "오늘은 기준만 지키면 성과가 꾸준히 붙는 흐름입니다.",
+    ],
+    "good": [
+        "오늘은 무난한 흐름이지만 관리가 느슨해지면 체감 품질이 바로 떨어질 수 있습니다.",
+        "오늘은 과속보다 안정 운영을 택해야 결과 편차를 줄일 수 있습니다.",
+        "오늘은 이길 수 있는 날이라기보다 잘 관리하면 충분히 남길 수 있는 날입니다.",
+        "오늘은 욕심을 줄이고 핵심 한두 개를 끝내는 전략이 맞습니다.",
+    ],
+    "caution": [
+        "오늘은 성과보다 손실 방지 쪽 비중을 높여야 전체 흐름을 지키기 쉽습니다.",
+        "오늘은 무리한 확장보다 리스크 차단이 더 중요한 구간입니다.",
+        "오늘은 감당 가능한 범위 안에서만 움직여야 피로 누적을 막을 수 있습니다.",
+        "오늘은 공격적으로 밀기보다 안정적으로 버티는 선택이 유리합니다.",
+    ],
+    "defense": [
+        "오늘은 이기는 운영보다 잃지 않는 운영이 훨씬 중요한 날입니다.",
+        "오늘은 방어 모드로 전환해 일정·지출·관계 모두 보수적으로 다루는 편이 안전합니다.",
+        "오늘은 큰 승부를 미루고 기반을 지키는 쪽이 정답에 가깝습니다.",
+        "오늘은 확장보다 회복과 정리에 집중해야 다음 흐름이 살아납니다.",
+    ],
+}
+
+WARNING_BUCKET_TONE_LINES = {
+    "very_high": [
+        "점수는 높아도 경고 신호가 강하니 자신감과 주의 운영을 동시에 가져가야 합니다.",
+        "상승 구간이지만 방심하면 작은 마찰이 커질 수 있어 확인 단계를 유지하세요.",
+        "성과 기회가 큰 날이지만 급한 결론은 피해야 이익을 지킬 수 있습니다.",
+        "좋은 흐름 속에서도 경고 요인을 먼저 다루면 결과 품질이 더 좋아집니다.",
+    ],
+    "high": [
+        "기본 흐름은 좋지만 경고 요인을 방치하면 체감 점수가 빠르게 흔들릴 수 있습니다.",
+        "오늘은 기회와 주의가 함께 오는 날이라 운영 균형이 핵심입니다.",
+        "상승 구간이더라도 반응 속도를 조절해야 안정적으로 마무리할 수 있습니다.",
+        "유리한 날이지만 경고 신호를 무시하면 손실로 전환될 수 있습니다.",
+    ],
+    "good": [
+        "오늘은 무난한 점수라도 경고 태그 관리 여부에 따라 결과 차이가 크게 납니다.",
+        "오늘은 관리형 구간이라 주의 요인을 먼저 줄이는 편이 유리합니다.",
+        "무난한 흐름 속에서도 경고 신호를 먼저 처리해야 체감이 안정됩니다.",
+        "오늘은 작은 경고를 초반에 정리해야 후반부 흔들림을 막을 수 있습니다.",
+    ],
+    "caution": [
+        "오늘은 경고 신호가 중심이라 보수적 운영을 기본값으로 두는 편이 좋습니다.",
+        "오늘은 성과 욕심보다 리스크 통제가 먼저인 날입니다.",
+        "오늘은 속도보다 확인을 우선해야 손실 가능성을 줄일 수 있습니다.",
+        "오늘은 주의 요인을 줄이는 것 자체가 가장 중요한 성과입니다.",
+    ],
+    "defense": [
+        "오늘은 강한 방어 구간이라 확정보다 보류 전략이 훨씬 안전합니다.",
+        "오늘은 경고 신호가 짙어 모든 결정을 한 단계 보수적으로 다루는 편이 좋습니다.",
+        "오늘은 손실 차단과 회복 여지 확보에 집중해야 다음 흐름을 지킬 수 있습니다.",
+        "오늘은 위험 신호 우선 대응이 핵심이며, 확장은 내일로 넘기세요.",
+    ],
+}
 
 
 def _label_for_grade(*, score: int, grade: str, reason_tag: str, caution_tag: str | None) -> str:
@@ -2352,8 +3024,17 @@ def _build_score_summary(
     if caution_tag and caution_tag != reason_tag:
         caution_tail = f" 특히 {caution_tag.replace('주의', '').replace('우선', '').strip()} 쪽은 한 번 더 점검하는 편이 좋습니다."
 
-    templates = REASON_TAG_SCORE_SUMMARY_VARIANTS.get(reason_tag)
+    if reason_tag in WARNING_REASON_TAGS:
+        templates = CAUTION_TAG_SUMMARY_VARIANTS.get(reason_tag)
+    else:
+        templates = REASON_TAG_SCORE_SUMMARY_VARIANTS.get(reason_tag)
     pattern_tail = _score_pattern_tail(analysis_context, score, reason_tag, caution_tag)
+    tone_line = _score_bucket_tone_line(
+        score=score,
+        reason_tag=reason_tag,
+        caution_tag=caution_tag,
+        analysis_context=analysis_context,
+    )
     if templates:
         summary = _pick_scored_variant(
             templates,
@@ -2364,6 +3045,7 @@ def _build_score_summary(
             daily_profile,
             ten_god,
             confidence,
+            cooldown_key=_variant_scope_key(f"summary:{reason_tag}", analysis_context),
         ).format(
             month_label=month_label,
             profile_label=profile_label,
@@ -2371,7 +3053,8 @@ def _build_score_summary(
             confidence_tail=confidence_tail,
             caution_tail=caution_tail,
         )
-        return f"{summary} {pattern_tail}".strip() if pattern_tail else summary
+        combined = f"{summary} {tone_line}".strip()
+        return f"{combined} {pattern_tail}".strip() if pattern_tail else combined
 
     bucket = _score_bucket(score)
     fallback_templates = SCORE_BUCKET_SUMMARY_VARIANTS[bucket]
@@ -2384,13 +3067,15 @@ def _build_score_summary(
         daily_profile,
         ten_god,
         confidence,
+        cooldown_key=_variant_scope_key(f"summary:fallback:{bucket}", analysis_context),
     ).format(
         month_label=month_label,
         profile_label=profile_label,
         ten_god=ten_god,
         confidence_tail=confidence_tail,
     )
-    return f"{summary} {pattern_tail}".strip() if pattern_tail else summary
+    combined = f"{summary} {tone_line}".strip()
+    return f"{combined} {pattern_tail}".strip() if pattern_tail else combined
 
 
 def _score_pattern_tail(
@@ -2418,7 +3103,13 @@ def _score_pattern_tail(
     if not tail_options:
         return ""
 
-    return tail_options[seed % len(tail_options)]
+    return _pick_scored_variant(
+        tail_options,
+        seed,
+        reason_tag,
+        caution_tag or "",
+        cooldown_key=_variant_scope_key(f"pattern_tail:{reason_tag}", analysis_context),
+    )
 
 
 def _build_score_driver_line(
@@ -2496,8 +3187,16 @@ def _score_linked_easy_line(score: dict) -> str:
     reason_tag = score.get("reason_tag", "정리 우선")
     caution_tag = score.get("caution_tag")
     reason_line = REASON_TAG_EXPLANATION.get(reason_tag, "오늘은 기준을 먼저 세우고 범위를 조절하는 편이 좋습니다.")
-    caution_line = CAUTION_TAG_EXPLANATION.get(caution_tag or "", "")
-    if caution_line:
+    caution_options = CAUTION_TAG_EXPLANATION.get(caution_tag or "", [])
+    if caution_options:
+        caution_line = _pick_scored_variant(
+            caution_options,
+            reason_tag,
+            caution_tag or "",
+            score.get("value", 0),
+            score.get("grade", ""),
+            cooldown_key=f"easy_line:{reason_tag}:{caution_tag or 'none'}",
+        )
         return f"{reason_line} 또한 {caution_line}"
     return reason_line
 
@@ -2516,15 +3215,34 @@ def _score_linked_one_line(base_line: str, score: dict) -> str:
 def _score_linked_action_lines(*, score: dict, seed: int) -> list[str]:
     reason_tag = score.get("reason_tag", "정리 우선")
     caution_tag = score.get("caution_tag")
+    score_value = int(score.get("value", 0))
 
     lines: list[str] = []
     reason_options = REASON_TAG_ACTION_GUIDE.get(reason_tag, REASON_TAG_ACTION_GUIDE["정리 우선"])
     if reason_options:
-        lines.append(_pick(reason_options, seed))
+        lines.append(
+            _pick_scored_variant(
+                reason_options,
+                seed,
+                reason_tag,
+                score_value,
+                cooldown_key=f"action_reason:{reason_tag}",
+            )
+        )
 
     caution_options = CAUTION_TAG_ACTION_GUIDE.get(caution_tag or "")
     if caution_options:
-        lines.append(_pick(caution_options, seed + 3))
+        caution_line = _pick_scored_variant(
+            caution_options,
+            seed + 3,
+            reason_tag,
+            caution_tag or "",
+            score_value,
+            cooldown_key=f"action_caution:{caution_tag}",
+        )
+        if score_value >= 80 and not caution_line.startswith(("다만", "하지만")):
+            caution_line = f"다만, {caution_line}"
+        lines.append(caution_line)
 
     unique_lines: list[str] = []
     seen: set[str] = set()
@@ -2549,18 +3267,8 @@ def _build_daily_headline(
     natal_month_branch: str,
     seed: int,
 ) -> str:
-    focus = {
-        "비견": "내 페이스를 지키는 방식",
-        "겁재": "경쟁과 분산 관리",
-        "식신": "실무 결과 만들기",
-        "상관": "표현과 조율",
-        "편재": "기회 선별",
-        "정재": "생활 관리",
-        "편관": "압박 대응",
-        "정관": "책임과 신뢰",
-        "편인": "관점 전환",
-        "정인": "정리와 준비",
-    }[ten_god]
+    focus_options = TEN_GOD_FOCUS_OPTIONS.get(ten_god, ["핵심 운영"])
+    focus = _pick(focus_options, seed + 57)
     profile_line = _pick(_profile_headline_options(profile), seed + 43)
     day_line = _pick(_day_stem_headline_options(natal_day_stem), seed + 47)
     month_line = _pick(_month_branch_headline_options(natal_month_branch), seed + 53)

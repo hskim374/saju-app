@@ -422,6 +422,38 @@
     "text": "운의 흐름은 길흉 한 줄보다 어떤 기운이 들어올 때 내 구조가 편해지는지를 보는 방식이 더 정확합니다."
   },
   {
+    "id": "luck_base_002",
+    "category": "luck_flow",
+    "type": "base",
+    "priority": 60,
+    "conditions": {},
+    "text": "운세는 좋고 나쁨 자체보다 내 생활 리듬과 맞는 구간을 구분할 때 체감 정확도가 높아집니다."
+  },
+  {
+    "id": "luck_base_003",
+    "category": "luck_flow",
+    "type": "base",
+    "priority": 60,
+    "conditions": {},
+    "text": "같은 운이라도 준비된 영역에 먼저 쓰면 성과가 커지고, 무리한 영역에 쓰면 소모가 커지기 쉽습니다."
+  },
+  {
+    "id": "luck_base_004",
+    "category": "luck_flow",
+    "type": "base",
+    "priority": 60,
+    "conditions": {},
+    "text": "큰 흐름은 한 번에 바꾸기 어렵기 때문에 월·주·일 기준을 나눠 보는 방식이 실전에 더 유리합니다."
+  },
+  {
+    "id": "luck_base_005",
+    "category": "luck_flow",
+    "type": "base",
+    "priority": 60,
+    "conditions": {},
+    "text": "운의 방향을 읽을 때는 사건 자체보다 내가 반복적으로 흔들리는 지점을 먼저 확인하는 편이 정확합니다."
+  },
+  {
     "id": "luck_struct_yongshin_001",
     "category": "luck_flow",
     "type": "structure",
@@ -438,6 +470,70 @@
     "text": "운을 볼 때는 용신 축이 들어오는 시기를 먼저 보고, 보조 기운이 받쳐 주는 구간을 함께 보는 편이 실전 체감이 높습니다."
   },
   {
+    "id": "luck_struct_yongshin_002",
+    "category": "luck_flow",
+    "type": "structure",
+    "priority": 88,
+    "conditions": {
+      "yongshin_contains": [
+        "목",
+        "화",
+        "토",
+        "금",
+        "수"
+      ]
+    },
+    "text": "용신 기운이 들어오는 시기에는 평소 막히던 일도 기준만 맞추면 훨씬 부드럽게 풀릴 가능성이 큽니다."
+  },
+  {
+    "id": "luck_struct_yongshin_003",
+    "category": "luck_flow",
+    "type": "structure",
+    "priority": 87,
+    "conditions": {
+      "yongshin_contains": [
+        "목",
+        "화",
+        "토",
+        "금",
+        "수"
+      ]
+    },
+    "text": "용신 축이 살아나는 구간은 큰 승부보다 핵심 한두 가지를 밀어붙일 때 성과 회수율이 높습니다."
+  },
+  {
+    "id": "luck_struct_yongshin_004",
+    "category": "luck_flow",
+    "type": "structure",
+    "priority": 86,
+    "conditions": {
+      "yongshin_contains": [
+        "목",
+        "화",
+        "토",
+        "금",
+        "수"
+      ]
+    },
+    "text": "보조 기운이 함께 받쳐 주는 달에는 속도를 조금 높여도 피로 대비 결과가 남기 쉬운 편입니다."
+  },
+  {
+    "id": "luck_struct_yongshin_005",
+    "category": "luck_flow",
+    "type": "structure",
+    "priority": 85,
+    "conditions": {
+      "yongshin_contains": [
+        "목",
+        "화",
+        "토",
+        "금",
+        "수"
+      ]
+    },
+    "text": "용신 흐름은 체감이 짧게 지나갈 수 있어, 목표를 미리 정해 두면 기회를 더 확실히 잡기 쉽습니다."
+  },
+  {
     "id": "luck_adj_conflict_001",
     "category": "luck_flow",
     "type": "adjustment",
@@ -446,6 +542,46 @@
       "has_luck_pressure": true
     },
     "text": "충돌 신호가 겹치는 해에는 새로운 확장보다 기존 틀을 유지하는 선택이 결과적으로 손실을 줄이는 편입니다."
+  },
+  {
+    "id": "luck_adj_conflict_002",
+    "category": "luck_flow",
+    "type": "adjustment",
+    "priority": 77,
+    "conditions": {
+      "has_luck_pressure": true
+    },
+    "text": "운 압력이 강한 구간에서는 일정 상한선을 먼저 두고 움직여야 연쇄 피로를 막기 쉽습니다."
+  },
+  {
+    "id": "luck_adj_conflict_003",
+    "category": "luck_flow",
+    "type": "adjustment",
+    "priority": 76,
+    "conditions": {
+      "has_luck_pressure": true
+    },
+    "text": "부딪힘 신호가 보일 때는 결정 속도를 낮추고 확인 절차를 늘리는 편이 손실을 줄입니다."
+  },
+  {
+    "id": "luck_adj_conflict_004",
+    "category": "luck_flow",
+    "type": "adjustment",
+    "priority": 75,
+    "conditions": {
+      "has_luck_pressure": true
+    },
+    "text": "충돌 운이 겹치는 시기에는 새 판을 벌리기보다 진행 중인 일의 누수를 막는 운영이 더 유리합니다."
+  },
+  {
+    "id": "luck_adj_conflict_005",
+    "category": "luck_flow",
+    "type": "adjustment",
+    "priority": 74,
+    "conditions": {
+      "has_luck_pressure": true
+    },
+    "text": "압박 구간에서는 사람 문제와 일정 문제를 분리해 관리할수록 실제 체감 난이도가 내려갑니다."
   },
 
   {
@@ -759,6 +895,62 @@
       ]
     },
     "text": "신살 신호가 켜진 구간에서는 관계·변화·집중 축을 각각 분리해 계획할수록 운의 체감 편차를 줄일 수 있습니다."
+  },
+  {
+    "id": "luck_adj_special_star_002",
+    "category": "luck_flow",
+    "type": "adjustment",
+    "priority": 75,
+    "conditions": {
+      "special_star_tags_contains": [
+        "도화",
+        "역마",
+        "화개"
+      ]
+    },
+    "text": "도화·역마·화개 신호가 함께 보이면 대인·이동·집중 계획을 하루 단위로 나눠 잡는 편이 안정적입니다."
+  },
+  {
+    "id": "luck_adj_special_star_003",
+    "category": "luck_flow",
+    "type": "adjustment",
+    "priority": 74,
+    "conditions": {
+      "special_star_tags_contains": [
+        "도화",
+        "역마",
+        "화개"
+      ]
+    },
+    "text": "신살 반응이 강한 날은 좋은 기회도 과열되기 쉬워, 약속 수와 이동량을 줄이는 운영이 필요합니다."
+  },
+  {
+    "id": "luck_adj_special_star_004",
+    "category": "luck_flow",
+    "type": "adjustment",
+    "priority": 73,
+    "conditions": {
+      "special_star_tags_contains": [
+        "도화",
+        "역마",
+        "화개"
+      ]
+    },
+    "text": "특수 신호가 켜진 구간에서는 감정 반응과 실행 계획을 분리해 적어 두면 판단 오차를 줄일 수 있습니다."
+  },
+  {
+    "id": "luck_adj_special_star_005",
+    "category": "luck_flow",
+    "type": "adjustment",
+    "priority": 72,
+    "conditions": {
+      "special_star_tags_contains": [
+        "도화",
+        "역마",
+        "화개"
+      ]
+    },
+    "text": "관계 주목도와 변화성이 동시에 올라올 때는 결론을 서두르기보다 중간 점검을 넣는 편이 유리합니다."
   },
 
   {

@@ -302,7 +302,7 @@ def _attach_main_cards(display: dict) -> None:
     career_section = display.get("career_fortune", {}).get("section", {})
     relationship_section = display.get("relationship_fortune", {}).get("section", {})
 
-    display["main_cards"] = {
+    main_cards = {
         "personality": _build_main_card(
             structured_lines=structured.get("personality", []),
             fallback_section=interpretation.get("personality", {}),
@@ -318,11 +318,20 @@ def _attach_main_cards(display: dict) -> None:
         "relationship": _build_main_card(
             structured_lines=structured.get("relationship", []),
             fallback_section=relationship_section,
+            prefer_fallback_action=True,
+            max_action_lines=4,
         ),
     }
+    display["main_cards"] = main_cards
 
 
-def _build_main_card(*, structured_lines: list[str], fallback_section: dict) -> dict:
+def _build_main_card(
+    *,
+    structured_lines: list[str],
+    fallback_section: dict,
+    prefer_fallback_action: bool = False,
+    max_action_lines: int | None = None,
+) -> dict:
     fallback_one_line = str(fallback_section.get("one_line", "")).strip()
     fallback_highlight = str(fallback_section.get("highlight", "")).strip()
     fallback_easy = [str(item).strip() for item in fallback_section.get("easy_explanation", []) if str(item).strip()]
@@ -340,7 +349,7 @@ def _build_main_card(*, structured_lines: list[str], fallback_section: dict) -> 
         real = fallback_real if fallback_real else lines[1:3]
         strength = fallback_strength if fallback_strength else [lines[-1]]
         action_seed = lines[-1]
-        action = _unique_lines([action_seed, *fallback_action])
+        action = fallback_action if prefer_fallback_action and fallback_action else _unique_lines([action_seed, *fallback_action])
         source = "structured"
     else:
         one_line = fallback_one_line
@@ -350,6 +359,9 @@ def _build_main_card(*, structured_lines: list[str], fallback_section: dict) -> 
         strength = fallback_strength
         action = fallback_action
         source = "legacy"
+
+    if max_action_lines is not None:
+        action = action[:max_action_lines]
 
     return {
         "source": source,

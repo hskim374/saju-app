@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from collections import defaultdict, deque
+from threading import Lock
+
 from data.day_pillar_sentences import get_day_pillar_sentence_options
 from data.month_ten_god_specialized import MONTH_TEN_GOD_CAREER_LINES
 from services.analysis_sentence_store import load_analysis_sentences
@@ -131,12 +134,86 @@ CAREER_STRENGTHS = {
 }
 
 CAREER_WARNINGS = {
-    "상관": "평가가 걸린 자리에서는 말의 수위와 문서 표현을 한 번 더 다듬는 편이 좋습니다.",
-    "겁재": "올해는 경쟁이 강해져 자리 변동 가능성이 있어 충동적인 이직 판단은 늦추는 편이 안전합니다.",
-    "편관": "압박이 커질수록 체력과 감정 소모가 누적될 수 있어 일정 간격으로 리듬을 비워야 합니다.",
-    "편재": "기회가 많아 보일수록 우선순위를 정하지 않으면 성과가 흩어질 수 있습니다.",
-    "비견": "자기 판단이 강해질수록 협업 신호를 분명히 해야 충돌을 줄일 수 있습니다.",
+    "상관": [
+        "평가가 걸린 자리에서는 말의 수위와 문서 표현을 한 번 더 다듬는 편이 좋습니다.",
+        "문제 제기가 빠를수록 표현 강도도 올라가기 쉬워 순서를 맞춘 전달이 필요합니다.",
+        "맞는 말이라도 타이밍이 어긋나면 마찰이 커질 수 있어 결론 시점을 분리하는 편이 안전합니다.",
+        "보고·피드백 장면에서는 핵심 메시지를 줄여 전달해야 오해를 줄일 수 있습니다.",
+        "직설적 표현이 장점으로 작동하되, 평가 구간에서는 완충 문장을 먼저 두는 편이 유리합니다.",
+    ],
+    "겁재": [
+        "올해는 경쟁이 강해져 자리 변동 가능성이 있어 충동적인 이직 판단은 늦추는 편이 안전합니다.",
+        "동시에 여러 일을 잡기 쉬운 흐름이라 우선순위가 없으면 성과가 분산될 수 있습니다.",
+        "사람 이슈가 겹치면 에너지가 빠르게 소모될 수 있어 협업 범위를 좁혀 운영해야 합니다.",
+        "주도권을 모두 직접 쥐려 하면 피로가 커져 선택과 위임을 함께 쓰는 편이 좋습니다.",
+        "경쟁 구간일수록 빠른 결론보다 손실 한도를 먼저 정해 움직이는 편이 안전합니다.",
+    ],
+    "편관": [
+        "압박이 커질수록 체력과 감정 소모가 누적될 수 있어 일정 간격으로 리듬을 비워야 합니다.",
+        "책임이 갑자기 늘어날 수 있는 흐름이라 역할 상한선을 숫자로 정해 두는 편이 좋습니다.",
+        "평가와 마감이 겹치면 과부하가 오기 쉬워 핵심 과제만 남기는 운영이 필요합니다.",
+        "도전 과제를 맡더라도 중간 점검을 빼면 리스크가 커질 수 있어 확인 절차를 고정해야 합니다.",
+        "압력이 강한 시기에는 실수 한 번이 크게 체감될 수 있어 속도보다 정확도를 우선해야 합니다.",
+    ],
+    "편재": [
+        "기회가 많아 보일수록 우선순위를 정하지 않으면 성과가 흩어질 수 있습니다.",
+        "외부 제안이 늘어도 조건표 없이 받으면 일정과 자원이 쉽게 꼬일 수 있습니다.",
+        "수익 가능성이 보여도 유지 가능성을 먼저 보지 않으면 후반 부담이 커질 수 있습니다.",
+        "단기 성과 중심 선택이 반복되면 경력 방향이 흔들릴 수 있어 기준 고정이 필요합니다.",
+        "기회 선별 없이 확장하면 마무리 품질이 내려갈 수 있어 진입 기준을 엄격히 두는 편이 좋습니다.",
+    ],
+    "비견": [
+        "자기 판단이 강해질수록 협업 신호를 분명히 해야 충돌을 줄일 수 있습니다.",
+        "독자 추진력이 올라올수록 역할 경계가 흐려져 팀 마찰이 생길 수 있습니다.",
+        "내 기준이 선명한 장점이 과해지면 조정 비용이 커질 수 있어 합의 절차를 먼저 맞춰야 합니다.",
+        "혼자 해결하려는 성향이 강해질수록 일정 과부하가 오기 쉬워 지원 요청 시점을 정해 두는 편이 좋습니다.",
+        "주도권을 잡는 흐름이 강할수록 협업 규칙을 명시해 불필요한 오해를 줄여야 합니다.",
+    ],
 }
+
+MONTH_BRANCH_WATER_WARNING_VARIANTS = [
+    "생각이 길어질수록 실행 시점이 밀릴 수 있어 마감 기준을 먼저 정하는 편이 좋습니다.",
+    "검토가 길어지는 구간이라 결정 시간을 제한하지 않으면 일정이 뒤로 밀리기 쉽습니다.",
+    "정보를 더 모으려는 성향이 강해져도 결론 마감선을 먼저 잡아야 리듬이 무너지지 않습니다.",
+    "확인 단계가 길어지면 실행력이 떨어질 수 있어 초반에 완료 기준을 명확히 두는 편이 안전합니다.",
+    "판단이 깊어지는 장점이 일정 지연으로 이어지지 않도록 중간 확정 지점을 나눠 두는 편이 좋습니다.",
+]
+
+MONTH_BRANCH_FIRE_WARNING_VARIANTS = [
+    "속도가 붙는 시기일수록 말의 강약과 보고 타이밍을 조절해야 평판 손실을 줄일 수 있습니다.",
+    "추진력이 커지는 구간이라 반응이 앞서기 쉬워 결론 전에 확인 단계를 한 번 더 두는 편이 좋습니다.",
+    "빠른 실행이 장점이지만 보고 순서가 어긋나면 오해가 커질 수 있어 전달 구조를 먼저 정리해야 합니다.",
+    "속도가 올라올수록 작은 실수가 커질 수 있어 핵심 일정은 재확인 루틴을 고정하는 편이 안전합니다.",
+    "강하게 밀어붙이기 쉬운 흐름이라 합의 없는 확정은 줄이고 중간 공유를 늘리는 편이 유리합니다.",
+]
+
+TIME_BRANCH_METAL_WARNING_VARIANTS = [
+    "완성도를 높이려는 마음이 과해지면 마감이 늦어질 수 있어 끝내는 기준을 먼저 세우는 편이 좋습니다.",
+    "디테일 점검이 길어지는 흐름이라 수정 횟수 상한선을 두지 않으면 일정이 밀릴 수 있습니다.",
+    "품질 의식이 강한 장점이 과도해지면 속도가 떨어질 수 있어 제출 시점을 먼저 고정하는 편이 좋습니다.",
+    "정밀 검토가 필요한 시기일수록 우선순위 없는 보완은 피하고 핵심 항목만 남겨야 합니다.",
+    "완성도 집착이 피로로 바뀌기 쉬워 마감선 이후 보완은 다음 주기로 넘기는 운영이 필요합니다.",
+]
+
+STAR_SHANGGUAN_WARNING_VARIANTS = [
+    "문제 인식이 빨라질수록 표현도 세질 수 있어 맞는 말이라도 순서를 조절하는 편이 좋습니다.",
+    "개선 포인트를 빠르게 짚을수록 상대 체감 압박이 커질 수 있어 전달 강도를 낮추는 편이 유리합니다.",
+    "비판적 시각이 장점으로 작동하되 평가 자리에서는 제안형 문장으로 바꾸는 편이 안전합니다.",
+    "직접적인 피드백은 오해를 부를 수 있어 근거-대안-결론 순서로 말하는 편이 좋습니다.",
+    "표현력이 올라오는 구간일수록 결론보다 합의 가능한 조건부터 맞추는 편이 마찰을 줄입니다.",
+]
+
+WEAK_WARNING_VARIANTS = [
+    "원국 기준으로는 소모가 빠를 수 있어 역할이 늘수록 체력과 일정 간격을 먼저 확보하는 편이 좋습니다.",
+    "신약 흐름에서는 한 번에 많은 책임을 받으면 회복이 늦어질 수 있어 업무 상한선을 먼저 정해야 합니다.",
+]
+
+LUCK_PRESSURE_WARNING_VARIANTS = [
+    "현재 운에서 충돌 압력이 걸릴 수 있어 자리 이동이나 확장은 기준을 더 엄격하게 보는 편이 좋습니다.",
+    "운 압박 구간에서는 작은 변수도 크게 체감될 수 있어 결정 전 체크 항목을 고정하는 편이 안전합니다.",
+]
+
+CAREER_WARNING_FALLBACK = "큰 결정은 일정과 조건을 숫자로 정리한 뒤 판단하는 편이 좋습니다."
 
 DAY_STEM_CAREER_LINES = {
     "갑": "프로젝트 방향을 잡아야 하는 장면에서는 먼저 큰 판과 역할 배치를 보는 쪽이 더 자연스럽습니다.",
@@ -221,6 +298,304 @@ CAREER_PROFILE_ADVICE = {
     "coordination_manager": "관계 조율이 장점인 만큼 전부 떠안지 말고 연결과 위임을 함께 쓰는 편이 좋습니다.",
 }
 
+CAREER_STRENGTH_HEADLINE_CLAUSES = {
+    "strong": [
+        "역할이 커져도 버티는 힘이 있어 핵심 과제를 전진시키기 좋은 편입니다.",
+        "압박 구간에서도 리듬을 유지하며 성과를 이어 가기 좋은 흐름입니다.",
+        "책임이 늘어도 실행 밀도를 유지하기 쉬운 편입니다.",
+        "중요한 결정을 실행까지 끌고 가기 유리한 에너지가 붙습니다.",
+        "확장 과제를 맡아도 무너지지 않는 추진력이 살아 있습니다.",
+    ],
+    "slightly_strong": [
+        "기본 버팀이 있어 핵심 과제 중심 운영이 유리합니다.",
+        "초반 정리만 끝내면 중반 이후 실행 안정감이 커질 수 있습니다.",
+        "무리하지 않아도 중요한 일은 성과로 연결되기 쉬운 흐름입니다.",
+        "리듬만 지키면 업무 완성도를 유지하기 수월한 편입니다.",
+        "우선순위를 좁혀 잡을수록 체감 성과가 선명해질 수 있습니다.",
+    ],
+    "balanced": [
+        "확장과 관리의 균형을 맞출수록 직장운이 안정됩니다.",
+        "속도와 정리 간격을 지키면 결과 편차를 줄이기 쉬운 흐름입니다.",
+        "한쪽으로 몰아치지 않는 운영이 성과 품질을 지켜 줍니다.",
+        "중간 점검 한 번이 전체 리듬을 크게 안정시킬 수 있습니다.",
+        "작은 조정을 반복하는 방식이 장기 성과에 유리합니다.",
+    ],
+    "slightly_weak": [
+        "범위를 줄여 핵심 업무만 남길수록 안정감이 커질 수 있습니다.",
+        "확장보다 운영 정비를 먼저 두는 편이 더 유리합니다.",
+        "결정 속도보다 확인 절차를 강화할수록 오차를 줄일 수 있습니다.",
+        "한 번에 많이 벌리기보다 단계적으로 닫아 가는 편이 좋습니다.",
+        "체력과 일정 상한선을 함께 잡아야 흐름을 지키기 쉽습니다.",
+    ],
+    "weak": [
+        "올해는 방어 운영을 먼저 두는 선택이 실제로 더 유리합니다.",
+        "무리한 확대보다 현재 범위 안정화가 먼저 맞는 흐름입니다.",
+        "핵심 일정만 남기고 나머지를 조정할수록 손실을 줄이기 쉽습니다.",
+        "속도를 낮추고 검증 빈도를 높이는 편이 안전합니다.",
+        "역할·마감·체력 상한선을 숫자로 두는 운영이 필요합니다.",
+    ],
+}
+
+CAREER_PATTERN_HEADLINE_CLAUSES = {
+    "관성격": [
+        "책임 분배와 기준 정리가 성과를 좌우하기 쉽습니다.",
+        "역할 경계를 먼저 분명히 할수록 평판 리스크를 줄일 수 있습니다.",
+        "평가와 신뢰가 함께 걸리는 장면에서 차이가 크게 벌어질 수 있습니다.",
+    ],
+    "재성격": [
+        "성과 회수와 자원 배분 기준이 직장 결과를 크게 바꿀 수 있습니다.",
+        "실적만 보지 말고 소모 대비 효율을 같이 봐야 하는 흐름입니다.",
+        "시간·비용 대비 남는 일을 고르는 선별력이 중요해집니다.",
+    ],
+    "식상격": [
+        "실행력과 산출물을 꾸준히 남기는 운영이 핵심입니다.",
+        "아이디어보다 완료 기준 관리에서 성과 차이가 벌어질 수 있습니다.",
+        "말보다 결과물로 증명하는 흐름이 강해지는 편입니다.",
+    ],
+    "인성격": [
+        "정보·문서·근거 정리의 완성도가 결과를 좌우할 수 있습니다.",
+        "준비 품질이 실행 안정성으로 이어지는 구조가 강하게 작동합니다.",
+        "검토와 보완 절차를 고정하면 오차를 줄이기 쉬운 흐름입니다.",
+    ],
+    "비겁격": [
+        "협업과 경쟁의 경계를 나누는 운영이 특히 중요해집니다.",
+        "사람 변수 관리가 일정 품질만큼 중요한 해로 읽힙니다.",
+        "주도권을 잡되 분산을 막는 구조 설계가 필요합니다.",
+    ],
+    "균형격": [
+        "한쪽으로 치우치지 않는 운영이 가장 큰 강점으로 작동합니다.",
+        "무리수보다 일관성이 성과를 키우는 흐름입니다.",
+        "순서 관리만 잘해도 체감 난이도를 낮추기 쉽습니다.",
+    ],
+}
+
+CAREER_STAR_HEADLINE_CLAUSES = {
+    "비견": ["독립성과 주도권이 커져 역할 선택의 무게가 올라갈 수 있습니다.", "내 기준으로 밀고 가는 힘이 커질 수 있습니다."],
+    "겁재": ["경쟁·분산 관리가 핵심이 되어 우선순위 선별이 중요해집니다.", "사람과 업무가 동시에 늘어 분산 리스크가 커질 수 있습니다."],
+    "식신": ["실무 생산성과 마감 완성도를 올리기 좋은 흐름이 붙습니다.", "작은 결과를 반복 생산할수록 평가가 좋아질 수 있습니다."],
+    "상관": ["표현력은 올라가지만 마찰 관리가 함께 필요해집니다.", "문제 제기와 개선 제안을 순서 있게 내는 편이 유리합니다."],
+    "편재": ["외부 기회는 늘 수 있으나 선별 기준이 더 중요해집니다.", "제안이 많아질수록 잡을 일과 넘길 일을 나눠야 합니다."],
+    "정재": ["관리형 성과가 쌓이기 좋은 흐름으로 운영 기준이 중요합니다.", "실적과 실무 균형을 맞추는 힘이 커질 수 있습니다."],
+    "편관": ["압박 구간 대응력이 성패를 가르는 흐름이 강해집니다.", "도전 과제는 상한선 관리와 병행해야 안정적입니다."],
+    "정관": ["책임·평가 이슈가 또렷해져 원칙 운영이 성과로 연결되기 쉽습니다.", "공적 역할에서 신뢰 축적이 중요한 해입니다."],
+    "편인": ["방식 전환과 탐색 이슈가 올라와 실험 범위 관리가 필요합니다.", "새 접근을 시도하되 운영 리스크는 좁혀야 합니다."],
+    "정인": ["준비·학습·근거 체계가 직장 안정도를 높여 줄 수 있습니다.", "기반 강화가 장기 성과로 이어지기 쉬운 흐름입니다."],
+}
+
+CAREER_HEADLINE_TEMPLATES = [
+    "{core} {pattern}",
+    "{core} {strength}",
+    "{core} {star}",
+    "{pattern} {strength}",
+    "{pattern} {star}",
+    "{strength} {star}",
+    "{core} {pattern} {star}",
+    "{core} {strength} {star}",
+    "{pattern} {strength} {star}",
+    "{core} {pattern} {strength}",
+]
+
+CAREER_SUMMARY_TEMPLATES = [
+    "{profile} {tone}",
+    "{profile} {trend}",
+    "{profile} {strength}",
+    "{tone} {star}",
+    "{trend} {star}",
+    "{strength} {pattern}",
+    "{profile} {tone} {trend}",
+    "{profile} {strength} {star}",
+    "{tone} {pattern} {trend}",
+    "{profile} {pattern} {tone}",
+]
+
+CAREER_HEADLINE_COOLDOWN_WINDOW = 2
+_CAREER_RECENT_INDEXES: dict[str, deque[int]] = defaultdict(
+    lambda: deque(maxlen=CAREER_HEADLINE_COOLDOWN_WINDOW)
+)
+_CAREER_HEADLINE_LOCK = Lock()
+
+
+def _seed_from_values(*parts: object) -> int:
+    total = 0
+    for part in parts:
+        if part is None:
+            continue
+        text = str(part)
+        total += sum(ord(char) for char in text)
+    return total
+
+
+def _pick_seeded(options: list[str], seed: int) -> str:
+    return options[seed % len(options)]
+
+
+def _career_strength_key(analysis_context: dict | None) -> str:
+    if not analysis_context:
+        return "balanced"
+    label = analysis_context.get("strength", {}).get("label", "balanced")
+    return label if label in CAREER_STRENGTH_HEADLINE_CLAUSES else "balanced"
+
+
+def _build_career_headline_candidates(
+    *,
+    saju_id: str,
+    career_profile: str,
+    tone: str,
+    intensity: str,
+    day_pillar_kor: str,
+    current_stars: list[str],
+    analysis_context: dict | None,
+) -> list[str]:
+    base_seed = _seed_from_values(
+        saju_id,
+        career_profile,
+        tone,
+        intensity,
+        day_pillar_kor,
+        current_stars[0] if current_stars else "",
+        current_stars[1] if len(current_stars) > 1 else "",
+        analysis_context.get("structure", {}).get("primary_pattern", "") if analysis_context else "",
+        analysis_context.get("strength", {}).get("label", "") if analysis_context else "",
+    )
+    profile_sentence = CAREER_PROFILE_HEADLINES[career_profile]
+    core_options = [
+        _build_profile_headline(career_profile, tone, intensity, day_pillar_kor),
+        profile_sentence,
+        _build_headline(tone, intensity),
+        f"{profile_sentence.rstrip('.')} 흐름이 올해 직장 판단의 축이 될 가능성이 큽니다.",
+    ]
+    pattern_key = (
+        analysis_context.get("structure", {}).get("primary_pattern", "균형격")
+        if analysis_context
+        else "균형격"
+    )
+    pattern_options = CAREER_PATTERN_HEADLINE_CLAUSES.get(
+        pattern_key,
+        CAREER_PATTERN_HEADLINE_CLAUSES["균형격"],
+    )
+    strength_options = CAREER_STRENGTH_HEADLINE_CLAUSES[_career_strength_key(analysis_context)]
+    star_options = CAREER_STAR_HEADLINE_CLAUSES.get(
+        current_stars[0] if current_stars else "",
+        CAREER_STAR_HEADLINE_CLAUSES["정인"],
+    )
+    if len(current_stars) > 1 and current_stars[1] in CAREER_STAR_HEADLINE_CLAUSES:
+        star_options = [*star_options, *CAREER_STAR_HEADLINE_CLAUSES[current_stars[1]]]
+
+    candidates: list[str] = []
+    seen = set()
+    for idx, template in enumerate(CAREER_HEADLINE_TEMPLATES):
+        sentence = template.format(
+            core=_pick_seeded(core_options, base_seed + idx * 3 + 1).rstrip("."),
+            pattern=_pick_seeded(pattern_options, base_seed + idx * 5 + 2).rstrip("."),
+            strength=_pick_seeded(strength_options, base_seed + idx * 7 + 3).rstrip("."),
+            star=_pick_seeded(star_options, base_seed + idx * 11 + 4).rstrip("."),
+        )
+        sentence = " ".join(sentence.split()).strip()
+        if not sentence.endswith("."):
+            sentence += "."
+        if sentence not in seen:
+            seen.add(sentence)
+            candidates.append(sentence)
+    return candidates or [_build_profile_headline(career_profile, tone, intensity, day_pillar_kor)]
+
+
+def _pick_career_headline(
+    *,
+    saju_id: str,
+    career_profile: str,
+    tone: str,
+    intensity: str,
+    day_pillar_kor: str,
+    current_stars: list[str],
+    analysis_context: dict | None,
+) -> str:
+    options = _build_career_headline_candidates(
+        saju_id=saju_id,
+        career_profile=career_profile,
+        tone=tone,
+        intensity=intensity,
+        day_pillar_kor=day_pillar_kor,
+        current_stars=current_stars,
+        analysis_context=analysis_context,
+    )
+    seed = _seed_from_values(saju_id, career_profile, tone, intensity, *current_stars)
+    base_index = seed % len(options)
+    pattern_key = (
+        analysis_context.get("structure", {}).get("primary_pattern", "균형격")
+        if analysis_context
+        else "균형격"
+    )
+    strength_key = _career_strength_key(analysis_context)
+    cooldown_key = (
+        f"{saju_id}:{career_profile}:{tone}:{intensity}:{'-'.join(current_stars)}:"
+        f"{pattern_key}:{strength_key}"
+    )
+    with _CAREER_HEADLINE_LOCK:
+        recent = _CAREER_RECENT_INDEXES[cooldown_key]
+        selected_index = base_index
+        if base_index in recent:
+            for step in range(1, len(options)):
+                candidate = (base_index + step) % len(options)
+                if candidate not in recent:
+                    selected_index = candidate
+                    break
+        recent.append(selected_index)
+    return options[selected_index]
+
+
+def _build_career_summary(
+    *,
+    saju_id: str,
+    career_profile: str,
+    tone: str,
+    intensity: str,
+    trend: str,
+    current_stars: list[str],
+    analysis_context: dict | None,
+) -> str:
+    seed = _seed_from_values(
+        "career_summary",
+        saju_id,
+        career_profile,
+        tone,
+        intensity,
+        trend,
+        *current_stars,
+        analysis_context.get("structure", {}).get("primary_pattern", "") if analysis_context else "",
+        analysis_context.get("strength", {}).get("label", "") if analysis_context else "",
+    )
+    profile_clause = CAREER_PROFILE_SUMMARIES[career_profile].rstrip(".")
+    tone_clause = _build_summary(tone, intensity).rstrip(".")
+    trend_clause = f"올해 직장운에서는 {trend} 이슈가 실제 성과와 평판 차이를 만들기 쉬운 편입니다"
+    star_clause = (
+        f"연운 {current_stars[0]}와 대운 {current_stars[1]} 흐름이 겹쳐 운영 기준의 선명도가 더 중요해질 수 있습니다"
+        if len(current_stars) >= 2
+        else f"연운 {current_stars[0]} 흐름이 들어와 운영 방식의 선택이 중요해질 수 있습니다"
+    )
+    if analysis_context:
+        strength_clause = (
+            f"중간 계산 기준으로는 {analysis_context['strength']['display_label']} 구조라 "
+            "역할과 일정 상한선을 먼저 나누는 편이 유리합니다"
+        )
+        pattern_clause = (
+            f"핵심 구조가 {analysis_context['structure']['primary_pattern']}로 읽혀 "
+            "기준과 순서를 먼저 고정하는 운영이 중요해질 수 있습니다"
+        )
+    else:
+        strength_clause = "무리한 확장보다 현재 범위를 안정시키는 운영이 더 유리합니다"
+        pattern_clause = "역할 기준을 먼저 세우는 편이 직장 피로를 줄이는 데 도움이 됩니다"
+
+    template = CAREER_SUMMARY_TEMPLATES[seed % len(CAREER_SUMMARY_TEMPLATES)]
+    summary = template.format(
+        profile=profile_clause,
+        tone=tone_clause,
+        trend=trend_clause,
+        strength=strength_clause,
+        star=star_clause,
+        pattern=pattern_clause,
+    )
+    return f"{' '.join(summary.split()).strip().rstrip('.')}."
+
 
 def build_career_fortune(
     saju_result: dict,
@@ -254,17 +629,43 @@ def build_career_fortune(
     )
 
     current_stars = [year_fortune["ten_god"], year_fortune["daewoon_ten_god"]]
+    saju_id = str(saju_result.get("saju_id", ""))
     intensity = _resolve_intensity(current_stars)
     tone = _resolve_tone(current_stars)
     trend = _resolve_trend(current_stars)
     advanced_lines = _analysis_context_career_lines(analysis_context)
-    summary = f"{CAREER_PROFILE_SUMMARIES[career_profile]} {_build_summary(tone, intensity)}"
-    headline = _build_profile_headline(career_profile, tone, intensity, day_pillar_kor)
+    summary = _build_career_summary(
+        saju_id=saju_id,
+        career_profile=career_profile,
+        tone=tone,
+        intensity=intensity,
+        trend=trend,
+        current_stars=current_stars,
+        analysis_context=analysis_context,
+    )
+    headline = _pick_career_headline(
+        saju_id=saju_id,
+        career_profile=career_profile,
+        tone=tone,
+        intensity=intensity,
+        day_pillar_kor=day_pillar_kor,
+        current_stars=current_stars,
+        analysis_context=analysis_context,
+    )
     explanation = f"{_build_explanation(current_stars, trend, tone)} {CAREER_PROFILE_SUMMARIES[career_profile]}"
     advice = f"{_build_advice(current_stars, tone)} {CAREER_PROFILE_ADVICE[career_profile]}"
 
-    strengths = _pick_messages(current_stars, CAREER_STRENGTHS, limit=2)
-    warnings = _pick_messages(current_stars, CAREER_WARNINGS, limit=2)
+    warning_seed = _seed_from_values(
+        "career_warning",
+        saju_id,
+        day_stem,
+        month_branch,
+        time_branch or "",
+        year_stem,
+        *current_stars,
+    )
+    strengths = _pick_messages(current_stars, CAREER_STRENGTHS, limit=2, seed=warning_seed)
+    warnings = _pick_messages(current_stars, CAREER_WARNINGS, limit=2, seed=warning_seed)
     strengths.extend(
         _dedupe(
             [
@@ -273,11 +674,11 @@ def build_career_fortune(
             ]
         )[:2]
     )
-    warnings.extend(_extra_career_warnings(current_stars, month_branch, time_branch))
+    warnings.extend(_extra_career_warnings(current_stars, month_branch, time_branch, seed=warning_seed))
     strengths.extend(advanced_lines["strengths"])
     warnings.extend(advanced_lines["warnings"])
     if not warnings:
-        warnings = ["큰 결정은 일정과 조건을 숫자로 정리한 뒤 판단하는 편이 좋습니다."]
+        warnings = [CAREER_WARNING_FALLBACK]
 
     stripped_day_pillar_line = _strip_career_day_pillar_line(day_pillar_line).rstrip(".")
 
@@ -321,8 +722,8 @@ def build_career_fortune(
         headline=headline,
         explanation=explanation,
         advice=advice,
-        strengths=_dedupe(strengths)[:4],
-        warnings=_dedupe(warnings)[:4],
+        strengths=_dedupe(strengths)[:2],
+        warnings=_dedupe(warnings)[:2],
         seed=len("".join(current_stars)) + len(trend) + len(day_stem) + len(month_branch),
         context_easy_lines=context_easy_lines,
         context_real_lines=context_real_lines,
@@ -343,8 +744,8 @@ def build_career_fortune(
         "tone_kor": {"positive": "안정형", "change": "변화형", "caution": "주의형"}[tone],
         "intensity": intensity,
         "intensity_kor": {"strong": "강", "medium": "보통", "light": "완만"}[intensity],
-        "strengths": _dedupe(strengths)[:4],
-        "warnings": _dedupe(warnings)[:4],
+        "strengths": _dedupe(strengths)[:2],
+        "warnings": _dedupe(warnings)[:2],
     }
 
 
@@ -423,10 +824,14 @@ def _build_profile_headline(profile: str, tone: str, intensity: str, day_pillar_
     )
 
 
-def _pick_messages(stars: list[str], source: dict[str, str], limit: int) -> list[str]:
+def _pick_messages(stars: list[str], source: dict[str, str | list[str]], limit: int, *, seed: int = 0) -> list[str]:
     messages = []
     for star in stars:
         message = source.get(star)
+        if isinstance(message, list):
+            if not message:
+                continue
+            message = _pick(message, _seed_from_values(star, seed, len(messages)))
         if message and message not in messages:
             messages.append(message)
         if len(messages) >= limit:
@@ -455,16 +860,16 @@ def _build_advice(stars: list[str], tone: str) -> str:
     return "변화가 보여도 바로 갈아타기보다 현재 자리에서 관리 기준을 먼저 세우는 편이 좋습니다."
 
 
-def _extra_career_warnings(stars: list[str], month_branch: str, time_branch: str | None) -> list[str]:
+def _extra_career_warnings(stars: list[str], month_branch: str, time_branch: str | None, *, seed: int = 0) -> list[str]:
     warnings = []
     if month_branch in {"자", "해"}:
-        warnings.append("생각이 길어질수록 실행 시점이 밀릴 수 있어 마감 기준을 먼저 정하는 편이 좋습니다.")
+        warnings.append(_pick(MONTH_BRANCH_WATER_WARNING_VARIANTS, _seed_from_values(seed, month_branch, "water")))
     if month_branch in {"사", "오"}:
-        warnings.append("속도가 붙는 시기일수록 말의 강약과 보고 타이밍을 조절해야 평판 손실을 줄일 수 있습니다.")
+        warnings.append(_pick(MONTH_BRANCH_FIRE_WARNING_VARIANTS, _seed_from_values(seed, month_branch, "fire")))
     if time_branch in {"신", "유"}:
-        warnings.append("완성도를 높이려는 마음이 과해지면 마감이 늦어질 수 있어 끝내는 기준을 먼저 세우는 편이 좋습니다.")
+        warnings.append(_pick(TIME_BRANCH_METAL_WARNING_VARIANTS, _seed_from_values(seed, time_branch, "metal")))
     if "상관" in stars:
-        warnings.append("문제 인식이 빨라질수록 표현도 세질 수 있어 맞는 말이라도 순서를 조절하는 편이 좋습니다.")
+        warnings.append(_pick(STAR_SHANGGUAN_WARNING_VARIANTS, _seed_from_values(seed, "상관")))
     return warnings
 
 
@@ -531,9 +936,27 @@ def _analysis_context_career_lines(analysis_context: dict | None) -> dict[str, l
     if flags["is_day_master_strong"]:
         strengths.append("원국 기준으로는 한 번 맡은 일을 쉽게 놓치지 않는 편이라 책임이 커져도 버티는 힘이 남아 있는 편입니다.")
     if flags["is_day_master_weak"]:
-        warnings.append("원국 기준으로는 소모가 빠를 수 있어 역할이 늘수록 체력과 일정 간격을 먼저 확보하는 편이 좋습니다.")
+        warnings.append(
+            _pick(
+                WEAK_WARNING_VARIANTS,
+                _seed_from_values(
+                    "career_warning_weak",
+                    strength.get("label", ""),
+                    yongshin.get("primary_candidate", ""),
+                ),
+            )
+        )
     if flags["has_luck_pressure"]:
-        warnings.append("현재 운에서 충돌 압력이 걸릴 수 있어 자리 이동이나 확장은 기준을 더 엄격하게 보는 편이 좋습니다.")
+        warnings.append(
+            _pick(
+                LUCK_PRESSURE_WARNING_VARIANTS,
+                _seed_from_values(
+                    "career_warning_pressure",
+                    strength.get("label", ""),
+                    yongshin.get("secondary_candidate", ""),
+                ),
+            )
+        )
 
     return {
         "easy": easy_lines,

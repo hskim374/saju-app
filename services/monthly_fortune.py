@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from collections import defaultdict, deque
+from threading import Lock
+
 from data.branches import BRANCHES_BY_KOR
 from services.saju_calculator import build_korean_datetime, get_year_month_pillars_for_datetime
 from services.ten_gods import calculate_ten_god_for_stem
@@ -103,6 +106,301 @@ MONTHLY_ADVICE = {
     "정인": "배움과 정리에 시간을 배정하면 전체 흐름이 더 부드럽습니다.",
 }
 
+MONTHLY_STRENGTH_HEADLINE_CLAUSES = {
+    "strong": [
+        "이번 달은 실행 밀도를 높여도 버티는 힘이 남기 쉬운 편입니다.",
+        "핵심 과제를 앞당겨 처리하기 좋은 추진력이 붙는 구간입니다.",
+        "압박이 와도 일정 리듬을 유지하기 쉬운 흐름입니다.",
+        "중요한 결정 이후 행동까지 연결하기 유리한 편입니다.",
+        "확장 과제를 맡아도 무너지지 않는 버팀이 있는 달입니다.",
+    ],
+    "slightly_strong": [
+        "기본 버팀이 있어 핵심 일정 중심 운영이 유리합니다.",
+        "초반 정리만 해 두면 중반 이후 실행이 한결 수월해집니다.",
+        "무리하지 않아도 중요한 일은 성과로 이어지기 쉬운 흐름입니다.",
+        "리듬만 지키면 체감 피로를 낮추며 마감하기 좋습니다.",
+        "선택을 줄이고 집중하면 결과 편차를 줄이기 쉽습니다.",
+    ],
+    "balanced": [
+        "확장과 관리의 균형을 맞출수록 월운 체감이 안정됩니다.",
+        "속도와 정리 간격을 같이 지키면 실수를 줄이기 쉽습니다.",
+        "한쪽으로 몰아치지 않는 운영이 가장 유리한 흐름입니다.",
+        "중간 점검을 넣을수록 일정 흔들림을 줄이기 좋습니다.",
+        "작은 조정의 반복이 월간 성과를 키우는 달입니다.",
+    ],
+    "slightly_weak": [
+        "범위를 줄여 핵심 일정만 남길수록 안정감이 커집니다.",
+        "확장보다 운영 정비를 먼저 두는 편이 더 유리합니다.",
+        "결정 속도보다 확인 절차를 강화해야 오차를 줄일 수 있습니다.",
+        "한 번에 많이 벌리기보다 단계적으로 닫아 가는 편이 좋습니다.",
+        "체력·일정 상한선을 미리 두는 운영이 필요한 달입니다.",
+    ],
+    "weak": [
+        "이번 달은 방어와 회복을 먼저 두는 운영이 실제로 유리합니다.",
+        "무리한 확장보다 기존 일정 안정화가 우선인 흐름입니다.",
+        "핵심 일정만 남기고 나머지는 조정할수록 손실을 줄일 수 있습니다.",
+        "속도를 낮추고 검증 빈도를 높이는 편이 안전합니다.",
+        "확정보다 보류를 늘려 피로를 관리하는 선택이 맞습니다.",
+    ],
+}
+
+MONTHLY_PATTERN_HEADLINE_CLAUSES = {
+    "관성격": [
+        "기준·역할·마감의 선명도가 결과 차이를 만들 수 있습니다.",
+        "책임 분배와 일정 관리가 핵심이 되는 달로 읽힙니다.",
+        "평가와 신뢰가 걸린 장면에서 기준 유지가 중요합니다.",
+    ],
+    "재성격": [
+        "돈·시간·자원 배분 기준이 체감 결과를 좌우할 수 있습니다.",
+        "기회 선별보다 보존 규칙 정비가 먼저 중요해집니다.",
+        "실속이 남는 선택을 고르는 운영이 핵심입니다.",
+    ],
+    "식상격": [
+        "실행과 산출물 마감이 체감 성과를 크게 바꿀 수 있습니다.",
+        "아이디어보다 완료 기준 관리가 더 중요해지는 달입니다.",
+        "말보다 결과물 누적에서 차이가 벌어지기 쉽습니다.",
+    ],
+    "인성격": [
+        "정보·자료·근거 정리의 완성도가 결과 안정성을 높여 줍니다.",
+        "준비 품질이 실행 오차를 줄이는 구조가 강하게 작동합니다.",
+        "검토 절차를 고정하면 흔들림을 줄이기 좋습니다.",
+    ],
+    "비겁격": [
+        "사람·협업·경쟁 변수의 경계를 나누는 운영이 중요합니다.",
+        "주도권과 분산 관리의 균형이 체감을 크게 바꿀 수 있습니다.",
+        "관계 변수 관리가 일정 품질만큼 중요해지는 달입니다.",
+    ],
+    "균형격": [
+        "한쪽으로 치우치지 않는 운영이 가장 큰 강점으로 작동합니다.",
+        "무리수보다 일관성이 월간 성과를 안정시킬 수 있습니다.",
+        "순서 관리만으로도 체감 난이도를 낮추기 쉬운 흐름입니다.",
+    ],
+}
+
+MONTHLY_PROFILE_HEADLINE_CLAUSES = {
+    "resource_first": [
+        "새 일보다 준비·정리 우선 운영이 더 유리한 달입니다.",
+        "기초 체계를 먼저 채워 두면 이후 흐름이 편해질 수 있습니다.",
+        "먼저 채우고 나중에 넓히는 순서가 맞는 구간입니다.",
+    ],
+    "output_first": [
+        "작은 결과라도 눈에 보이게 끝내는 운영이 유리한 달입니다.",
+        "완료 단위를 짧게 가져갈수록 체감 성과가 또렷해질 수 있습니다.",
+        "생각보다 마감과 공개를 먼저 두는 편이 맞는 흐름입니다.",
+    ],
+    "pressure_guard": [
+        "사람·일정·돈이 겹치면 범위를 줄이는 방어 운영이 중요합니다.",
+        "압박 구간에서는 확장보다 손실 방지 운영이 우선입니다.",
+        "충돌 가능성을 낮추는 일정 설계가 핵심인 달입니다.",
+    ],
+    "balanced_ops": [
+        "속도와 회복 간격을 함께 관리하는 균형 운영이 맞습니다.",
+        "확정과 보류를 분리하면 체감 피로를 줄일 수 있습니다.",
+        "중간 점검 기반 운영이 안정성을 높이는 구간입니다.",
+    ],
+}
+
+MONTHLY_HEADLINE_TEMPLATES = [
+    "{core}",
+    "{core} {strength}",
+    "{core} {pattern}",
+    "{core} {profile}",
+    "{pattern} {strength}",
+    "{pattern} {profile}",
+    "{strength} {profile}",
+    "{core} {pattern} {profile}",
+    "{core} {strength} {profile}",
+    "{core} {pattern} {strength}",
+]
+
+MONTHLY_SUMMARY_TEMPLATES = [
+    "{headline} {tail}",
+    "{headline} {advanced}",
+    "{headline} {strength}",
+    "{tail} {advanced}",
+    "{tail} {strength}",
+    "{advanced} {strength}",
+    "{headline} {tail} {advanced}",
+    "{headline} {advanced} {strength}",
+    "{tail} {advanced} {strength}",
+    "{headline} {tail} {strength}",
+]
+
+MONTHLY_HEADLINE_COOLDOWN_WINDOW = 2
+_MONTHLY_RECENT_INDEXES: dict[str, deque[int]] = defaultdict(
+    lambda: deque(maxlen=MONTHLY_HEADLINE_COOLDOWN_WINDOW)
+)
+_MONTHLY_HEADLINE_LOCK = Lock()
+
+
+def _seed_from_values(*parts: object) -> int:
+    total = 0
+    for part in parts:
+        if part is None:
+            continue
+        text = str(part)
+        total += sum(ord(ch) for ch in text)
+    return total
+
+
+def _pick_seeded(options: list[str], seed: int) -> str:
+    return options[seed % len(options)]
+
+
+def _resolve_monthly_profile_key(analysis_context: dict | None) -> str:
+    if not analysis_context:
+        return "balanced_ops"
+    flags = analysis_context.get("flags", {})
+    if flags.get("has_luck_pressure"):
+        return "pressure_guard"
+    if flags.get("needs_resource_support"):
+        return "resource_first"
+    if flags.get("needs_output_release"):
+        return "output_first"
+    return "balanced_ops"
+
+
+def _monthly_strength_key(analysis_context: dict | None) -> str:
+    if not analysis_context:
+        return "balanced"
+    label = analysis_context.get("strength", {}).get("label", "balanced")
+    return label if label in MONTHLY_STRENGTH_HEADLINE_CLAUSES else "balanced"
+
+
+def _build_monthly_headline_candidates(
+    *,
+    ten_god: str,
+    branch_element: str,
+    month: int,
+    saju_id: str,
+    analysis_context: dict | None,
+) -> list[str]:
+    base_seed = _seed_from_values(
+        saju_id,
+        month,
+        ten_god,
+        branch_element,
+        analysis_context.get("strength", {}).get("label", "") if analysis_context else "",
+        analysis_context.get("structure", {}).get("primary_pattern", "") if analysis_context else "",
+    )
+    core_options = MONTHLY_OPENERS[ten_god]
+    strength_options = MONTHLY_STRENGTH_HEADLINE_CLAUSES[_monthly_strength_key(analysis_context)]
+    pattern_key = (
+        analysis_context.get("structure", {}).get("primary_pattern", "균형격")
+        if analysis_context
+        else "균형격"
+    )
+    pattern_options = MONTHLY_PATTERN_HEADLINE_CLAUSES.get(
+        pattern_key,
+        MONTHLY_PATTERN_HEADLINE_CLAUSES["균형격"],
+    )
+    profile_options = MONTHLY_PROFILE_HEADLINE_CLAUSES[_resolve_monthly_profile_key(analysis_context)]
+    tail_options = ELEMENT_TAILS[branch_element]
+
+    candidates: list[str] = []
+    seen = set()
+    for idx, template in enumerate(MONTHLY_HEADLINE_TEMPLATES):
+        sentence = template.format(
+            core=_pick_seeded(core_options, base_seed + idx * 3 + 1).rstrip("."),
+            strength=_pick_seeded(strength_options, base_seed + idx * 5 + 2).rstrip("."),
+            pattern=_pick_seeded(pattern_options, base_seed + idx * 7 + 3).rstrip("."),
+            profile=_pick_seeded(profile_options, base_seed + idx * 11 + 4).rstrip("."),
+        )
+        sentence = " ".join(sentence.split()).strip()
+        if not sentence.endswith("."):
+            sentence += "."
+        # 같은 템플릿 반복을 줄이기 위해 월지 오행 꼬리 문장을 일부 후보에 섞는다.
+        if idx in {2, 5, 8}:
+            sentence = f"{sentence.rstrip('.')} {_pick_seeded(tail_options, base_seed + idx * 13 + 5)}"
+        if sentence not in seen:
+            seen.add(sentence)
+            candidates.append(sentence)
+    return candidates or [MONTHLY_OPENERS[ten_god][0]]
+
+
+def _pick_monthly_headline(
+    *,
+    ten_god: str,
+    branch_element: str,
+    month: int,
+    saju_id: str,
+    analysis_context: dict | None,
+    used_summaries: set[str],
+) -> str:
+    options = _build_monthly_headline_candidates(
+        ten_god=ten_god,
+        branch_element=branch_element,
+        month=month,
+        saju_id=saju_id,
+        analysis_context=analysis_context,
+    )
+    seed = _seed_from_values(saju_id, month, ten_god, branch_element)
+    base_index = seed % len(options)
+    pattern_key = (
+        analysis_context.get("structure", {}).get("primary_pattern", "균형격")
+        if analysis_context
+        else "균형격"
+    )
+    strength_key = _monthly_strength_key(analysis_context)
+    profile_key = _resolve_monthly_profile_key(analysis_context)
+    cooldown_key = f"{saju_id}:{month}:{ten_god}:{branch_element}:{pattern_key}:{strength_key}:{profile_key}"
+    with _MONTHLY_HEADLINE_LOCK:
+        recent = _MONTHLY_RECENT_INDEXES[cooldown_key]
+        for step in range(len(options)):
+            candidate_index = (base_index + step) % len(options)
+            candidate = options[candidate_index]
+            if candidate in used_summaries:
+                continue
+            if candidate_index in recent and step < len(options) - 1:
+                continue
+            recent.append(candidate_index)
+            return candidate
+
+    return options[base_index]
+
+
+def _build_monthly_summary(
+    *,
+    ten_god: str,
+    branch_element: str,
+    month: int,
+    saju_id: str,
+    headline: str,
+    tail: str,
+    advanced: dict,
+    analysis_context: dict | None,
+) -> str:
+    seed = _seed_from_values(
+        "monthly_summary",
+        saju_id,
+        month,
+        ten_god,
+        branch_element,
+        analysis_context.get("strength", {}).get("label", "") if analysis_context else "",
+        analysis_context.get("structure", {}).get("primary_pattern", "") if analysis_context else "",
+    )
+    headline_clause = headline.rstrip(".")
+    tail_clause = tail.rstrip(".")
+    advanced_clause = (advanced.get("summary") or "").rstrip(".")
+    if analysis_context:
+        strength_clause = (
+            f"중간 계산 기준으로는 {analysis_context['strength']['display_label']} 흐름이라 "
+            "확장보다 순서 관리가 체감 차이를 만들기 쉽습니다"
+        )
+    else:
+        strength_clause = "이번 달은 욕심보다 순서와 범위 관리를 먼저 두는 편이 유리합니다"
+    if not advanced_clause:
+        advanced_clause = "이번 달은 기준을 먼저 고정할수록 흐름을 안정적으로 쓰기 쉽습니다"
+
+    template = MONTHLY_SUMMARY_TEMPLATES[seed % len(MONTHLY_SUMMARY_TEMPLATES)]
+    summary = template.format(
+        headline=headline_clause,
+        tail=tail_clause,
+        advanced=advanced_clause,
+        strength=strength_clause,
+    )
+    return f"{' '.join(summary.split()).strip().rstrip('.')}."
+
 
 def calculate_monthly_fortune(
     saju_result: dict,
@@ -111,6 +409,7 @@ def calculate_monthly_fortune(
 ) -> list[dict]:
     """Return 12 monthly fortunes for the given year."""
     day_stem = saju_result["saju"]["day"]["stem"]
+    saju_id = str(saju_result.get("saju_id", ""))
     fortunes = []
     used_summaries = set()
     for month in range(1, 13):
@@ -123,6 +422,7 @@ def calculate_monthly_fortune(
             branch_element,
             month,
             used_summaries,
+            saju_id=saju_id,
             analysis_context=analysis_context,
         )
         fortunes.append(
@@ -148,28 +448,35 @@ def _build_monthly_interpretation(
     branch_element: str,
     month: int,
     used_summaries: set[str],
+    saju_id: str,
     analysis_context: dict | None = None,
 ) -> dict:
     opener_options = MONTHLY_OPENERS[ten_god]
     tail_options = ELEMENT_TAILS[branch_element]
-    for step in range(len(opener_options) * len(tail_options)):
-        opener = opener_options[(month + step) % len(opener_options)]
-        tail = tail_options[(month + step) % len(tail_options)]
-        headline = f"{opener}"
-        if headline not in used_summaries:
-            advanced = _analysis_context_monthly_lines(analysis_context, month)
-            return {
-                "headline": headline,
-                "summary": f"{opener} {tail} {advanced['summary']}".strip(),
-                "explanation": f"{tail} {advanced['explanation']}".strip(),
-                "advice": f"{MONTHLY_ADVICE[ten_god]} {advanced['advice']}".strip(),
-            }
-    headline = opener_options[month % len(opener_options)]
+    headline = _pick_monthly_headline(
+        ten_god=ten_god,
+        branch_element=branch_element,
+        month=month,
+        saju_id=saju_id,
+        analysis_context=analysis_context,
+        used_summaries=used_summaries,
+    )
+    tail = tail_options[month % len(tail_options)]
     advanced = _analysis_context_monthly_lines(analysis_context, month)
+    summary = _build_monthly_summary(
+        ten_god=ten_god,
+        branch_element=branch_element,
+        month=month,
+        saju_id=saju_id,
+        headline=headline,
+        tail=tail,
+        advanced=advanced,
+        analysis_context=analysis_context,
+    )
     return {
         "headline": headline,
-        "summary": f"{headline} {tail_options[month % len(tail_options)]} {advanced['summary']}".strip(),
-        "explanation": f"{tail_options[month % len(tail_options)]} {advanced['explanation']}".strip(),
+        "summary": summary,
+        "explanation": f"{tail} {advanced['explanation']}".strip(),
         "advice": f"{MONTHLY_ADVICE[ten_god]} {advanced['advice']}".strip(),
     }
 

@@ -35,6 +35,46 @@ STAR_GROUP_RULES = {
         "meaning": "정리/집중/내면 몰입이 커질 수 있는 흐름",
         "tone": "focus",
     },
+    "천을귀인": {
+        "targets": {
+            "申子辰": ["축", "미"],
+            "寅午戌": ["축", "미"],
+            "亥卯未": ["축", "미"],
+            "巳酉丑": ["축", "미"],
+        },
+        "meaning": "도움/완충/회복력이 붙어 위기 대응이 수월해질 수 있는 흐름",
+        "tone": "support",
+    },
+    "문창귀인": {
+        "targets": {
+            "申子辰": ["사", "유"],
+            "寅午戌": ["해", "묘"],
+            "亥卯未": ["인", "오"],
+            "巳酉丑": ["신", "자"],
+        },
+        "meaning": "문서/학습/정리 품질이 올라가는 흐름",
+        "tone": "focus",
+    },
+    "홍염": {
+        "targets": {
+            "申子辰": "오",
+            "寅午戌": "유",
+            "亥卯未": "자",
+            "巳酉丑": "묘",
+        },
+        "meaning": "대인 반응과 매력 노출이 커져 관계 이슈가 빨리 움직일 수 있는 흐름",
+        "tone": "relationship",
+    },
+    "백호": {
+        "targets": {
+            "申子辰": "신",
+            "寅午戌": "인",
+            "亥卯未": "해",
+            "巳酉丑": "사",
+        },
+        "meaning": "과속·충동·압박 반응이 커질 수 있어 안전/충돌 관리가 필요한 흐름",
+        "tone": "guard",
+    },
 }
 
 GROUP_BY_BRANCH = {
@@ -68,21 +108,23 @@ def calculate_special_stars(saju: dict) -> dict:
         source_branch = branch_by_pillar[source]
         group = GROUP_BY_BRANCH[source_branch]
         for star_name, star_rule in STAR_GROUP_RULES.items():
-            target_branch = star_rule["targets"][group]
-            matched_pillars = [pillar for pillar, branch in branch_by_pillar.items() if branch == target_branch]
-            if not matched_pillars:
-                continue
-            active_entries.append(
-                {
-                    "name": star_name,
-                    "source": source,
-                    "source_branch": source_branch,
-                    "target_branch": target_branch,
-                    "matched_pillars": matched_pillars,
-                    "meaning": star_rule["meaning"],
-                    "tone": star_rule["tone"],
-                }
-            )
+            target_value = star_rule["targets"][group]
+            target_branches = target_value if isinstance(target_value, list) else [target_value]
+            for target_branch in target_branches:
+                matched_pillars = [pillar for pillar, branch in branch_by_pillar.items() if branch == target_branch]
+                if not matched_pillars:
+                    continue
+                active_entries.append(
+                    {
+                        "name": star_name,
+                        "source": source,
+                        "source_branch": source_branch,
+                        "target_branch": target_branch,
+                        "matched_pillars": matched_pillars,
+                        "meaning": star_rule["meaning"],
+                        "tone": star_rule["tone"],
+                    }
+                )
 
     deduped = _dedupe_entries(active_entries)
     summary = _build_summary(deduped)
@@ -93,6 +135,8 @@ def calculate_special_stars(saju: dict) -> dict:
         "has_relationship_star": any(item["tone"] == "relationship" for item in deduped),
         "has_movement_star": any(item["tone"] == "movement" for item in deduped),
         "has_focus_star": any(item["tone"] == "focus" for item in deduped),
+        "has_support_star": any(item["tone"] == "support" for item in deduped),
+        "has_guard_star": any(item["tone"] == "guard" for item in deduped),
     }
 
 
@@ -138,7 +182,10 @@ def _build_summary(active: list[dict]) -> list[str]:
         summary.append("이동/전환 신호가 있어 환경 변화나 역할 변경에 대한 대응이 중요해집니다.")
     if tone_map["focus"]:
         summary.append("집중/정리 흐름이 들어와 혼자 정리하거나 마무리 완성도를 높이는 힘이 살아납니다.")
+    if tone_map["support"]:
+        summary.append("도움/완충 흐름이 있어 급한 변수에서도 회복 경로를 찾기 쉬운 편입니다.")
+    if tone_map["guard"]:
+        summary.append("과속·충돌 신호가 있어 이동·결정·대화에서 안전 여지를 남기는 편이 좋습니다.")
     if not summary:
         summary.append("신살 흐름은 있으나 강한 충돌보다 생활 리듬 조정 쪽에서 먼저 체감되는 편입니다.")
     return summary
-

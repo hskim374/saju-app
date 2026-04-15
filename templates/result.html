@@ -1907,13 +1907,13 @@
                                 <li class="chip">흐름 {{ result.career_fortune.trend_kor }}</li>
                                 <li class="chip">강도 {{ result.career_fortune.intensity_kor }}</li>
                                 <li class="chip">분위기 {{ result.career_fortune.tone_kor }}</li>
-                                <li class="chip">문장 {{ "신규DB" if career_card.source == "structured" else "기존엔진" }}</li>
+                                <li class="chip">{{ result.career_fortune.trend_kor.replace("/", "·") }}</li>
                             </ul>
                             <ul>
-                                {% for item in result.career_fortune.strengths %}
+                                {% for item in result.career_fortune.strengths[:2] %}
                                 <li>{{ item }}</li>
                                 {% endfor %}
-                                {% for item in result.career_fortune.warnings %}
+                                {% for item in result.career_fortune.warnings[:2] %}
                                 <li>{{ item }}</li>
                                 {% endfor %}
                             </ul>
@@ -1930,19 +1930,19 @@
                             <div class="narrative-step"><strong>현실에서 이렇게 나타납니다</strong>{% for item in
                                 relationship_card.real_life %}<div>{{ item }}</div>{% endfor %}</div>
                             <div class="narrative-step"><strong>장점과 주의점</strong>{% for item in
-                                relationship_card.strength_and_risk %}<div>{{ item }}</div>{% endfor %}</div>
+                                relationship_card.strength_and_risk[:4] %}<div>{{ item }}</div>{% endfor %}</div>
                             <div class="narrative-step"><strong>행동 조언</strong>{% for item in
-                                relationship_card.action_advice %}<div>{{ item }}</div>{% endfor %}</div>
+                                relationship_card.action_advice[:4] %}<div>{{ item }}</div>{% endfor %}</div>
                             <ul class="stack">
                                 <li class="chip">흐름 {{ result.relationship_fortune.trend }}</li>
                                 <li class="chip">강도 {{ result.relationship_fortune.intensity_kor }}</li>
-                                <li class="chip">문장 {{ "신규DB" if relationship_card.source == "structured" else "기존엔진" }}</li>
+                                <li class="chip">{{ result.relationship_fortune.trend.replace("/", "·") }}</li>
                             </ul>
                             <ul>
-                                {% for item in result.relationship_fortune.strengths %}
+                                {% for item in result.relationship_fortune.strengths[:2] %}
                                 <li>{{ item }}</li>
                                 {% endfor %}
-                                {% for item in result.relationship_fortune.warnings %}
+                                {% for item in result.relationship_fortune.warnings[:2] %}
                                 <li>{{ item }}</li>
                                 {% endfor %}
                             </ul>

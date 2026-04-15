@@ -1754,7 +1754,7 @@ def build_daily_section(
         used_sentences=used_sentences,
         easy_count=5,
         real_life_count=6,
-        action_count=3,
+        action_count=2,
         strength_risk_count=5,
     )
     _prioritize_section_lines(

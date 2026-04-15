@@ -2,10 +2,14 @@
 
 from __future__ import annotations
 
+from collections import defaultdict, deque
+from threading import Lock
+
 from data.day_pillar_sentences import get_day_pillar_sentence_options
 from data.month_ten_god_specialized import MONTH_TEN_GOD_RELATION_LINES
 from services.analysis_sentence_store import load_analysis_sentences
 from services.interpretation_engine import build_relationship_section
+from services.interpretation_templates import RELATIONSHIP_ACTION
 from services.ten_gods import calculate_ten_gods
 
 ELEMENT_KOR_ONLY = {
@@ -224,13 +228,355 @@ RELATIONSHIP_PROFILE_SUMMARIES = {
 }
 
 RELATIONSHIP_PROFILE_ADVICE = {
-    "slow_trust": "좋아도 빠르게 확정하지 말고 서로의 생활 리듬이 맞는지 먼저 보는 편이 좋습니다.",
-    "pace_adjuster": "감정이 커질수록 연락 빈도와 가까워지는 속도를 의식적으로 늦추는 편이 좋습니다.",
-    "boundary_first": "상대에게 맞추기 전에 내가 편한 거리와 기준을 먼저 설명하는 편이 더 안정적입니다.",
-    "observer": "계속 관찰만 하기보다 표현 시점을 하나 정해 두는 편이 관계 흐름을 놓치지 않는 데 도움이 됩니다.",
-    "expressive": "호감이 커질수록 결론을 하루 정도 늦추고 말의 강약을 조절하는 편이 좋습니다.",
-    "balanced_connector": "상대에게 맞추는 장점을 살리되 내 리듬을 지키는 기준을 같이 두는 편이 좋습니다.",
+    "slow_trust": [
+        "좋아도 빠르게 확정하지 말고 서로의 생활 리듬이 맞는지 먼저 보는 편이 좋습니다.",
+        "호감이 생겨도 관계 속도를 천천히 올리며 생활 패턴이 맞는지 확인하는 편이 안정적입니다.",
+        "초반에는 대화 빈도보다 약속 이행을 보며 신뢰를 쌓는 방식이 더 잘 맞습니다.",
+        "감정이 좋아도 결론을 서두르지 말고 두세 번의 만남에서 일관성을 확인하는 편이 좋습니다.",
+        "관계를 깊게 가져가기 전 연락 간격과 만남 리듬을 먼저 맞추는 편이 유리합니다.",
+        "표현은 따뜻하게 하되 확정은 늦추고 현실 조건을 체크하는 습관이 도움이 됩니다.",
+    ],
+    "pace_adjuster": [
+        "감정이 커질수록 연락 빈도와 가까워지는 속도를 의식적으로 늦추는 편이 좋습니다.",
+        "좋아도 바로 일정을 늘리기보다 주 1~2회처럼 간격을 고정해 보는 편이 안정적입니다.",
+        "관계가 빨라질수록 오해도 빨라질 수 있어 확인 대화를 짧게 자주 넣는 편이 좋습니다.",
+        "표현이 앞서기 쉬운 시기라 결론보다 속도 조절 규칙을 먼저 세우는 편이 유리합니다.",
+        "연락이 잦아질수록 답장 속도보다 대화 품질을 맞추는 쪽이 관계 피로를 줄입니다.",
+        "가까워지는 흐름이 와도 만남 횟수보다 관계 리듬의 안정성을 먼저 챙기는 편이 좋습니다.",
+    ],
+    "boundary_first": [
+        "상대에게 맞추기 전에 내가 편한 거리와 기준을 먼저 설명하는 편이 더 안정적입니다.",
+        "호감이 있어도 가능한 시간·연락 방식·관계 속도를 먼저 정리해 두는 편이 좋습니다.",
+        "애매한 상태를 길게 끌기보다 내 기준을 짧게 공유해 오해를 줄이는 편이 유리합니다.",
+        "초반에 선을 분명히 하면 이후 감정이 커져도 관계가 흔들릴 가능성을 줄일 수 있습니다.",
+        "관계가 좋아도 무리한 맞춤보다 내 일상 리듬을 지키는 기준을 먼저 두는 편이 좋습니다.",
+        "상대 기대치에 맞추기 전에 내가 감당 가능한 범위를 먼저 밝히는 편이 안정적입니다.",
+    ],
+    "observer": [
+        "계속 관찰만 하기보다 표현 시점을 하나 정해 두는 편이 관계 흐름을 놓치지 않는 데 도움이 됩니다.",
+        "생각이 길어질수록 타이밍을 놓치기 쉬우니 답을 미루는 한도를 정해 두는 편이 좋습니다.",
+        "상대 반응을 충분히 보되 결정은 기한을 두고 내리는 방식이 관계 안정에 유리합니다.",
+        "관찰이 강점이지만 무반응으로 보일 수 있어 짧은 표현 한 번은 의식적으로 넣는 편이 좋습니다.",
+        "타이밍이 중요하니 완벽한 확신보다 70% 확신 시점에 의사표현을 시작하는 편이 도움이 됩니다.",
+        "분위기를 읽는 힘을 살리되 핵심 질문은 먼저 던져 관계 방향을 분명히 하는 편이 좋습니다.",
+    ],
+    "expressive": [
+        "호감이 커질수록 결론을 하루 정도 늦추고 말의 강약을 조절하는 편이 좋습니다.",
+        "감정 표현이 빠른 장점이 있어도 중요한 약속은 하루 유예 후 확정하는 편이 안정적입니다.",
+        "좋은 흐름일수록 말의 세기보다 순서를 조절하면 관계 만족도가 더 높아질 수 있습니다.",
+        "표현이 앞설 때는 기대치를 먼저 맞추고 감정 수위를 천천히 올리는 편이 좋습니다.",
+        "호감 신호가 분명해도 결론을 급히 내리기보다 행동 일관성을 먼저 보는 편이 유리합니다.",
+        "관계가 뜨거워질수록 대화 길이를 줄이고 핵심만 확인하는 방식이 오해를 줄입니다.",
+    ],
+    "balanced_connector": [
+        "상대에게 맞추는 장점을 살리되 내 리듬을 지키는 기준을 같이 두는 편이 좋습니다.",
+        "배려가 강점이라도 무리한 맞춤은 피하고 내가 편한 간격을 먼저 유지하는 편이 좋습니다.",
+        "관계를 조율할 때 양쪽 요구를 다 받기보다 핵심 두 가지 기준만 지키는 편이 안정적입니다.",
+        "상대 속도에 맞출수록 내 피로도도 함께 점검해 균형을 맞추는 편이 유리합니다.",
+        "대화가 잘 풀려도 약속 범위를 작게 시작하면 장기적으로 더 안정적인 흐름이 됩니다.",
+        "연결 능력을 살리되 선택과 집중을 분명히 하면 관계 소모를 크게 줄일 수 있습니다.",
+    ],
 }
+
+RELATIONSHIP_STRENGTH_HEADLINE_CLAUSES = {
+    "strong": [
+        "감정이 커져도 기준을 지키는 힘이 있어 관계 운영이 비교적 안정적입니다.",
+        "표현과 판단을 같이 끌고 가기 쉬운 버팀이 확보되는 편입니다.",
+        "관계 압박이 와도 리듬을 유지하며 방향을 잡기 수월한 흐름입니다.",
+        "중요한 대화를 실행으로 연결할 힘이 비교적 선명합니다.",
+        "관계 속도 조절만 해도 만족도를 크게 높이기 쉬운 편입니다.",
+    ],
+    "slightly_strong": [
+        "기본 버팀이 있어 관계 리듬을 안정적으로 맞추기 좋습니다.",
+        "초반 기준만 분명히 하면 관계 운영이 한결 수월해질 수 있습니다.",
+        "무리하지 않아도 중요한 장면에서 중심을 잡기 쉬운 흐름입니다.",
+        "연락·만남 간격만 조정해도 피로를 줄이기 쉬운 편입니다.",
+        "호감과 현실 조건을 병행해 보기에 비교적 유리합니다.",
+    ],
+    "balanced": [
+        "감정과 현실의 균형을 맞출수록 관계 흐름이 안정됩니다.",
+        "속도와 거리 조절을 함께 두면 갈등 가능성을 줄이기 쉽습니다.",
+        "한쪽으로 몰아치지 않는 운영이 만족도를 높이기 좋습니다.",
+        "중간 점검 대화를 넣으면 오해를 줄이는 데 도움이 됩니다.",
+        "천천히 합의 범위를 맞출수록 관계 품질이 좋아질 수 있습니다.",
+    ],
+    "slightly_weak": [
+        "관계 범위를 줄이고 핵심 약속만 남길수록 안정감이 커질 수 있습니다.",
+        "표현 강도보다 회복 간격을 먼저 두는 편이 더 유리합니다.",
+        "결론 속도를 늦추고 확인 과정을 늘리면 오차를 줄이기 쉽습니다.",
+        "감정이 커질수록 기준을 짧게 적어 두는 방식이 도움이 됩니다.",
+        "한 번에 깊어지기보다 단계적으로 맞춰 가는 편이 안정적입니다.",
+    ],
+    "weak": [
+        "올해는 관계 확장보다 방어와 회복 운영이 먼저 맞는 흐름입니다.",
+        "감정 소모를 줄이는 선택이 실제 만족도를 더 높일 수 있습니다.",
+        "무리한 진전보다 현재 리듬을 지키는 편이 훨씬 안전합니다.",
+        "관계 결론은 작게 쪼개고 확인 단계를 두는 방식이 유리합니다.",
+        "연락·만남 빈도를 줄여 피로를 관리하는 편이 좋습니다.",
+    ],
+}
+
+RELATIONSHIP_PATTERN_HEADLINE_CLAUSES = {
+    "관성격": [
+        "관계에서도 책임·신뢰·일관성 기준이 성패를 가를 수 있습니다.",
+        "좋아도 기준과 역할을 먼저 맞출수록 안정성이 커질 수 있습니다.",
+        "관계 압박 장면에서 원칙 유지가 큰 차이를 만들 수 있습니다.",
+    ],
+    "재성격": [
+        "감정보다 현실 조건·유지 가능성 판단이 더 중요해질 수 있습니다.",
+        "관계에서도 시간·에너지 배분 기준이 체감 결과를 좌우할 수 있습니다.",
+        "좋아도 생활 리듬과 현실 조건을 같이 봐야 하는 흐름입니다.",
+    ],
+    "식상격": [
+        "표현과 행동 일치가 관계 만족도를 크게 좌우할 수 있습니다.",
+        "말보다 실제 행동과 약속 이행에서 차이가 벌어지기 쉽습니다.",
+        "감정 표현의 순서를 다듬을수록 오해를 줄이기 유리합니다.",
+    ],
+    "인성격": [
+        "관찰·확인·맥락 읽기가 관계 판단의 핵심이 되기 쉽습니다.",
+        "성급한 결론보다 근거를 쌓는 대화가 더 유리할 수 있습니다.",
+        "상대 의도와 분위기를 재확인하는 습관이 안정에 도움이 됩니다.",
+    ],
+    "비겁격": [
+        "가까운 관계에서도 경계·거리·주도권 조율이 중요해집니다.",
+        "관계 에너지 분산을 줄이는 기준이 만족도를 좌우할 수 있습니다.",
+        "서로의 영역을 분명히 할수록 갈등 피로를 줄이기 쉽습니다.",
+    ],
+    "균형격": [
+        "한쪽으로 치우치지 않는 관계 운영이 가장 큰 강점으로 작동합니다.",
+        "속도보다 일관성 유지가 관계 안정으로 이어지기 쉬운 흐름입니다.",
+        "작은 조정을 반복하는 방식이 관계 품질을 지키는 데 유리합니다.",
+    ],
+}
+
+RELATIONSHIP_STAR_HEADLINE_CLAUSES = {
+    "비견": ["관계에서 내 기준과 주도권 의식이 강해질 수 있습니다.", "내 판단 중심으로 관계 속도를 정하려는 흐름이 커질 수 있습니다."],
+    "겁재": ["관계·사람 이슈가 늘어 감정 분산 관리가 중요해질 수 있습니다.", "주변 변수로 관계 리듬이 흔들리기 쉬워 조율이 필요합니다."],
+    "식신": ["표현과 행동이 맞아떨어질수록 관계 만족도가 올라가기 쉽습니다.", "작은 배려 행동이 관계 흐름을 안정시킬 수 있습니다."],
+    "상관": ["표현 강도가 커질 수 있어 말의 수위 조절이 중요합니다.", "맞는 말이라도 타이밍과 순서 관리가 필요해지는 흐름입니다."],
+    "편재": ["새 접점이 늘어도 선별과 거리 조절이 핵심이 될 수 있습니다.", "호감 신호가 늘수록 속도 조절이 더 중요해집니다."],
+    "정재": ["안정 지향적 관계 운영이 유리하게 작동할 수 있습니다.", "생활 리듬이 맞는 관계에서 편안함이 커지기 쉽습니다."],
+    "편관": ["긴장과 압박 반응이 올라오기 쉬워 결론을 늦추는 편이 좋습니다.", "관계 판단에서 방어 기준을 먼저 두는 흐름이 커질 수 있습니다."],
+    "정관": ["신뢰와 책임 기준이 선명해져 관계 방향이 또렷해질 수 있습니다.", "관계 정의와 기준 합의가 중요한 시기가 될 수 있습니다."],
+    "편인": ["관계에서 생각이 길어지고 탐색 성향이 강해질 수 있습니다.", "확정 전 비교·관찰이 길어지는 흐름이 올라올 수 있습니다."],
+    "정인": ["배려와 이해의 완충 역할이 관계 안정에 도움이 될 수 있습니다.", "천천히 맞춰 가는 운영이 더 큰 만족으로 이어질 수 있습니다."],
+}
+
+RELATIONSHIP_HEADLINE_TEMPLATES = [
+    "{core} {pattern}",
+    "{core} {strength}",
+    "{core} {star}",
+    "{pattern} {strength}",
+    "{pattern} {star}",
+    "{strength} {star}",
+    "{core} {pattern} {star}",
+    "{core} {strength} {star}",
+    "{pattern} {strength} {star}",
+    "{core} {pattern} {strength}",
+]
+
+RELATIONSHIP_SUMMARY_TEMPLATES = [
+    "{profile} {flow}",
+    "{profile} {trend}",
+    "{profile} {strength}",
+    "{flow} {star}",
+    "{trend} {star}",
+    "{strength} {pattern}",
+    "{profile} {flow} {trend}",
+    "{profile} {strength} {star}",
+    "{flow} {pattern} {trend}",
+    "{profile} {pattern} {flow}",
+]
+
+RELATIONSHIP_HEADLINE_COOLDOWN_WINDOW = 2
+_RELATIONSHIP_RECENT_INDEXES: dict[str, deque[int]] = defaultdict(
+    lambda: deque(maxlen=RELATIONSHIP_HEADLINE_COOLDOWN_WINDOW)
+)
+_RELATIONSHIP_HEADLINE_LOCK = Lock()
+
+
+def _seed_from_values(*parts: object) -> int:
+    total = 0
+    for part in parts:
+        if part is None:
+            continue
+        text = str(part)
+        total += sum(ord(char) for char in text)
+    return total
+
+
+def _pick_seeded(options: list[str], seed: int) -> str:
+    return options[seed % len(options)]
+
+
+def _relationship_strength_key(analysis_context: dict | None) -> str:
+    if not analysis_context:
+        return "balanced"
+    label = analysis_context.get("strength", {}).get("label", "balanced")
+    return label if label in RELATIONSHIP_STRENGTH_HEADLINE_CLAUSES else "balanced"
+
+
+def _build_relationship_headline_candidates(
+    *,
+    saju_id: str,
+    relationship_profile: str,
+    flow_profile: str,
+    intensity: str,
+    day_pillar_kor: str,
+    current_stars: list[str],
+    analysis_context: dict | None,
+) -> list[str]:
+    base_seed = _seed_from_values(
+        saju_id,
+        relationship_profile,
+        flow_profile,
+        intensity,
+        day_pillar_kor,
+        current_stars[0] if current_stars else "",
+        current_stars[1] if len(current_stars) > 1 else "",
+        analysis_context.get("structure", {}).get("primary_pattern", "") if analysis_context else "",
+        analysis_context.get("strength", {}).get("label", "") if analysis_context else "",
+    )
+    core_base = _build_profile_headline(relationship_profile, flow_profile, intensity, day_pillar_kor)
+    profile_sentence = RELATIONSHIP_PROFILE_HEADLINES[relationship_profile]
+    flow_sentence = _build_headline(flow_profile, intensity)
+    core_options = [
+        core_base,
+        profile_sentence,
+        flow_sentence,
+        f"{profile_sentence.rstrip('.')} 흐름이 올해 관계 판단의 핵심으로 작동할 가능성이 큽니다.",
+    ]
+    pattern_key = (
+        analysis_context.get("structure", {}).get("primary_pattern", "균형격")
+        if analysis_context
+        else "균형격"
+    )
+    pattern_options = RELATIONSHIP_PATTERN_HEADLINE_CLAUSES.get(
+        pattern_key,
+        RELATIONSHIP_PATTERN_HEADLINE_CLAUSES["균형격"],
+    )
+    strength_options = RELATIONSHIP_STRENGTH_HEADLINE_CLAUSES[_relationship_strength_key(analysis_context)]
+    star_options = RELATIONSHIP_STAR_HEADLINE_CLAUSES.get(
+        current_stars[0] if current_stars else "",
+        RELATIONSHIP_STAR_HEADLINE_CLAUSES["정인"],
+    )
+    if len(current_stars) > 1 and current_stars[1] in RELATIONSHIP_STAR_HEADLINE_CLAUSES:
+        star_options = [*star_options, *RELATIONSHIP_STAR_HEADLINE_CLAUSES[current_stars[1]]]
+
+    candidates: list[str] = []
+    seen = set()
+    for idx, template in enumerate(RELATIONSHIP_HEADLINE_TEMPLATES):
+        sentence = template.format(
+            core=_pick_seeded(core_options, base_seed + idx * 3 + 1).rstrip("."),
+            pattern=_pick_seeded(pattern_options, base_seed + idx * 5 + 2).rstrip("."),
+            strength=_pick_seeded(strength_options, base_seed + idx * 7 + 3).rstrip("."),
+            star=_pick_seeded(star_options, base_seed + idx * 11 + 4).rstrip("."),
+        )
+        sentence = " ".join(sentence.split()).strip()
+        if not sentence.endswith("."):
+            sentence += "."
+        if sentence not in seen:
+            seen.add(sentence)
+            candidates.append(sentence)
+    return candidates or [core_base]
+
+
+def _pick_relationship_headline(
+    *,
+    saju_id: str,
+    relationship_profile: str,
+    flow_profile: str,
+    intensity: str,
+    day_pillar_kor: str,
+    current_stars: list[str],
+    analysis_context: dict | None,
+) -> str:
+    options = _build_relationship_headline_candidates(
+        saju_id=saju_id,
+        relationship_profile=relationship_profile,
+        flow_profile=flow_profile,
+        intensity=intensity,
+        day_pillar_kor=day_pillar_kor,
+        current_stars=current_stars,
+        analysis_context=analysis_context,
+    )
+    seed = _seed_from_values(saju_id, relationship_profile, flow_profile, intensity, *current_stars)
+    base_index = seed % len(options)
+    pattern_key = (
+        analysis_context.get("structure", {}).get("primary_pattern", "균형격")
+        if analysis_context
+        else "균형격"
+    )
+    strength_key = _relationship_strength_key(analysis_context)
+    cooldown_key = (
+        f"{saju_id}:{relationship_profile}:{flow_profile}:{intensity}:{'-'.join(current_stars)}:"
+        f"{pattern_key}:{strength_key}"
+    )
+    with _RELATIONSHIP_HEADLINE_LOCK:
+        recent = _RELATIONSHIP_RECENT_INDEXES[cooldown_key]
+        selected_index = base_index
+        if base_index in recent:
+            for step in range(1, len(options)):
+                candidate = (base_index + step) % len(options)
+                if candidate not in recent:
+                    selected_index = candidate
+                    break
+        recent.append(selected_index)
+    return options[selected_index]
+
+
+def _build_relationship_summary(
+    *,
+    saju_id: str,
+    relationship_profile: str,
+    flow_profile: str,
+    intensity: str,
+    trend: str,
+    current_stars: list[str],
+    analysis_context: dict | None,
+) -> str:
+    seed = _seed_from_values(
+        "relationship_summary",
+        saju_id,
+        relationship_profile,
+        flow_profile,
+        intensity,
+        trend,
+        *current_stars,
+        analysis_context.get("structure", {}).get("primary_pattern", "") if analysis_context else "",
+        analysis_context.get("strength", {}).get("label", "") if analysis_context else "",
+    )
+    profile_clause = RELATIONSHIP_PROFILE_SUMMARIES[relationship_profile].rstrip(".")
+    flow_clause = RELATIONSHIP_RULES[flow_profile][intensity].rstrip(".")
+    trend_clause = f"관계 흐름은 {trend} 축에서 실제 체감 차이가 크게 벌어질 수 있습니다"
+    star_clause = (
+        f"연운 {current_stars[0]}와 대운 {current_stars[1]}이 겹쳐 관계 속도 조절의 중요도가 올라갈 수 있습니다"
+        if len(current_stars) >= 2
+        else f"연운 {current_stars[0]} 흐름이 들어와 관계 운영 기준이 중요해질 수 있습니다"
+    )
+    if analysis_context:
+        strength_clause = (
+            f"중간 계산 기준으로는 {analysis_context['strength']['display_label']} 구조라 "
+            "연락 간격과 관계 범위를 먼저 정해 두는 편이 유리합니다"
+        )
+        pattern_clause = (
+            f"핵심 구조가 {analysis_context['structure']['primary_pattern']}로 읽혀 "
+            "감정과 현실 조건을 함께 맞추는 운영이 중요해질 수 있습니다"
+        )
+    else:
+        strength_clause = "서두른 확정보다 관계 리듬을 천천히 맞추는 편이 더 안정적입니다"
+        pattern_clause = "결론보다 합의 순서를 먼저 맞추는 운영이 도움이 됩니다"
+
+    template = RELATIONSHIP_SUMMARY_TEMPLATES[seed % len(RELATIONSHIP_SUMMARY_TEMPLATES)]
+    summary = template.format(
+        profile=profile_clause,
+        flow=flow_clause,
+        trend=trend_clause,
+        strength=strength_clause,
+        star=star_clause,
+        pattern=pattern_clause,
+    )
+    return f"{' '.join(summary.split()).strip().rstrip('.')}."
 
 
 def build_relationship_fortune(
@@ -241,6 +587,7 @@ def build_relationship_fortune(
 ) -> dict:
     """Build a relationship fortune from natal chart, gender, and yearly flow."""
     current_stars = [year_fortune["ten_god"], year_fortune["daewoon_ten_god"]]
+    saju_id = str((saju_result or {}).get("saju_id", ""))
     current_star_set = set(current_stars)
 
     if gender == "male":
@@ -346,16 +693,47 @@ def build_relationship_fortune(
         if saju_result
         else ""
     )
-    summary = f"{RELATIONSHIP_PROFILE_SUMMARIES[relationship_profile]} {rule[intensity]}"
+    summary = _build_relationship_summary(
+        saju_id=saju_id,
+        relationship_profile=relationship_profile,
+        flow_profile=strength_profile,
+        intensity=intensity,
+        trend=rule["trend"],
+        current_stars=current_stars,
+        analysis_context=analysis_context,
+    )
     explanation = f"{_build_explanation(strength_profile, current_stars)} {RELATIONSHIP_PROFILE_SUMMARIES[relationship_profile]}".strip()
-    advice = f"{_build_advice(strength_profile, current_star_set)} {RELATIONSHIP_PROFILE_ADVICE[relationship_profile]}"
-    headline = _build_profile_headline(relationship_profile, strength_profile, intensity, day_pillar_kor or "이 원국")
+    profile_advice_lines = _dedupe(
+        [
+            _pick(RELATIONSHIP_PROFILE_ADVICE[relationship_profile], seed + 31),
+            _pick(RELATIONSHIP_PROFILE_ADVICE[relationship_profile], seed + 37),
+        ]
+    )[:2]
+    relationship_action_lines = _dedupe(
+        [
+            _pick(RELATIONSHIP_ACTION, seed + 43),
+            _pick(RELATIONSHIP_ACTION, seed + 47),
+        ]
+    )[:2]
+    base_advice = _build_advice(strength_profile, current_star_set)
+    advice = f"{base_advice} {profile_advice_lines[0]}".strip() if profile_advice_lines else base_advice
+    headline = _pick_relationship_headline(
+        saju_id=saju_id,
+        relationship_profile=relationship_profile,
+        flow_profile=strength_profile,
+        intensity=intensity,
+        day_pillar_kor=day_pillar_kor or "이 원국",
+        current_stars=current_stars,
+        analysis_context=analysis_context,
+    )
+    limited_strengths = _dedupe(strengths)[:2]
+    limited_warnings = _dedupe(warnings)[:2]
     section = build_relationship_section(
         headline=headline,
         explanation=explanation,
         advice=advice,
-        strengths=_dedupe(strengths)[:4],
-        warnings=_dedupe(warnings)[:4],
+        strengths=limited_strengths,
+        warnings=limited_warnings,
         seed=len("".join(current_stars)) + len(strength_profile),
         context_easy_lines=context_easy_lines,
         context_real_lines=context_real_lines,
@@ -363,6 +741,30 @@ def build_relationship_fortune(
     )
     section["easy_explanation"] = [_normalize_relationship_support_line(line) for line in section["easy_explanation"]]
     section["explanation"] = " ".join(section["easy_explanation"])
+    section["strength_and_risk"] = _dedupe([*limited_strengths, *limited_warnings])[:4]
+    section["strength_risk_text"] = " ".join(section["strength_and_risk"])
+    # 행동조언 출력 고정:
+    # - RELATIONSHIP_PROFILE_ADVICE: 최대 2개
+    # - RELATIONSHIP_ACTION: 최대 2개
+    # - 총합: 정확히 4개(중복 제거 후 부족분 보충)
+    action_advice = _dedupe([*profile_advice_lines[:2], *relationship_action_lines[:2]])[:4]
+    if not action_advice:
+        action_advice = [base_advice]
+    filler_candidates = _dedupe(
+        [
+            base_advice,
+            *RELATIONSHIP_PROFILE_ADVICE[relationship_profile],
+            *[_pick(RELATIONSHIP_ACTION, seed + 59 + idx * 5) for idx in range(20)],
+        ]
+    )
+    for line in filler_candidates:
+        if len(action_advice) >= 4:
+            break
+        if line and line not in action_advice:
+            action_advice.append(line)
+    action_advice = action_advice[:4]
+    section["action_advice"] = action_advice
+    section["advice"] = " ".join(action_advice)
 
     return {
         "headline": section["one_line"],
@@ -373,8 +775,8 @@ def build_relationship_fortune(
         "trend": rule["trend"],
         "intensity": intensity,
         "intensity_kor": {"strong": "강", "medium": "보통", "light": "완만"}[intensity],
-        "strengths": _dedupe(strengths)[:4],
-        "warnings": _dedupe(warnings)[:4],
+        "strengths": limited_strengths,
+        "warnings": limited_warnings,
     }
 
 

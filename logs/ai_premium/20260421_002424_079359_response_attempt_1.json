@@ -1,0 +1,76 @@
+{
+  "id": "resp_0df356bb09e64e0c0069e64501a8a881968c7862198773ae1f",
+  "object": "response",
+  "created_at": 1776698625,
+  "status": "completed",
+  "background": false,
+  "billing": {
+    "payer": "developer"
+  },
+  "completed_at": 1776698664,
+  "error": null,
+  "frequency_penalty": 0.0,
+  "incomplete_details": null,
+  "instructions": null,
+  "max_output_tokens": 10000,
+  "max_tool_calls": null,
+  "model": "gpt-5-mini-2025-08-07",
+  "output": [
+    {
+      "id": "rs_0df356bb09e64e0c0069e6450266a88196ab6157ea1d806387",
+      "type": "reasoning",
+      "summary": []
+    },
+    {
+      "id": "msg_0df356bb09e64e0c0069e6451aacf481969c08144141efbac7",
+      "type": "message",
+      "status": "completed",
+      "content": [
+        {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\n  \"premium_report\": {\n    \"report_title\": \"핵심 성향과 실전 조언\",\n    \"version\": \"1.0\",\n    \"sections\": [\n      {\n        \"section_id\": \"core_01\",\n        \"category\": \"overall\",\n        \"title\": \"핵심 성향 풀이\",\n        \"headline\": \"기준과 절차를 먼저 세워 일의 흐름을 관리하는 유형\",\n        \"summary_lines\": [\n          \"중요한 순간에는 기준과 순서를 먼저 정해 결론 시점을 분리하는 편입니다.\",\n          \"책임을 맡으면 역할 분담과 체계 유지에 신경을 쓰며 재정은 구조적 관리를 선호합니다.\",\n          \"관계에서는 기대치와 역할을 분명히 하면 오히려 빠르게 회복하고 정리하는 편입니다.\"\n        ],\n        \"core_insight\": \"이 사람은 중요한 상황에서 먼저 기준과 절차를 정해두고 그에 따라 행동의 틀을 만드는 쪽을 선호합니다. 겉으로는 감정 표출이 크지 않아 보일 수 있지만, 실제로는 안에서 여러 기준을 대입해 세분화한 뒤 결론을 내리는 방식에 익숙합니다. 책임을 맡았을 때는 역할을 나누고 규칙을 지키게 하며, 급작스러운 변화가 오면 우선 기존의 기준과 맞는지 하나하나 확인하는 흐름을 보입니다. 재정 면에서는 수입의 크기보다 오랜 기간 운영 가능한 관리 체계를 만드는 쪽이 체감상 더 큰 효과를 줍니다.\",\n        \"strength\": \"이 사람은 일 처리에서 기준과 순서를 분명히 하는 태도가 뚜렷해서 팀이나 프로젝트에서 혼선을 줄이는 데 기여합니다. 맡은 바 책임을 체계적으로 나누고 점검하는 과정을 루틴화할 수 있어 지속성 있는 결과를 만들기 쉬운 편입니다. 문제 상황이 생기면 감정적 반응으로 처리하기보다 절차에 따라 원인과 영향을 차분히 따져보려는 접근을 합니다. 이런 성향 덕분에 조직 내에서 신뢰를 쌓기 좋고, 반복되는 업무는 안정적으로 운영할 수 있습니다. 다만 타인에게 기준을 설명하고 합의를 얻는 과정이 필요하므로 초기 소통을 게을리하지 않는 편이 더 원활합니다.\",\n        \"risk\": \"기준과 절차를 우선하는 성향 때문에 상황에 따라 유연한 전환이 늦어질 수 있습니다. 즉각적인 감정 표현을 자제하는 방식이 오해를 낳거나 주변에서 거리감을 느끼게 만들 가능성이 있습니다. 결정 과정에서 세부 판단에 집중하다 보면 전체 맥락을 보지 못한 채 시간이 지체되는 경우가 생기며, 이로 인해 기회를 놓칠 우려도 있습니다. 재정 관리에서 구조를 중시하다 보면 단기적 유연성을 확보하지 못해 급변하는 비용 패턴에 대처하기 어려울 수 있습니다. 사람 관계에서는 기대치와 역할을 명확히 하지 않으면 불필요한 갈등이 반복될 수 있으니 주의가 필요합니다.\",\n        \"action_points\": [\n          \"중요한 결정은 기준을 문서로 정리하고 주변에 미리 공유하세요.\",\n          \"가계는 고정비와 변동비를 분리해 예산을 세우고 주기적으로 점검하세요.\",\n          \"대인관계에서는 초반에 기대치와 역할을 분명히 설명하는 것이 좋습니다.\"\n        ],\n        \"action_note\": \"현재 흐름은 지출 질서를 바로잡고 책임 있는 태도를 유지하는 쪽이 실제로 체감되는 효과가 큽니다. 일상에서는 우선순위를 정할 때 단기 조치와 장기 구조를 함께 적어두고 실천 계획을 세우는 것이 도움이 됩니다. 사람을 만날 때는 본인이 중요하게 여기는 기준을 먼저 설명하고 상대 입장도 확인하는 습관을 들이면 오해가 줄어듭니다. 급변 상황에는 기존 기준을 완전히 고집하기보다 핵심만 유지한 채 일부만 조정하는 방식으로 대응하세요. 이런 방식으로 운영하면 안정성과 유연성 사이에서 현실적인 균형을 잡아갈 수 있습니다.\"\n      }\n    ]\n  }\n}"
+        }
+      ],
+      "role": "assistant"
+    }
+  ],
+  "parallel_tool_calls": true,
+  "presence_penalty": 0.0,
+  "previous_response_id": null,
+  "prompt_cache_key": null,
+  "prompt_cache_retention": "in_memory",
+  "reasoning": {
+    "effort": "medium",
+    "summary": null
+  },
+  "safety_identifier": null,
+  "service_tier": "default",
+  "store": true,
+  "temperature": 1.0,
+  "text": {
+    "format": {
+      "type": "text"
+    },
+    "verbosity": "medium"
+  },
+  "tool_choice": "auto",
+  "tools": [],
+  "top_logprobs": 0,
+  "top_p": 1.0,
+  "truncation": "disabled",
+  "usage": {
+    "input_tokens": 1496,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens": 2880,
+    "output_tokens_details": {
+      "reasoning_tokens": 1920
+    },
+    "total_tokens": 4376
+  },
+  "user": null,
+  "metadata": {}
+}

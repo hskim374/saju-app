@@ -63,6 +63,22 @@
             font-size: 14px;
         }
 
+        .hero-meta-card {
+            margin: 10px 0 14px;
+            padding: 14px 16px;
+            border: 3px solid #c7a17a;
+            border-radius: 14px;
+            background: #fff;
+        }
+
+        .hero-meta-card .hero-meta {
+            margin: 0 0 8px;
+        }
+
+        .hero-meta-card .hero-meta:last-child {
+            margin-bottom: 0;
+        }
+
         .summary-grid,
         .analysis-grid,
         .saju-grid,
@@ -94,14 +110,89 @@
             grid-template-columns: 1fr;
         }
 
+        .basis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .basis-card {
+            border: 3px solid #c7a17a;
+            border-radius: 12px;
+            background: #fff;
+            padding: 12px;
+            box-shadow: 0 6px 14px rgba(33, 70, 60, 0.06);
+        }
+
+        /* 기본 팔레트 직접 적용 (카드별 고정) */
+        .basis-card.basis-blue {
+            border-color: #4a90e2;
+            background: linear-gradient(135deg, #eef6ff 0%, #dcecff 100%);
+        }
+
+        .basis-card.basis-green {
+            border-color: #4caf50;
+            background: linear-gradient(135deg, #f1fbf1 0%, #e0f4e2 100%);
+        }
+
+        .basis-card.basis-red {
+            border-color: #ff6b6b;
+            background: linear-gradient(135deg, #fff1f1 0%, #ffe1e1 100%);
+        }
+
+        .basis-card.basis-gray {
+            border-color: #9e9e9e;
+            background: linear-gradient(135deg, #f5f5f5 0%, #ececec 100%);
+        }
+
+        .basis-card.basis-beige {
+            border-color: #c7a17a;
+            background: linear-gradient(135deg, #fbf6f1 0%, #f2e7db 100%);
+        }
+
+        .basis-label {
+            font-size: 12px;
+            color: var(--text-soft);
+            margin-bottom: 6px;
+        }
+
+        .basis-value {
+            font-size: 14px;
+            color: var(--deep-3);
+            font-weight: 700;
+            line-height: 1.45;
+        }
+
         .card {
             background: var(--card-soft);
             padding: 18px;
         }
 
         .summary-card {
-            background: linear-gradient(135deg, var(--deep) 0%, var(--deep-2) 100%);
-            color: #fff;
+            color: #22322c;
+            border: 1px solid #c7a17a;
+            background: #fff;
+        }
+
+        .summary-card.summary-year {
+            background: linear-gradient(135deg, #eef6ff 0%, #dcecff 100%);
+            border-color: #4a90e2;
+        }
+
+        .summary-card.summary-wealth {
+            background: linear-gradient(135deg, #f1fbf1 0%, #e0f4e2 100%);
+            border-color: #4caf50;
+        }
+
+        .summary-card.summary-career {
+            background: linear-gradient(135deg, #fff1f1 0%, #ffe1e1 100%);
+            border-color: #ff6b6b;
+        }
+
+        .summary-card.summary-relationship {
+            background: linear-gradient(135deg, #f5f5f5 0%, #ececec 100%);
+            border-color: #9e9e9e;
         }
 
         .summary-grid > .card:not(.summary-card) {
@@ -130,9 +221,9 @@
         }
 
         .summary-label-light {
-            background: transparent;
-            color: var(--deep);
-            border: 1px solid var(--line-soft);
+            background: #f7efe6;
+            color: #6b553f;
+            border: 1px solid #c7a17a;
         }
 
         .summary-title {
@@ -149,6 +240,7 @@
         .summary-card .summary-value {
             font-size: 16px;
             line-height: 1.45;
+            color: #22322c;
         }
 
         .summary-grid>.card:not(.summary-card) .summary-value {
@@ -921,6 +1013,260 @@
             margin-bottom: 8px;
         }
 
+        .paid-test-box {
+            margin: 0 0 16px;
+            padding: 14px;
+            border: 1px solid var(--line-soft);
+            border-radius: 14px;
+            background: #f7fbf9;
+        }
+
+        .paid-controls-gap {
+            height: 14px;
+        }
+
+        .paid-test-status {
+            margin-top: 10px;
+            font-size: 13px;
+            color: var(--text-soft);
+        }
+
+        .paid-loading-indicator {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            font-size: 13px;
+            color: var(--text-soft);
+        }
+
+        .paid-loading-indicator.active {
+            display: flex;
+        }
+
+        .paid-loading-spinner {
+            width: 16px;
+            height: 16px;
+            border-radius: 999px;
+            border: 2px solid #cfdad4;
+            border-top-color: var(--deep);
+            animation: paid-spinner-rotate 0.8s linear infinite;
+        }
+
+        @keyframes paid-spinner-rotate {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .action-note-box {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border: 2px solid var(--line-soft);
+            border-radius: 12px;
+            background: #fff;
+            font-weight: 700;
+            line-height: 1.6;
+        }
+
+        .action-note-core {
+            border-color: #4a90e2;
+            color: #2f6ea8;
+        }
+
+        .action-note-strategy {
+            border-color: #4caf50;
+            color: #2f8a34;
+        }
+
+        .action-note-extra {
+            border-color: #ff6b6b;
+            color: #c74646;
+        }
+
+        .action-note-muted {
+            border-color: #9e9e9e;
+            color: #666;
+        }
+
+        .action-note-beige {
+            border-color: #c7a17a;
+            color: #8d6a47;
+        }
+
+        .paid-test-output {
+            margin-top: 14px;
+        }
+
+        .paid-test-output .summary-box {
+            margin-bottom: 12px;
+        }
+
+        .paid-test-output .premium-grid {
+            margin-top: 10px;
+        }
+
+        .extra-reading-shell {
+            margin-top: 16px;
+            padding: 14px;
+            border: 1px solid var(--line-soft);
+            border-radius: 14px;
+            background: #f8fbf9;
+        }
+
+        .extra-reading-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .extra-reading-title {
+            margin: 0;
+            color: var(--deep-3);
+            font-size: 18px;
+        }
+
+        .extra-usage-badge {
+            font-size: 12px;
+            color: var(--text-soft);
+            padding: 4px 8px;
+            border: 1px solid var(--line-soft);
+            border-radius: 999px;
+            background: #fff;
+        }
+
+        .extra-reading-note {
+            margin: 0 0 12px;
+            color: var(--text-soft);
+            font-size: 13px;
+        }
+
+        .extra-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .extra-chip {
+            appearance: none;
+            border: 1px solid var(--line-soft);
+            background: #fff;
+            border-radius: 10px;
+            padding: 9px 10px;
+            text-align: left;
+            color: var(--deep-3);
+            font-size: 13px;
+            line-height: 1.35;
+            cursor: pointer;
+            transition: border-color 0.18s ease, background-color 0.18s ease;
+        }
+
+        .extra-chip:hover {
+            border-color: #9fb8ad;
+            background: #f3f8f5;
+        }
+
+        .extra-chip.active {
+            border-color: #4a90e2;
+            background: #eef5ff;
+            color: #1f4f86;
+            font-weight: 700;
+        }
+
+        .extra-chip:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .extra-question-box {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed var(--line-soft);
+        }
+
+        .extra-question-title {
+            margin: 0 0 8px;
+            font-size: 14px;
+            color: var(--deep-3);
+            font-weight: 700;
+        }
+
+        .extra-status {
+            margin-top: 10px;
+            font-size: 13px;
+            color: var(--text-soft);
+        }
+
+        .extra-output {
+            margin-top: 12px;
+        }
+
+        .extra-card {
+            padding: 16px;
+            border-radius: 14px;
+            border: 1px solid var(--line-soft);
+            background: #fff;
+        }
+
+        .extra-card h3 {
+            margin: 0 0 8px;
+            color: var(--deep-3);
+            font-size: 18px;
+        }
+
+        .extra-category-title {
+            margin: 14px 0 10px;
+            font-size: 24px;
+            line-height: 1.25;
+            color: var(--deep-3);
+            font-weight: 800;
+            letter-spacing: -0.01em;
+        }
+
+        .extra-qa-line {
+            margin: 0 0 8px;
+            font-size: 16px;
+            line-height: 1.45;
+            color: var(--deep-3);
+            font-weight: 700;
+        }
+
+        .extra-story-box {
+            margin: 10px 0 12px;
+            padding: 12px 14px;
+            border: 1px solid var(--line-soft);
+            border-radius: 12px;
+            background: #f8fbf9;
+        }
+
+        .extra-story-box p {
+            margin: 0;
+            line-height: 1.7;
+            color: var(--text-main);
+        }
+
+        .extra-card .muted {
+            margin-bottom: 8px;
+        }
+
+        .extra-card ul {
+            margin: 6px 0 10px;
+            padding-left: 18px;
+        }
+
+        .extra-card .narrative-step {
+            margin-top: 10px;
+        }
+
+        @media (max-width: 720px) {
+            .extra-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .premium-blur .premium-card {
             filter: blur(4px);
             opacity: 0.72;
@@ -997,7 +1343,7 @@
 
         .tab-nav {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns: repeat(4, minmax(0, 1fr));
             width: 60%;
             gap: 2px;
             padding: 0 6px;
@@ -1173,6 +1519,14 @@
             line-height: 1.55;
         }
 
+        .saju-eight-summary {
+            margin-top: 12px;
+            padding: 10px 12px;
+            border: 1px solid var(--line-soft);
+            border-radius: 12px;
+            background: #ffffff;
+        }
+
         .saju-quick-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1339,6 +1693,27 @@
             bottom: 0;
             border-radius: 999px;
             background: #5f8374;
+        }
+
+        /* 오행 팔레트 재사용(십성은 순서만 재배치) */
+        .tengod-fill.officer {
+            background: #4a90e2; /* 수 */
+        }
+
+        .tengod-fill.wealth {
+            background: #4caf50; /* 목 */
+        }
+
+        .tengod-fill.output {
+            background: #ff6b6b; /* 화 */
+        }
+
+        .tengod-fill.resource {
+            background: #9e9e9e; /* 금 */
+        }
+
+        .tengod-fill.peer {
+            background: #c7a17a; /* 토 */
         }
 
         .tengod-count {
@@ -1697,15 +2072,6 @@
                                     <div class="score-grade">{{ result.daily_fortune.score.grade }}/ {{ result.daily_fortune.score.label }}</div>
                                 </div>
                                 <p class="score-summary">{{ result.daily_fortune.score.summary }}</p>
-                                <p class="score-driver">{{ result.daily_fortune.score.driver_line }}</p>
-                                {% if result.daily_fortune.score.factor_highlights %}
-                                <strong class="score-block-title">점수 근거 Top</strong>
-                                <ul class="score-factors compact">
-                                    {% for item in result.daily_fortune.score.factor_highlights %}
-                                    <li>{{ item }}</li>
-                                    {% endfor %}
-                                </ul>
-                                {% endif %}
                                 <div class="score-guide">
                                     <strong class="score-guide-title">활용도 등급 기준</strong>
                                     <ul class="score-guide-grid">
@@ -1736,18 +2102,6 @@
                                     {% endfor %}
                                 </ul>
                             </div>
-                            <div class="narrative-step"><strong>한 줄 요약</strong>
-                                <div>{{ result.daily_fortune.section.one_line }}</div>
-                            </div>
-                            <div class="highlight-line">{{ result.daily_fortune.section.highlight }}</div>
-                            <div class="narrative-step"><strong>쉬운 설명</strong>{% for item in
-                                result.daily_fortune.section.easy_explanation %}<div>{{ item }}</div>{% endfor %}</div>
-                            <div class="narrative-step"><strong>현실에서 이렇게 나타납니다</strong>{% for item in
-                                result.daily_fortune.section.real_life %}<div>{{ item }}</div>{% endfor %}</div>
-                            <ul>
-                                <li>일운: {{ result.daily_fortune.pillar_display }} / {{ result.daily_fortune.ten_god }}</li>
-                                <li>키워드: {{ result.daily_fortune.keywords | join(", ") }}</li>
-                            </ul>
                         </div>
                         <div class="card">
                             <div class="section-head">
@@ -1771,15 +2125,6 @@
                                     <div class="score-grade">{{ result.tomorrow_fortune.score.grade }}/ {{ result.tomorrow_fortune.score.label }}</div>
                                 </div>
                                 <p class="score-summary">{{ result.tomorrow_fortune.score.summary }}</p>
-                                <p class="score-driver">{{ result.tomorrow_fortune.score.driver_line }}</p>
-                                {% if result.tomorrow_fortune.score.factor_highlights %}
-                                <strong class="score-block-title">점수 근거 Top</strong>
-                                <ul class="score-factors compact">
-                                    {% for item in result.tomorrow_fortune.score.factor_highlights %}
-                                    <li>{{ item }}</li>
-                                    {% endfor %}
-                                </ul>
-                                {% endif %}
                                 <div class="score-guide">
                                     <strong class="score-guide-title">활용도 등급 기준</strong>
                                     <ul class="score-guide-grid">
@@ -1810,22 +2155,10 @@
                                     {% endfor %}
                                 </ul>
                             </div>
-                            <div class="narrative-step"><strong>한 줄 요약</strong>
-                                <div>{{ result.tomorrow_fortune.section.one_line }}</div>
-                            </div>
-                            <div class="highlight-line">{{ result.tomorrow_fortune.section.highlight }}</div>
-                            <div class="narrative-step"><strong>쉬운 설명</strong>{% for item in
-                                result.tomorrow_fortune.section.easy_explanation %}<div>{{ item }}</div>{% endfor %}</div>
-                            <div class="narrative-step"><strong>현실에서 이렇게 나타납니다</strong>{% for item in
-                                result.tomorrow_fortune.section.real_life %}<div>{{ item }}</div>{% endfor %}</div>
-                            <ul>
-                                <li>일운: {{ result.tomorrow_fortune.pillar_display }} / {{ result.tomorrow_fortune.ten_god }}</li>
-                                <li>키워드: {{ result.tomorrow_fortune.keywords | join(", ") }}</li>
-                            </ul>
                         </div>
                         <div class="card">
                             <h2>주간 운세</h2>
-                            <p class="muted">오늘부터 7일간의 활용도만 빠르게 볼 수 있게 정리했습니다.</p>
+                            <p class="muted">오늘부터 8일간의 활용도만 빠르게 볼 수 있게 정리했습니다.</p>
                             <div class="weekly-grid">
                                 {% for item in result.weekly_fortune %}
                                 <div class="weekly-card {{ item.score_class }}{% if item.is_today %} is-today{% endif %}">
@@ -1987,24 +2320,25 @@
                 <div class="section">
                     <div class="hero">
                         <div class="section-label">사주풀이</div>
-                        <h1>사주 결과</h1>
-                        <p class="hero-meta">
-                            {% if result.raw_input.calendar_type == "solar" %}양력{% else %}음력{% endif %}
-                            {{ result.raw_input.year }}년 {{ result.raw_input.month }}월 {{ result.raw_input.day }}일
-                            {% if result.raw_input.is_leap_month %}(윤달){% endif %}
-                            /
+                        <div class="hero-meta-card">
+                            <p class="hero-meta">
+                                {% if result.raw_input.calendar_type == "solar" %}양력{% else %}음력{% endif %}
+                                {{ result.raw_input.year }}년 {{ result.raw_input.month }}월 {{ result.raw_input.day }}일
+                                {% if result.raw_input.is_leap_month %}(윤달){% endif %}
+                                /
+                                {% if result.time_basis %}
+                                입력 시간: {{ result.time_basis.input_label }}
+                                {% else %}
+                                시간 미상
+                                {% endif %}
+                            </p>
+                            <p class="hero-meta">성별 기준: {% if result.raw_input.gender == "male" %}남성{% else %}여성{% endif %}</p>
+                            <p class="hero-meta">양력 환산 기준일: {{ result.resolved_solar.iso }}</p>
                             {% if result.time_basis %}
-                            입력 시간: {{ result.time_basis.input_label }}
-                            {% else %}
-                            시간 미상
+                            <p class="hero-meta">사주 기준 시간: {{ result.time_basis.saju_time_kor }} / 적용 구간: {{
+                                result.time_basis.time_range }}</p>
                             {% endif %}
-                        </p>
-                        <p class="hero-meta">성별 기준: {% if result.raw_input.gender == "male" %}남성{% else %}여성{% endif %}</p>
-                        <p class="hero-meta">양력 환산 기준일: {{ result.resolved_solar.iso }}</p>
-                        {% if result.time_basis %}
-                        <p class="hero-meta">사주 기준 시간: {{ result.time_basis.saju_time_kor }} / 적용 구간: {{
-                            result.time_basis.time_range }}</p>
-                        {% endif %}
+                        </div>
 
                         <div class="ad-block">
                             <ins class="adsbygoogle saju_responsive_1" style="display:block"
@@ -2022,19 +2356,19 @@
                             <p class="saju-core-sub">{{ result.interpretation_sections.overall.highlight }}</p>
                         </div>
                         <div class="summary-grid">
-                            <div class="card summary-card">
-                                <div class="summary-label">올해 흐름</div>
+                            <div class="card summary-card summary-year">
+                                <div class="summary-label summary-label-light">올해 흐름</div>
                                 <div class="summary-value">{{ result.summary_card.year_trend }}</div>
                             </div>
-                            <div class="card">
+                            <div class="card summary-card summary-wealth">
                                 <div class="summary-label summary-label-light">재물 기조</div>
                                 <div class="summary-value">{{ result.summary_card.wealth }}</div>
                             </div>
-                            <div class="card">
+                            <div class="card summary-card summary-career">
                                 <div class="summary-label summary-label-light">직장운</div>
                                 <div class="summary-value">{{ result.summary_card.career }}</div>
                             </div>
-                            <div class="card">
+                            <div class="card summary-card summary-relationship">
                                 <div class="summary-label summary-label-light">관계운</div>
                                 <div class="summary-value">{{ result.summary_card.relationship }}</div>
                             </div>
@@ -2053,7 +2387,8 @@
                                     <span class="saju-pill-branch">{{ result.saju.year.branch_display }}</span>
                                 </div>
                                 <div class="saju-pill-meta">십성: {{ result.ten_gods.year or "기준점" }}</div>
-                                <div class="saju-pill-meta">12운성: 준비중</div>
+                                <div class="saju-pill-meta">12운성: {{ result.analysis_context.twelve_states.year if result.analysis_context.twelve_states else "미산출" }}</div>
+                                <div class="saju-pill-meta">지장간: {{ result.analysis_context.hidden_stems_text.year if result.analysis_context.hidden_stems_text else "-" }}</div>
                             </div>
                             <div class="saju-pill-card is-scroll-link" data-scroll-target="pillar-section-month" role="button" tabindex="0" aria-label="월주 해석으로 이동">
                                 <div class="saju-pill-label">월주</div>
@@ -2062,7 +2397,8 @@
                                     <span class="saju-pill-branch">{{ result.saju.month.branch_display }}</span>
                                 </div>
                                 <div class="saju-pill-meta">십성: {{ result.ten_gods.month or "기준점" }}</div>
-                                <div class="saju-pill-meta">12운성: 준비중</div>
+                                <div class="saju-pill-meta">12운성: {{ result.analysis_context.twelve_states.month if result.analysis_context.twelve_states else "미산출" }}</div>
+                                <div class="saju-pill-meta">지장간: {{ result.analysis_context.hidden_stems_text.month if result.analysis_context.hidden_stems_text else "-" }}</div>
                             </div>
                             <div class="saju-pill-card is-scroll-link" data-scroll-target="pillar-section-day" role="button" tabindex="0" aria-label="일주 해석으로 이동">
                                 <div class="saju-pill-label">일주</div>
@@ -2071,7 +2407,8 @@
                                     <span class="saju-pill-branch">{{ result.saju.day.branch_display }}</span>
                                 </div>
                                 <div class="saju-pill-meta">십성: 일간(본체)</div>
-                                <div class="saju-pill-meta">12운성: 준비중</div>
+                                <div class="saju-pill-meta">12운성: {{ result.analysis_context.twelve_states.day if result.analysis_context.twelve_states else "미산출" }}</div>
+                                <div class="saju-pill-meta">지장간: {{ result.analysis_context.hidden_stems_text.day if result.analysis_context.hidden_stems_text else "-" }}</div>
                             </div>
                             <div class="saju-pill-card {% if result.saju.time %}is-scroll-link{% else %}is-disabled{% endif %}" {% if result.saju.time %}data-scroll-target="pillar-section-time" role="button" tabindex="0" aria-label="시주 해석으로 이동"{% endif %}>
                                 <div class="saju-pill-label">시주</div>
@@ -2081,7 +2418,8 @@
                                     <span class="saju-pill-branch">{{ result.saju.time.branch_display }}</span>
                                 </div>
                                 <div class="saju-pill-meta">십성: {{ result.ten_gods.time or "기준점" }}</div>
-                                <div class="saju-pill-meta">12운성: 준비중</div>
+                                <div class="saju-pill-meta">12운성: {{ result.analysis_context.twelve_states.time if result.analysis_context.twelve_states else "미산출" }}</div>
+                                <div class="saju-pill-meta">지장간: {{ result.analysis_context.hidden_stems_text.time if result.analysis_context.hidden_stems_text else "-" }}</div>
                                 {% else %}
                                 <div class="saju-pill-main">
                                     <span class="saju-pill-stem">미산출</span>
@@ -2089,9 +2427,17 @@
                                 </div>
                                 <div class="saju-pill-meta">십성: 미산출</div>
                                 <div class="saju-pill-meta">12운성: 미산출</div>
+                                <div class="saju-pill-meta">지장간: 미산출</div>
                                 {% endif %}
                             </div>
                         </div>
+                        {% if result.analysis_context.hapchung %}
+                        <div class="saju-eight-summary">
+                            <div class="saju-pill-meta"><strong>원국 합</strong>: {{ result.analysis_context.hapchung.counts["합"] }}건{% if result.analysis_context.hapchung.natal["합"] %} ({{ result.analysis_context.hapchung.natal["합"] | join(", ") }}){% endif %}</div>
+                            <div class="saju-pill-meta"><strong>원국 충</strong>: {{ result.analysis_context.hapchung.counts["충"] }}건{% if result.analysis_context.hapchung.natal["충"] %} ({{ result.analysis_context.hapchung.natal["충"] | join(", ") }}){% endif %}</div>
+                            <div class="saju-pill-meta">{{ result.analysis_context.hapchung.summary }}</div>
+                        </div>
+                        {% endif %}
                     </div>
                     <div class="saju-quick-grid">
                         {% set weighted = result.analysis_context.elements.weighted_scores %}
@@ -2163,27 +2509,27 @@
                             <div class="tengod-summary">
                                 <div class="tengod-row">
                                     <span class="tengod-name">관성</span>
-                                    <div class="tengod-track"><span class="tengod-fill" style="width: {{ ((tg.officer / total_ten) * 100 if total_ten else 0) | round(1) }}%;"></span></div>
+                                    <div class="tengod-track"><span class="tengod-fill officer" style="width: {{ ((tg.officer / total_ten) * 100 if total_ten else 0) | round(1) }}%;"></span></div>
                                     <span class="tengod-count">{{ tg.officer }}</span>
                                 </div>
                                 <div class="tengod-row">
                                     <span class="tengod-name">재성</span>
-                                    <div class="tengod-track"><span class="tengod-fill" style="width: {{ ((tg.wealth / total_ten) * 100 if total_ten else 0) | round(1) }}%;"></span></div>
+                                    <div class="tengod-track"><span class="tengod-fill wealth" style="width: {{ ((tg.wealth / total_ten) * 100 if total_ten else 0) | round(1) }}%;"></span></div>
                                     <span class="tengod-count">{{ tg.wealth }}</span>
                                 </div>
                                 <div class="tengod-row">
                                     <span class="tengod-name">식상</span>
-                                    <div class="tengod-track"><span class="tengod-fill" style="width: {{ ((tg.output / total_ten) * 100 if total_ten else 0) | round(1) }}%;"></span></div>
+                                    <div class="tengod-track"><span class="tengod-fill output" style="width: {{ ((tg.output / total_ten) * 100 if total_ten else 0) | round(1) }}%;"></span></div>
                                     <span class="tengod-count">{{ tg.output }}</span>
                                 </div>
                                 <div class="tengod-row">
                                     <span class="tengod-name">인성</span>
-                                    <div class="tengod-track"><span class="tengod-fill" style="width: {{ ((tg.resource / total_ten) * 100 if total_ten else 0) | round(1) }}%;"></span></div>
+                                    <div class="tengod-track"><span class="tengod-fill resource" style="width: {{ ((tg.resource / total_ten) * 100 if total_ten else 0) | round(1) }}%;"></span></div>
                                     <span class="tengod-count">{{ tg.resource }}</span>
                                 </div>
                                 <div class="tengod-row">
                                     <span class="tengod-name">비겁</span>
-                                    <div class="tengod-track"><span class="tengod-fill" style="width: {{ ((tg.peer / total_ten) * 100 if total_ten else 0) | round(1) }}%;"></span></div>
+                                    <div class="tengod-track"><span class="tengod-fill peer" style="width: {{ ((tg.peer / total_ten) * 100 if total_ten else 0) | round(1) }}%;"></span></div>
                                     <span class="tengod-count">{{ tg.peer }}</span>
                                 </div>
                             </div>
@@ -2570,15 +2916,7 @@
                 </div>
 
                 <div class="section">
-                    <div class="section-label">계산 기준</div>
-                    <ul>
-                        <li>기준 시간대: {{ result.calculation_basis.timezone }}</li>
-                        <li>년주: {{ result.calculation_basis.year_boundary }}</li>
-                        <li>월주: {{ result.calculation_basis.month_boundary }}</li>
-                        <li>일주: {{ result.calculation_basis.day_boundary }}</li>
-                        <li>시주: {{ result.calculation_basis.time_boundary }}</li>
-                        <li>대운: {{ result.daewoon.basis.direction_rule }}</li>
-                    </ul>
+                    <div class="section-label">안내</div>
                     <p class="trust-note">본 결과는 절기 기준 사주 계산과 대운/세운 흐름을 기반으로 분석되었습니다. 사주 기준에 따라 계산 방식과 해석 차이가 있을 수 있습니다.</p>
                     <div class="email-box">
                         <h2>이메일로 리포트 받기</h2>
@@ -2627,75 +2965,65 @@
                     <p class="tab-context">결정 포인트와 실행 전략을 한 번에 읽는 심화 리포트입니다.</p>
                     <h2>{{ result.premium_report.header }}</h2>
                     <p class="lead"><strong>{{ result.premium_report.intro }}</strong></p>
-                    {% if result.premium_report.analysis_brief.brief %}
-                    <div class="narrative-box" style="margin-bottom: 14px;">
-                        <div class="narrative-step"><strong>핵심 근거</strong></div>
-                        {% for item in result.premium_report.analysis_brief.brief %}
-                        <div>{{ item }}</div>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                    {% if result.analysis_context.uncertainty_notes %}
-                    <div class="context-caution" style="margin-bottom: 14px;">
-                        <strong>해석 유의점</strong>
-                        {{ result.analysis_context.uncertainty_notes[0] }}
-                    </div>
-                    {% endif %}
-                    <div class="narrative-box" style="margin-bottom: 14px;">
+
+                    <div class="narrative-box" style="margin-top: 14px; margin-bottom: 14px;">
                         <div class="narrative-step"><strong>핵심 요약</strong></div>
                         {% for item in result.premium_report.overview %}
                         <div>{{ item }}</div>
                         {% endfor %}
                     </div>
-                    <div class="ad-block">
-                        <ins class="adsbygoogle saju_responsive_1" style="display:block"
-                            data-ad-client="ca-pub-3984376475463185" data-ad-slot="4827661782"></ins>
-                        <script>
-                            (adsbygoogle = window.adsbygoogle || []).push({});
-                        </script>
-                    </div>
-                    <div class="premium-grid">
-                        {% for section in result.premium_report.sections %}
-                        <div class="premium-card">
-                            <h3>{{ section.title }}</h3>
-                            <p><strong>{{ section.headline }}</strong></p>
-                            {% for item in section.summary_lines %}
-                            <p>{{ item }}</p>
-                            {% endfor %}
-                            <div class="highlight-line" style="margin-top: 10px;">{{ section.core_insight }}</div>
-                            <div class="narrative-step"><strong>현실 패턴</strong></div>
-                            <ul>
-                                {% for item in section.patterns %}
-                                <li>{{ item }}</li>
-                                {% endfor %}
-                            </ul>
-                            <p><strong>장점</strong> {{ section.strength }}</p>
-                            <p><strong>주의점</strong> {{ section.risk }}</p>
-                            <div class="narrative-step"><strong>실행 포인트</strong></div>
-                            <ul>
-                                {% for item in section.action_points %}
-                                <li>{{ item }}</li>
-                                {% endfor %}
-                            </ul>
-                            <p class="muted">{{ section.action_note }}</p>
-                        </div>
+
+                    {% set paid_ns = namespace(action_section=None) %}
+                    {% for section in result.premium_report.sections %}
+                    {% if section.key == "action_plan" or section.title == "실행 전략" %}
+                    {% set paid_ns.action_section = section %}
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if paid_ns.action_section %}
+                    <div class="premium-card" style="margin-top: 14px;">
+                        <h3>{{ paid_ns.action_section.title }}</h3>
+                        <p><strong>{{ paid_ns.action_section.headline }}</strong></p>
+                        {% for item in paid_ns.action_section.summary_lines %}
+                        <p>{{ item }}</p>
                         {% endfor %}
+                        <div class="highlight-line" style="margin-top: 10px;">{{ paid_ns.action_section.core_insight }}</div>
+                        <div class="narrative-step"><strong>실행 포인트</strong></div>
+                        <ul>
+                            {% for item in paid_ns.action_section.action_points %}
+                            <li>{{ item }}</li>
+                            {% endfor %}
+                        </ul>
+                        <p class="action-note-box action-note-strategy">{{ paid_ns.action_section.action_note }}</p>
                     </div>
-                    <div class="summary-box" style="margin-top: 16px;">
+                    {% endif %}
+
+                    <div class="summary-box" style="margin-top: 14px;">
                         <strong>{{ result.premium_report.final_summary.headline }}</strong><br>
                         {{ result.premium_report.final_summary.text }}
                     </div>
-                    <div class="affiliate-box">
-                        <div class="affiliate-banner-slot"></div>
-                        <script src="https://ads-partners.coupang.com/g.js"></script>
-                        <script>
-                            (function () {
-                                var bannerSlot = document.currentScript.previousElementSibling;
-                                var bannerWidth = Math.max(320, Math.floor(bannerSlot.clientWidth || bannerSlot.parentElement.clientWidth || 350));
-                                new PartnersCoupang.G({ "id": 933121, "trackingCode": "AF3819787", "subId": null, "template": "carousel", "width": String(bannerWidth), "height": "120" });
-                            })();
-                        </script>
-                        <p class="affiliate-note">쿠팡파트너스 활동을 통해 일정액의 수수료를 제공받습니다.</p>
+
+                    <div class="paid-controls-gap"></div>
+                    <div class="extra-reading-shell">
+                        <div class="extra-reading-head">
+                            <h3 class="extra-reading-title">프리미엄 AI 사주</h3>
+                            <div id="extra-reading-usage" class="extra-usage-badge">무료 2회 / 로딩 중...</div>
+                        </div>
+                        <p class="extra-reading-note">관심 영역을 고른 뒤 프리미엄 AI 분석 버튼을 누르면 사주 핵심 풀이와 선택한 영역 10개 주제를 AI가 분석해 행동지침을 전달합니다.</p>
+                        <div id="extra-reading-categories" class="extra-grid"></div>
+
+                        <div class="paid-test-box" style="margin-top: 12px;">
+                            <button id="paid-ai-test-button" class="cta-button" type="button">프리미엄 AI 분석</button>
+                            <div id="paid-ai-test-status" class="paid-test-status">관심 영역을 고른 뒤 프리미엄 AI 분석 버튼을 누르면 사주 핵심 풀이와 선택한 영역 10개 주제를 AI가 분석해 행동지침을 전달합니다.</div>
+                            <div id="paid-ai-loading" class="paid-loading-indicator" aria-live="polite">
+                                <span class="paid-loading-spinner" aria-hidden="true"></span>
+                                <span id="paid-ai-loading-text">AI 응답을 기다리는 중입니다...</span>
+                            </div>
+                            <div id="paid-ai-test-output" class="paid-test-output"></div>
+                        </div>
+
+                        <div id="extra-reading-status" class="extra-status"></div>
+                        <div id="extra-reading-output" class="extra-output"></div>
                     </div>
                 </div>
             </div>
@@ -2737,7 +3065,7 @@
                         var targetTab = button.getAttribute("data-tab-target");
                         activateTab(targetTab, true);
                         if (targetTab === "premium") {
-                            scrollToTabTop("premium");
+                            scrollToTabTop(targetTab);
                         }
                     });
                 });
@@ -2755,6 +3083,7 @@
 
                 var validTabs = ["today", "saju", "premium"];
                 var initialHash = window.location.hash.replace("#", "");
+                if (initialHash === "paid") initialHash = "premium";
                 var initialTab = validTabs.indexOf(initialHash) >= 0 ? initialHash : defaultTab;
                 activateTab(initialTab, false);
 
@@ -2787,6 +3116,563 @@
                         });
                     }
                 });
+
+                var paidAiTestButton = document.getElementById("paid-ai-test-button");
+                var paidAiTestStatus = document.getElementById("paid-ai-test-status");
+                var paidAiTestOutput = document.getElementById("paid-ai-test-output");
+                var paidAiLoading = document.getElementById("paid-ai-loading");
+                var paidAiLoadingText = document.getElementById("paid-ai-loading-text");
+                var extraReadingUsage = document.getElementById("extra-reading-usage");
+                var extraReadingCategories = document.getElementById("extra-reading-categories");
+                var extraReadingStatus = document.getElementById("extra-reading-status");
+                var extraReadingOutput = document.getElementById("extra-reading-output");
+
+                function escapeHtml(text) {
+                    return String(text || "")
+                        .replace(/&/g, "&amp;")
+                        .replace(/</g, "&lt;")
+                        .replace(/>/g, "&gt;")
+                        .replace(/"/g, "&quot;")
+                        .replace(/'/g, "&#39;");
+                }
+
+                function renderTextList(items) {
+                    if (!Array.isArray(items) || !items.length) return "";
+                    return "<ul>" + items.map(function (item) {
+                        return "<li>" + escapeHtml(item) + "</li>";
+                    }).join("") + "</ul>";
+                }
+
+                function renderPaidReport(report) {
+                    if (!report || !Array.isArray(report.sections)) {
+                        return '<div class="summary-box">리포트 형식이 올바르지 않습니다.</div>';
+                    }
+
+                    var header = [
+                        '<div class="summary-box">',
+                        "<strong>" + escapeHtml(report.report_title || "프리미엄 사주풀이 리포트") + "</strong>",
+                        report.version ? "<br><span class='muted'>" + escapeHtml(report.version) + "</span>" : "",
+                        "</div>"
+                    ].join("");
+
+                    var sections = report.sections.map(function (section) {
+                        var summaryLines = Array.isArray(section.summary_lines) ? section.summary_lines : [];
+                        var patterns = Array.isArray(section.patterns) ? section.patterns : [];
+                        var actionPoints = Array.isArray(section.action_points) ? section.action_points : [];
+
+                        return [
+                            '<div class="premium-card">',
+                            "<h3>" + escapeHtml(section.title || "섹션") + "</h3>",
+                            section.headline ? "<p><strong>" + escapeHtml(section.headline) + "</strong></p>" : "",
+                            summaryLines.map(function (line) { return "<p>" + escapeHtml(line) + "</p>"; }).join(""),
+                            section.core_insight ? '<div class="highlight-line" style="margin-top: 10px;">' + escapeHtml(section.core_insight) + "</div>" : "",
+                            section.strength ? "<p><strong>장점</strong> " + escapeHtml(section.strength) + "</p>" : "",
+                            section.risk ? "<p><strong>주의점</strong> " + escapeHtml(section.risk) + "</p>" : "",
+                            actionPoints.length ? '<div class="narrative-step"><strong>실행 포인트</strong></div>' + renderTextList(actionPoints) : "",
+                            section.action_note ? "<p class='action-note-box action-note-muted'>" + escapeHtml(section.action_note) + "</p>" : "",
+                            "</div>"
+                        ].join("");
+                    }).join("");
+
+                    return header + '<div class="premium-grid">' + sections + "</div>";
+                }
+
+                function renderUsageBadge(usage) {
+                    if (!extraReadingUsage) return;
+                    if (!usage || typeof usage !== "object") {
+                        extraReadingUsage.textContent = "무료 2회 / 상태 미확인";
+                        return;
+                    }
+                    var limit = parseInt(usage.limit, 10) || 2;
+                    var used = parseInt(usage.used, 10) || 0;
+                    var remaining = parseInt(usage.remaining, 10);
+                    if (isNaN(remaining)) remaining = Math.max(0, limit - used);
+                    extraReadingUsage.textContent = "오늘 무료 " + limit + "회 중 " + used + "회 사용 (남은 " + remaining + "회)";
+                }
+
+                function renderExtraReadingCard(extra) {
+                    if (!extra || typeof extra !== "object") {
+                        return '<div class="summary-box">응답 형식이 올바르지 않습니다.</div>';
+                    }
+                    var title = escapeHtml(extra.title || "추가 사주보기");
+                    var headline = escapeHtml(extra.headline || "");
+                    var category = escapeHtml(extra.category || "");
+                    var question = escapeHtml(extra.question || "");
+                    var storyText = Array.isArray(extra.story)
+                        ? extra.story.map(function (line) { return String(line || "").trim(); }).filter(Boolean).join(" ")
+                        : String(extra.story || "").trim();
+
+                    var qText = "";
+                    if (category && question) qText = category + " - " + question;
+                    else qText = category || question;
+
+                    return [
+                        '<div class="extra-card">',
+                        qText ? "<p class='extra-qa-line'>Question. " + qText + "</p>" : "",
+                        "<p class='extra-qa-line'>Answer " + title + "</p>",
+                        headline ? "<p><strong>" + headline + "</strong></p>" : "",
+                        storyText ? "<div class='extra-story-box'><p>" + escapeHtml(storyText) + "</p></div>" : "",
+                        (Array.isArray(extra.warnings) && extra.warnings.length) ? '<div class="narrative-step"><strong>주의 포인트</strong></div>' + renderTextList(extra.warnings) : "",
+                        (Array.isArray(extra.tips) && extra.tips.length) ? '<div class="narrative-step"><strong>실행 팁</strong></div>' + renderTextList(extra.tips) : "",
+                        extra.closing ? "<p class='action-note-box action-note-extra'>" + escapeHtml(extra.closing) + "</p>" : "",
+                        "</div>"
+                    ].join("");
+                }
+
+                function renderPaidCoreCard(report) {
+                    var sections = (report && Array.isArray(report.sections)) ? report.sections : [];
+                    var first = sections.find(function (section) {
+                        return String(section && section.category || "").toLowerCase() === "overall";
+                    }) || (sections.length ? sections[0] : {});
+                    var title = String(first.title || "사주 핵심 풀이").trim();
+                    var headline = String(first.headline || "").trim();
+                    var coreText = String(first.core_insight || "").trim();
+                    var lines = Array.isArray(first.summary_lines)
+                        ? first.summary_lines.map(function (line) { return String(line || "").trim(); }).filter(Boolean).slice(0, 4)
+                        : [];
+                    var actionPoints = Array.isArray(first.action_points)
+                        ? first.action_points.map(function (line) { return String(line || "").trim(); }).filter(Boolean).slice(0, 4)
+                        : [];
+                    var strength = String(first.strength || "").trim();
+                    var risk = String(first.risk || "").trim();
+                    var actionNote = String(first.action_note || "").trim();
+                    if (!coreText) {
+                        coreText = "현재 구조의 핵심 기준을 먼저 고정하면, 이후 선택과 실행의 오차를 줄이기 쉽습니다.";
+                    }
+                    return [
+                        '<div class="premium-card" style="margin-top: 6px;">',
+                        "<h3>" + escapeHtml(title) + "</h3>",
+                        headline ? "<p><strong>" + escapeHtml(headline) + "</strong></p>" : "",
+                        lines.map(function (line) { return "<p>" + escapeHtml(line) + "</p>"; }).join(""),
+                        "<div class='highlight-line' style='margin-top: 10px;'>" + escapeHtml(coreText) + "</div>",
+                        strength ? "<p style='margin-top: 10px;'><strong>장점</strong> " + escapeHtml(strength) + "</p>" : "",
+                        risk ? "<p><strong>주의점</strong> " + escapeHtml(risk) + "</p>" : "",
+                        actionPoints.length ? '<div class="narrative-step"><strong>실행 포인트</strong></div>' + renderTextList(actionPoints) : "",
+                        actionNote ? "<p class='action-note-box action-note-core'>" + escapeHtml(actionNote) + "</p>" : "",
+                        "</div>"
+                    ].join("");
+                }
+
+                function renderExtraReadingBundle(bundle) {
+                    if (!bundle || !Array.isArray(bundle.items)) {
+                        return '<div class="summary-box">추가 사주보기 응답 형식이 올바르지 않습니다.</div>';
+                    }
+                    var cards = bundle.items.map(function (item, idx) {
+                        var title = (idx + 1) + ". " + (item.title || item.question || "질문");
+                        return renderExtraReadingCard({
+                            title: title,
+                            category: bundle.category || "",
+                            question: item.question || "",
+                            headline: item.headline || "",
+                            story: item.story || [],
+                            warnings: item.warnings || [],
+                            tips: item.tips || [],
+                            closing: item.closing || ""
+                        });
+                    }).join("");
+                    return cards || '<div class="summary-box">생성된 항목이 없습니다.</div>';
+                }
+
+                function requestJson(url, payload) {
+                    return fetch(url, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload || {})
+                    }).then(function (response) {
+                        return response.text().then(function (rawText) {
+                            var data = null;
+                            if (rawText) {
+                                try {
+                                    data = JSON.parse(rawText);
+                                } catch (e) {
+                                    data = null;
+                                }
+                            }
+                            if (!response.ok) {
+                                var message = data && data.detail ? data.detail : (rawText || ("요청 실패 (" + response.status + ")"));
+                                var error = new Error(message);
+                                error.responseData = data;
+                                error.status = response.status;
+                                throw error;
+                            }
+                            return data || {};
+                        });
+                    });
+                }
+
+                if (paidAiTestButton && paidAiTestStatus && paidAiTestOutput) {
+                    var paidSourceResult = {{ result | tojson }};
+
+                    var STEM_DAY_MASTER_MAP = {
+                        "갑": "갑목", "을": "을목", "병": "병화", "정": "정화", "무": "무토",
+                        "기": "기토", "경": "경금", "신": "신금", "임": "임수", "계": "계수"
+                    };
+                    var TEN_GOD_ORDER = ["비견", "겁재", "식신", "상관", "편재", "정재", "편관", "정관", "편인", "정인"];
+
+                    function cleanKorToken(value) {
+                        return String(value || "")
+                            .replace(/\s*\([^)]*\)\s*/g, "")
+                            .replace(/\s+/g, "")
+                            .trim();
+                    }
+
+                    function ensureArray(value) {
+                        return Array.isArray(value) ? value : [];
+                    }
+
+                    function getObject(value) {
+                        return (value && typeof value === "object") ? value : {};
+                    }
+
+                    function uniqueTop(items, limit) {
+                        var out = [];
+                        ensureArray(items).forEach(function (item) {
+                            var text = String(item || "").trim();
+                            if (!text) return;
+                            if (out.indexOf(text) >= 0) return;
+                            out.push(text);
+                        });
+                        return out.slice(0, limit);
+                    }
+
+                    function parseStartHourAndMinuteFromRange(rangeText) {
+                        var text = String(rangeText || "");
+                        var match = text.match(/(\d{2}):(\d{2})/);
+                        if (!match) return { hour: 0, minute: 0 };
+                        return { hour: parseInt(match[1], 10), minute: parseInt(match[2], 10) };
+                    }
+
+                    function buildBirthDateTime(rawInput, timeBasis) {
+                        var year = parseInt(rawInput.year, 10) || 0;
+                        var month = parseInt(rawInput.month, 10) || 0;
+                        var day = parseInt(rawInput.day, 10) || 0;
+                        var hour = (typeof timeBasis.hour === "number") ? timeBasis.hour : null;
+                        var minute = (typeof timeBasis.minute === "number") ? timeBasis.minute : null;
+                        if (hour === null || minute === null) {
+                            var parsed = parseStartHourAndMinuteFromRange(timeBasis.time_range);
+                            if (hour === null) hour = parsed.hour;
+                            if (minute === null) minute = parsed.minute;
+                        }
+                        return (
+                            String(year).padStart(4, "0") + "-" +
+                            String(month).padStart(2, "0") + "-" +
+                            String(day).padStart(2, "0") + " " +
+                            String(hour || 0).padStart(2, "0") + ":" +
+                            String(minute || 0).padStart(2, "0")
+                        );
+                    }
+
+                    function buildTenGodRatio(resultObj) {
+                        var ratio = {};
+                        TEN_GOD_ORDER.forEach(function (key) { ratio[key] = 0; });
+
+                        function addTenGod(value) {
+                            var key = String(value || "").trim();
+                            if (ratio.hasOwnProperty(key)) ratio[key] += 1;
+                        }
+
+                        var analysis = getObject(getObject(getObject(resultObj.analysis_context).analysis));
+                        var ten = getObject(analysis.ten_gods);
+                        var visible = ten.visible;
+                        var hidden = ten.hidden;
+
+                        if (Array.isArray(visible)) {
+                            visible.forEach(addTenGod);
+                        } else if (visible && typeof visible === "object") {
+                            Object.keys(visible).forEach(function (k) { addTenGod(visible[k]); });
+                        }
+
+                        if (Array.isArray(hidden)) {
+                            hidden.forEach(addTenGod);
+                        } else if (hidden && typeof hidden === "object") {
+                            Object.keys(hidden).forEach(function (k) {
+                                var values = hidden[k];
+                                if (Array.isArray(values)) values.forEach(addTenGod);
+                                else addTenGod(values);
+                            });
+                        }
+
+                        return ratio;
+                    }
+
+                    function buildRepeatBranches(saju) {
+                        var branches = [];
+                        ["year", "month", "day", "time"].forEach(function (role) {
+                            var branch = getObject(saju[role]).branch;
+                            if (branch) branches.push(cleanKorToken(branch));
+                        });
+
+                        var counts = {};
+                        branches.forEach(function (branch) {
+                            counts[branch] = (counts[branch] || 0) + 1;
+                        });
+
+                        return branches.filter(function (branch) { return (counts[branch] || 0) >= 2; });
+                    }
+
+                    function buildHiddenStemsByBranch(resultObj) {
+                        var out = {};
+                        var saju = getObject(resultObj.saju);
+                        var hiddenByPillar = getObject(getObject(resultObj.analysis_context).hidden_stems);
+                        ["year", "month", "day", "time"].forEach(function (role) {
+                            var pillar = getObject(saju[role]);
+                            var branch = cleanKorToken(pillar.branch);
+                            if (!branch) return;
+                            var rows = ensureArray(hiddenByPillar[role]);
+                            if (!out[branch]) out[branch] = [];
+                            rows.forEach(function (row) {
+                                var stem = cleanKorToken(getObject(row).stem);
+                                if (!stem) return;
+                                if (out[branch].indexOf(stem) < 0) out[branch].push(stem);
+                            });
+                        });
+                        return out;
+                    }
+
+                    function buildTwelveStagesByBranch(resultObj) {
+                        var out = {};
+                        var saju = getObject(resultObj.saju);
+                        var byPillar = getObject(getObject(resultObj.analysis_context).twelve_states);
+                        ["year", "month", "day", "time"].forEach(function (role) {
+                            var pillar = getObject(saju[role]);
+                            var branch = cleanKorToken(pillar.branch);
+                            var stage = String(byPillar[role] || "").trim();
+                            if (!branch || !stage) return;
+                            out[branch] = stage;
+                        });
+                        return out;
+                    }
+
+                    function buildKeywords(resultObj, signalKey, fallbackText) {
+                        var signals = getObject(resultObj.interpretation_signals);
+                        var primary = uniqueTop(signals[signalKey], 3);
+                        if (primary.length) return primary;
+                        return uniqueTop([fallbackText], 1);
+                    }
+
+                    function buildPaidPayloadFromResult(resultObj) {
+                        var rawInput = getObject(resultObj.raw_input);
+                        var timeBasis = getObject(resultObj.time_basis);
+                        var saju = getObject(resultObj.saju);
+                        var analysisContext = getObject(resultObj.analysis_context);
+                        var structure = getObject(analysisContext.structure);
+                        var strength = getObject(analysisContext.strength);
+                        var elements = getObject(analysisContext.elements);
+                        var summaryCard = getObject(resultObj.summary_card);
+                        var daewoon = getObject(resultObj.daewoon);
+                        var activeCycle = getObject(daewoon.active_cycle_summary);
+                        var yearly = getObject(resultObj.year_fortune);
+
+                        var dayStem = cleanKorToken(getObject(saju.day).stem);
+                        var dominantKor = ensureArray(elements.dominant_kor).map(cleanKorToken);
+                        var weakKor = ensureArray(elements.weak_kor).map(cleanKorToken);
+
+                        return {
+                            user_info: {
+                                gender: String(rawInput.gender || "male"),
+                                birth_datetime: buildBirthDateTime(rawInput, timeBasis),
+                                calendar_type: String(rawInput.calendar_type || "solar")
+                            },
+                            saju: {
+                                year_pillar: {
+                                    stem: cleanKorToken(getObject(saju.year).stem),
+                                    branch: cleanKorToken(getObject(saju.year).branch)
+                                },
+                                month_pillar: {
+                                    stem: cleanKorToken(getObject(saju.month).stem),
+                                    branch: cleanKorToken(getObject(saju.month).branch)
+                                },
+                                day_pillar: {
+                                    stem: cleanKorToken(getObject(saju.day).stem),
+                                    branch: cleanKorToken(getObject(saju.day).branch)
+                                },
+                                hour_pillar: {
+                                    stem: cleanKorToken(getObject(saju.time).stem),
+                                    branch: cleanKorToken(getObject(saju.time).branch)
+                                }
+                            },
+                            core_analysis: {
+                                day_master: STEM_DAY_MASTER_MAP[dayStem] || (dayStem ? dayStem + "일간" : "미상"),
+                                strength: String(strength.display_label || strength.label || "중간"),
+                                primary_pattern: String(structure.primary_pattern || "일반형"),
+                                structure_summary: String(getObject(getObject(resultObj.interpretation_sections).overall).one_line || "")
+                            },
+                            elements: {
+                                wood: parseInt(getObject(elements.raw_counts).wood || getObject(elements.elements).wood || 0, 10) || 0,
+                                fire: parseInt(getObject(elements.raw_counts).fire || getObject(elements.elements).fire || 0, 10) || 0,
+                                earth: parseInt(getObject(elements.raw_counts).earth || getObject(elements.elements).earth || 0, 10) || 0,
+                                metal: parseInt(getObject(elements.raw_counts).metal || getObject(elements.elements).metal || 0, 10) || 0,
+                                water: parseInt(getObject(elements.raw_counts).water || getObject(elements.elements).water || 0, 10) || 0
+                            },
+                            ten_gods: {
+                                ratio: buildTenGodRatio(resultObj)
+                            },
+                            structure_flags: {
+                                repeat_branches: buildRepeatBranches(saju),
+                                dominant_element: dominantKor[0] || "",
+                                lack_elements: weakKor
+                            },
+                            flow: {
+                                current_daewoon: String(activeCycle.pillar || activeCycle.pillar_display || "미정"),
+                                current_year: String(rawInput.target_year || yearly.year || ""),
+                                trend_summary: String(summaryCard.year_trend || getObject(yearly.section).one_line || "")
+                            },
+                            analysis_context: {
+                                personality_keywords: buildKeywords(resultObj, "personality", getObject(getObject(resultObj.main_cards).personality).one_line),
+                                money_keywords: buildKeywords(resultObj, "money", getObject(getObject(resultObj.main_cards).wealth).one_line),
+                                relationship_keywords: buildKeywords(resultObj, "relationship", getObject(getObject(resultObj.main_cards).relationship).one_line),
+                                career_keywords: buildKeywords(resultObj, "career", getObject(getObject(resultObj.main_cards).career).one_line)
+                            },
+                            hidden_structure: {
+                                hidden_stems: buildHiddenStemsByBranch(resultObj),
+                                twelve_stages: buildTwelveStagesByBranch(resultObj)
+                            },
+                            request: { mode: "initial", category: null }
+                        };
+                    }
+
+                    var paidTestPayload = buildPaidPayloadFromResult(paidSourceResult);
+                    var selectedExtraCategoryId = "";
+                    var selectedExtraCategoryLabel = "";
+                    var paidCoreReady = false;
+                    var paidCoreInsight = "";
+
+                    function setExtraStatus(message) {
+                        if (!extraReadingStatus) return;
+                        extraReadingStatus.textContent = message || "";
+                    }
+
+                    function renderCategoryButtons(categories) {
+                        if (!extraReadingCategories) return;
+                        extraReadingCategories.innerHTML = "";
+                        (Array.isArray(categories) ? categories : []).forEach(function (category) {
+                            var button = document.createElement("button");
+                            button.type = "button";
+                            button.className = "extra-chip";
+                            button.textContent = (category.label || category.id || "카테고리") + " (" + (category.question_count || 0) + ")";
+                            button.setAttribute("data-category-id", category.id || "");
+                            button.addEventListener("click", function () {
+                                selectedExtraCategoryId = category.id || "";
+                                selectedExtraCategoryLabel = category.label || "";
+                                Array.prototype.forEach.call(extraReadingCategories.querySelectorAll(".extra-chip"), function (chip) {
+                                    chip.classList.toggle("active", chip === button);
+                                });
+                                setExtraStatus("");
+                            });
+                            extraReadingCategories.appendChild(button);
+                        });
+                    }
+
+                    function loadExtraCategories() {
+                        if (!extraReadingCategories) return;
+                        setExtraStatus("카테고리를 불러오는 중...");
+                        requestJson("/api/extra-reading/categories", {})
+                            .then(function (data) {
+                                renderUsageBadge(data.usage);
+                                renderCategoryButtons(data.categories || []);
+                                setExtraStatus("관심 영역을 선택한 뒤 AI 버튼을 눌러 주세요.");
+                            })
+                            .catch(function (error) {
+                                setExtraStatus("카테고리 로드 실패: " + (error.message || "알 수 없는 오류"));
+                            });
+                    }
+
+                    function requestExtraBundleAndAppend() {
+                        return requestJson("/api/extra-reading/generate-bundle", {
+                            category_id: selectedExtraCategoryId,
+                            context: paidTestPayload,
+                            core_insight: paidCoreInsight
+                        }).then(function (data) {
+                            renderUsageBadge(data.usage);
+                            var bundle = data.extra_reading_bundle || {};
+                            var bundleHtml = renderExtraReadingBundle(bundle);
+                            var bundleTitle = "<div class='extra-category-title'>" + escapeHtml((bundle.category || selectedExtraCategoryLabel || "선택 카테고리") + " 상세 해석") + "</div>";
+                            paidAiTestOutput.innerHTML = paidAiTestOutput.innerHTML + bundleTitle + bundleHtml;
+                            if (extraReadingOutput) {
+                                extraReadingOutput.innerHTML = "";
+                            }
+                            return data;
+                        });
+                    }
+
+                    loadExtraCategories();
+
+                    paidAiTestButton.addEventListener("click", function () {
+                        if (!selectedExtraCategoryId) {
+                            paidAiTestStatus.textContent = "궁금한 영역을 선택해 주세요.";
+                            return;
+                        }
+                        paidAiTestButton.disabled = true;
+                        if (paidAiLoading) paidAiLoading.classList.add("active");
+                        var runPromise;
+
+                        if (!paidCoreReady) {
+                            paidAiTestStatus.textContent = "핵심 풀이 + 선택 주제 10개 내용을 생성 중...";
+                            if (paidAiLoadingText) paidAiLoadingText.textContent = "사주 핵심 풀이 작성중입니다...";
+                            paidAiTestOutput.innerHTML = "";
+                            console.log("[paid-ai] outgoing payload", paidTestPayload);
+
+                            runPromise = fetch("/api/premium-report/generate", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify(paidTestPayload)
+                            })
+                                .then(function (response) {
+                                    return response.text().then(function (rawText) {
+                                        var data = null;
+                                        if (rawText) {
+                                            try {
+                                                data = JSON.parse(rawText);
+                                            } catch (e) {
+                                                data = null;
+                                            }
+                                        }
+                                        if (!response.ok) {
+                                            if (data && data.detail) {
+                                                throw new Error(data.detail);
+                                            }
+                                            throw new Error(rawText || ("요청 실패 (" + response.status + ")"));
+                                        }
+                                        if (!data) {
+                                            throw new Error("서버 응답 형식이 올바르지 않습니다.");
+                                        }
+                                        return data;
+                                    });
+                                })
+                                .then(function (data) {
+                                    var report = data ? data.premium_report : null;
+                                    if (report && Array.isArray(report.sections) && report.sections.length) {
+                                        paidCoreInsight = String(report.sections[0].core_insight || report.sections[0].headline || "").trim();
+                                    }
+                                    paidAiTestOutput.innerHTML = renderPaidCoreCard(report);
+                                    paidCoreReady = true;
+                                    if (paidAiLoadingText) paidAiLoadingText.textContent = "사주 문의 답변을 작성중입니다...";
+                                    return requestExtraBundleAndAppend();
+                                });
+                        } else {
+                            paidAiTestStatus.textContent = "선택 주제 10개 내용을 생성 중...";
+                            if (paidAiLoadingText) paidAiLoadingText.textContent = "사주 문의 답변을 작성중입니다...";
+                            runPromise = requestExtraBundleAndAppend();
+                        }
+
+                        runPromise
+                            .then(function () {
+                                paidAiTestStatus.textContent = "생성 완료";
+                            })
+                            .catch(function (error) {
+                                var responseData = error && error.responseData ? error.responseData : null;
+                                if (responseData && responseData.usage) {
+                                    renderUsageBadge(responseData.usage);
+                                }
+                                paidAiTestStatus.textContent = "실패: " + (error && error.message ? error.message : "알 수 없는 오류");
+                            })
+                            .finally(function () {
+                                paidAiTestButton.disabled = false;
+                                if (paidAiLoading) paidAiLoading.classList.remove("active");
+                                if (paidAiLoadingText) paidAiLoadingText.textContent = "AI 응답을 기다리는 중입니다...";
+                            });
+                    });
+                }
             })();
         </script>
     </div>

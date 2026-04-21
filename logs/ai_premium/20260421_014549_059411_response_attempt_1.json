@@ -1,0 +1,76 @@
+{
+  "id": "resp_0ba6ac0753af0e6d0069e6580ee35c8197a25b6670e7dba7f6",
+  "object": "response",
+  "created_at": 1776703502,
+  "status": "completed",
+  "background": false,
+  "billing": {
+    "payer": "developer"
+  },
+  "completed_at": 1776703549,
+  "error": null,
+  "frequency_penalty": 0.0,
+  "incomplete_details": null,
+  "instructions": null,
+  "max_output_tokens": 10000,
+  "max_tool_calls": null,
+  "model": "gpt-5-mini-2025-08-07",
+  "output": [
+    {
+      "id": "rs_0ba6ac0753af0e6d0069e6580f98008197ba6824fdca75902c",
+      "type": "reasoning",
+      "summary": []
+    },
+    {
+      "id": "msg_0ba6ac0753af0e6d0069e65831d70c8197bbebabda263f5e6a",
+      "type": "message",
+      "status": "completed",
+      "content": [
+        {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\n  \"premium_report\": {\n    \"report_title\": \"개인 성향 프리미엄 리포트\",\n    \"version\": \"1.0\",\n    \"sections\": [\n      {\n        \"section_id\": \"section_1\",\n        \"category\": \"overall\",\n        \"title\": \"선택을 남겨두고 정리하는 사람의 흐름\",\n        \"headline\": \"처음과 시간이 지났을 때 모습이 달라지는 유형으로, 기준을 세워 지키는 방식이 일상에 큰 영향을 미칩니다.\",\n        \"summary_lines\": [\n          \"선택지를 일부러 열어 두고 여러 가능성을 내부에서 정리하는 성향입니다.\\n\",\n          \"가까워질수록 판단 기준이 또렷해지고 관계에서 차이가 드러납니다.\\n\",\n          \"재정은 수입 규모보다 유지 가능한 관리 방식이 만족감을 좌우합니다.\\n\"\n        ],\n        \"core_insight\": \"겉으로는 유연하게 보이지만 실제 판단은 선택지를 일부러 남겨 두고 내부에서 여러 가능성을 검토한 뒤 결론을 내리는 방식이 더 익숙합니다.\\n이 과정에서는 즉각적 표현보다 판단의 순서와 흐름을 정리하는 시간이 우선되어 가까운 사람들에게는 차갑게 보일 수 있으나 사실은 스스로의 기준을 지키려는 성향이 분명합니다.\\n이런 성향은 재정과 일에서 작은 관리 방식의 차이가 체감 성과로 이어지기 쉬우니 말의 순서와 일의 리듬을 점검하는 습관이 전체 흐름을 좌우합니다.\\n\",\n        \"strength\": \"이 사람은 결정을 내릴 때 한두 번 더 생각하고 체계를 세우는 과정에서 안정감을 얻는 편입니다.\\n겉으로 드러나는 반응보다 내부에서 기준을 세우고 지키려는 태도가 강하게 작동하여 반복되는 상황에서도 일관된 대응을 유지할 수 있습니다.\\n일에서는 결과를 만들어내기 위한 단계별 정리와 표현을 연결하는 능력이 있어 생산성과 결과 전달 면에서 유리한 측면이 있습니다.\\n재정 관리에서는 단기간의 큰 변화보다 지속 가능한 방식으로 자원을 지켜내는 쪽에서 만족을 느끼게 됩니다.\\n대인관계에서는 신뢰를 얻으면 깊은 유대가 형성되기 쉬우니 처음 인상과 과정의 차이를 이해시키는 표현이 도움이 됩니다.\\n\",\n        \"risk\": \"결정을 늦추거나 선택지를 오래 열어 두는 과정 때문에 주변에서 우유부단하다고 오해받을 수 있습니다.\\n가까운 사람일수록 판단 기준이 시간이 지나며 달라지는 모습에 혼란을 느끼기 쉬워 갈등이 생길 수 있습니다.\\n자기 기준을 지키려다 변화가 필요한 상황에서 유연성을 잃는 경우가 생기고 그로 인해 기회를 놓칠 가능성이 있습니다.\\n재정적으로는 수입 자체보다 관리 방식에 의존하는 경향이 있어 관리 체계가 흐트러지면 체감 손실이 커질 수 있습니다.\\n말을 내보내는 순서나 타이밍을 점검하지 않으면 오해가 쌓여 인간관계와 업무 전달에서 곤란을 겪기 쉽습니다.\\n\",\n        \"action_points\": [\n          \"의사결정의 우선순위와 기준을 미리 정해두고 그에 따라 움직이는 습관을 들이세요.\\n\",\n          \"중요한 관계에서는 판단 기준이 바뀌는 과정을 설명하는 시간을 갖고 소통의 간격을 줄이세요.\\n\",\n          \"재정은 단기 변동보다 지속 가능한 관리 루틴을 만들어 정기적으로 점검하세요.\\n\"\n        ],\n        \"action_note\": \"지금은 성과의 리듬을 잘 잡고 말의 순서를 점검할 시기입니다.\\n작업이나 대화의 순서를 미리 정리하면 결과가 더 명확하게 드러나므로 상황 시작 전에 작은 체크리스트를 만들어두세요.\\n관계에서는 초기 인상과 시간이 흐른 뒤의 모습이 달라질 수 있음을 미리 알리고 기대치를 조율하는 대화를 하세요.\\n재정 관리는 수입 확대보다 지출과 유지 방식에 더 신경 써서 단기적 유혹에 흔들리지 않도록 규칙을 세우세요.\\n일에서는 표현과 생산을 연결하는 루틴을 만들고 성과 피드백 주기를 짧게 가져가 실질적 리듬을 확보하세요.\\n\"\n      }\n    ]\n  }\n}"
+        }
+      ],
+      "role": "assistant"
+    }
+  ],
+  "parallel_tool_calls": true,
+  "presence_penalty": 0.0,
+  "previous_response_id": null,
+  "prompt_cache_key": null,
+  "prompt_cache_retention": "in_memory",
+  "reasoning": {
+    "effort": "medium",
+    "summary": null
+  },
+  "safety_identifier": null,
+  "service_tier": "default",
+  "store": true,
+  "temperature": 1.0,
+  "text": {
+    "format": {
+      "type": "text"
+    },
+    "verbosity": "medium"
+  },
+  "tool_choice": "auto",
+  "tools": [],
+  "top_logprobs": 0,
+  "top_p": 1.0,
+  "truncation": "disabled",
+  "usage": {
+    "input_tokens": 1444,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens": 4073,
+    "output_tokens_details": {
+      "reasoning_tokens": 3008
+    },
+    "total_tokens": 5517
+  },
+  "user": null,
+  "metadata": {}
+}

@@ -1,0 +1,76 @@
+{
+  "id": "resp_0cd73221e97107160069e64804f45481958a50b34e7eb4e32f",
+  "object": "response",
+  "created_at": 1776699396,
+  "status": "completed",
+  "background": false,
+  "billing": {
+    "payer": "developer"
+  },
+  "completed_at": 1776699425,
+  "error": null,
+  "frequency_penalty": 0.0,
+  "incomplete_details": null,
+  "instructions": null,
+  "max_output_tokens": 10000,
+  "max_tool_calls": null,
+  "model": "gpt-5-mini-2025-08-07",
+  "output": [
+    {
+      "id": "rs_0cd73221e97107160069e648057c4881959613ac9c009de62e",
+      "type": "reasoning",
+      "summary": []
+    },
+    {
+      "id": "msg_0cd73221e97107160069e64816b11c8195b6075c4b10ce32bd",
+      "type": "message",
+      "status": "completed",
+      "content": [
+        {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\n  \"premium_report\": {\n    \"report_title\": \"프리미엄 인물 리포트\",\n    \"version\": \"1.0\",\n    \"sections\": [\n      {\n        \"section_id\": \"core_001\",\n        \"category\": \"overall\",\n        \"title\": \"사주 핵심 풀이\",\n        \"headline\": \"내면의 기준을 먼저 세우고 책임을 지는 방식으로 상황을 정리하는 사람입니다.\",\n        \"summary_lines\": [\n          \"중요한 장면에서는 마음보다 판단의 순서를 먼저 정하는 성향이 강합니다.\\n\",\n          \"재정은 수입보다 꾸준히 유지할 수 있는 관리 방식이 체감에 영향을 줍니다.\\n\",\n          \"관계에서는 기준을 분명히 하지만 끊어진 연결은 의도적으로 회복할 수 있습니다.\\n\"\n        ],\n        \"core_insight\": \"이 사람은 감정의 즉각적 표출보다 머릿속에서 기준을 세우고 상황을 정리하는 과정을 우선합니다.\\n같은 행동이라도 순간의 장면에 따라 전혀 다른 모습으로 비칠 수 있는데, 이는 결정을 내리는 기준과 순서를 먼저 마련하기 때문입니다.\\n일단 판단 기준이 정해지면 실무적으로 그것을 지키기 위해 구체적인 행동 계획을 세우고 실행하려는 성향이 뚜렷합니다.\\n재정은 수입 규모 자체보다 장기적으로 유지 가능한 관리 체계를 만드는 것이 실제 체감 안정감에 더 큰 영향을 줍니다.\\n관계에서는 원칙을 중요하게 여기되 끊어진 연결은 의도적으로 회복하려는 노력을 통해 균형을 되찾을 수 있습니다.\\n\",\n        \"strength\": \"판단을 내릴 때 자기만의 기준과 순서를 명확히 세우는 경향이 있어 일을 맡으면 체계적으로 처리하는 모습이 자주 드러납니다.\\n결과를 냈을 때 책임을 지고 마무리하려는 태도가 있어 주변에서 신뢰를 얻는 편입니다.\\n실행 단계에서 세부 계획을 만드는 능력이 있어 복잡한 과제도 단계별로 정리해 진행할 수 있습니다.\\n재정 면에서는 비용을 분류하고 흐름을 점검하는 습관이 실질적인 안정에 기여합니다.\\n대인관계에서는 기준이 분명해 소통이 일관되며, 필요할 때 관계를 재설정하는 결단을 빠르게 내릴 수 있습니다.\\n\",\n        \"risk\": \"판단 기준이 우선하다 보니 상황에 따라 타인의 즉각적 감정 표현을 놓칠 수 있어 오해가 생기기 쉽습니다.\\n기준을 지키려는 태도가 과도하면 융통성 부족으로 받아들여져 관계에서 갈등을 초래할 수 있습니다.\\n재정 관리는 체계적이지만 과도한 규칙화로 인해 유연한 기회 포착을 놓칠 가능성이 있습니다.\\n책임을 맡을 때 스스로 짊어지는 부분이 커지면 번아웃으로 이어질 수 있으므로 휴식과 분배가 필요합니다.\\n변화가 빠른 상황에서는 기존 기준만 고집하지 말고 상황에 맞게 재검토하는 과정이 중요합니다.\\n\",\n        \"action_points\": [\n          \"중요한 결정을 앞두고는 기준과 우선순위를 적어 시각화한 뒤 실행 계획을 세우세요.\\n\",\n          \"재정 관리는 고정비와 변동비를 분리해 한 달 단위로 점검하고, 비상용 유동성을 따로 확보하세요.\\n\",\n          \"대인관계에서 즉각적인 감정 표현을 일부러라도 확인하는 시간을 마련해 오해를 줄이세요.\\n\"\n        ],\n        \"action_note\": \"일상에서는 원칙을 세우되 정기적으로 그 원칙을 돌아보는 습관을 들이세요.\\n한 달이나 분기 단위로 목표와 실행 방식을 점검하면 고정된 기준이 현실과 어긋날 때 빠르게 조정할 수 있습니다.\\n재정 점검 시에는 수입보다 유지 가능한 지출 구조를 우선으로 검토하고, 급변 상황을 대비한 유동성을 확보하세요.\\n관계에서는 기준을 설명하는 노력을 병행하면 상대가 이해하고 조율하기 쉬워집니다.\\n업무 분배는 혼자 모두 떠안지 말고 신뢰할 수 있는 사람에게 권한을 위임하는 연습을 하세요.\\n\"\n      }\n    ]\n  }\n}"
+        }
+      ],
+      "role": "assistant"
+    }
+  ],
+  "parallel_tool_calls": true,
+  "presence_penalty": 0.0,
+  "previous_response_id": null,
+  "prompt_cache_key": null,
+  "prompt_cache_retention": "in_memory",
+  "reasoning": {
+    "effort": "medium",
+    "summary": null
+  },
+  "safety_identifier": null,
+  "service_tier": "default",
+  "store": true,
+  "temperature": 1.0,
+  "text": {
+    "format": {
+      "type": "text"
+    },
+    "verbosity": "medium"
+  },
+  "tool_choice": "auto",
+  "tools": [],
+  "top_logprobs": 0,
+  "top_p": 1.0,
+  "truncation": "disabled",
+  "usage": {
+    "input_tokens": 1496,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens": 2663,
+    "output_tokens_details": {
+      "reasoning_tokens": 1600
+    },
+    "total_tokens": 4159
+  },
+  "user": null,
+  "metadata": {}
+}

@@ -163,6 +163,9 @@ def build_structured_report(analysis_context: dict, signals: dict) -> dict:
             analysis,
             sentence_db,
             seed=seed + index * 17,
+            base_count=1,
+            structure_count=2,
+            adjustment_count=1,
             return_rows=True,
         )
         used_fallback = not bool(lines)

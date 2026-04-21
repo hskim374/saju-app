@@ -1,0 +1,77 @@
+{
+  "id": "resp_0f4e63e5b182ef3a0069e7f94f53708195919d682d77fc6e73",
+  "object": "response",
+  "created_at": 1776810319,
+  "status": "completed",
+  "background": false,
+  "billing": {
+    "payer": "developer"
+  },
+  "completed_at": 1776810368,
+  "error": null,
+  "frequency_penalty": 0.0,
+  "incomplete_details": null,
+  "instructions": null,
+  "max_output_tokens": 20000,
+  "max_tool_calls": null,
+  "model": "gpt-5-nano-2025-08-07",
+  "moderation": null,
+  "output": [
+    {
+      "id": "rs_0f4e63e5b182ef3a0069e7f95044e081958f7bcf575b6cde30",
+      "type": "reasoning",
+      "summary": []
+    },
+    {
+      "id": "msg_0f4e63e5b182ef3a0069e7f97a805c819586073f76ef0a7d86",
+      "type": "message",
+      "status": "completed",
+      "content": [
+        {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\n  \"premium_report\": {\n    \"report_title\": \"프리미엄 사주 스토리 리포트\",\n    \"version\": \"1.0\",\n    \"sections\": [\n      {\n        \"section_id\": \"section_1\",\n        \"category\": \"overall\",\n        \"title\": \"프리미엄 사주 스토리\",\n        \"headline\": \"말과 판단의 흐름이 서로 어울려 흐름을 만들어 가는 사람\",\n        \"summary_lines\": [\n          \"처음 인상은 상황에 따라 판단 기준이 달라질 수 있습니다.\",\n          \"의사 표현에 시간이 걸려도 결국 핵심 방향은 맥락에 맞춰 조정됩니다.\",\n          \"관계와 업무를 함께 다루는 방식에서 균형 잡힌 흐름이 차근차근 만들어집니다.\"\n        ],\n        \"core_insight\": \"이 사람은 한 가지를 밀고 나가기보다 상황에 맞춰 방향을 조정하며 사람과 일의 흐름을 함께 다듬는 편이다. 말로 아이디어를 표현하는 데 시간이 들 수 있지만, 한 번 정한 기준은 맥락에 따라 자연스럽게 자리 잡고 필요하면 조정된다. 그래서 새로운 아이디어를 실무에서 검증하고 실행으로 옮길 때 작은 변화에 차분하게 다가가며, 실용적인 방법으로 목표를 차근차근 이뤄나가는 모습이 돋보인다. 관계를 다룰 때는 기대와 현실의 간극을 줄이려는 습관이 도움이 된다.\",\n        \"strength\": \"관계와 흐름을 차분하게 다듬는 능력이 돋보이며, 필요할 때 상황을 조정해 목표를 순서대로 이끌어 갑니다.\",\n        \"risk\": \"감정이나 기대의 차이로 생각의 방향이 흔들릴 수 있어, 중요한 순간에는 우선순위를 명확히 하고 의사소통을 통해 흐름을 고정하는 것이 필요합니다.\",\n        \"action_points\": [\n          \"일과 관계에서 핵심 우선순위를 명확히 정하고, 이를 실제 대화와 계획에 반영합니다.\",\n          \"새로운 아이디어나 제안은 작은 단위로 먼저 시도해 보고, 피드백을 반영해 점진적으로 확장합니다.\",\n          \"감정 변화가 잦은 상황에서 감정에 휩쓸리기보다 사실관계와 목표에 집중하는 습관을 길러보세요.\"\n        ],\n        \"action_note\": \"이런 흐름을 인식하고 계획에 반영하면 일과 인간관계 모두에서 더 안정적이고 실질적인 진전을 기대할 수 있습니다.\"\n      }\n    ]\n  }\n}"
+        }
+      ],
+      "role": "assistant"
+    }
+  ],
+  "parallel_tool_calls": true,
+  "presence_penalty": 0.0,
+  "previous_response_id": null,
+  "prompt_cache_key": null,
+  "prompt_cache_retention": "in_memory",
+  "reasoning": {
+    "effort": "medium",
+    "summary": null
+  },
+  "safety_identifier": null,
+  "service_tier": "default",
+  "store": true,
+  "temperature": 1.0,
+  "text": {
+    "format": {
+      "type": "text"
+    },
+    "verbosity": "medium"
+  },
+  "tool_choice": "auto",
+  "tools": [],
+  "top_logprobs": 0,
+  "top_p": 1.0,
+  "truncation": "disabled",
+  "usage": {
+    "input_tokens": 1476,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens": 4768,
+    "output_tokens_details": {
+      "reasoning_tokens": 4160
+    },
+    "total_tokens": 6244
+  },
+  "user": null,
+  "metadata": {}
+}

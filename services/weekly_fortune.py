@@ -345,7 +345,7 @@ def build_weekly_fortune(
     gender: str | None = None,
     daewoon: dict | None = None,
 ) -> list[dict]:
-    """Return 7 compact daily summaries starting from ``start_date``."""
+    """Return 8 compact daily summaries starting from ``start_date``."""
     element_analysis = analyze_elements(saju_result["saju"])
     ten_gods = calculate_ten_gods(saju_result["saju"])
     resolved_gender = gender or saju_result.get("raw_input", {}).get("gender")
@@ -356,7 +356,7 @@ def build_weekly_fortune(
     weekly_items = []
     used_summaries: set[str] = set()
     used_drivers: set[str] = set()
-    for offset in range(7):
+    for offset in range(8):
         target_date = start_date + timedelta(days=offset)
         year_fortune = None
         if resolved_daewoon:

@@ -7,6 +7,7 @@ from data.stems import STEMS
 from services.evidence_trace import build_evidence_trace
 from services.interactions import calculate_luck_interactions, calculate_natal_interactions
 from services.interpretation_rules import build_analysis_flags
+from services.pillar_details import build_pillar_details
 from services.special_stars import calculate_special_stars
 from services.structure_analyzer import analyze_structure
 from services.strength_model import calculate_strength_analysis
@@ -51,6 +52,10 @@ def build_analysis_context(
         "with_yearly": luck_interactions["with_yearly"],
         "with_daily": luck_interactions["with_daily"],
     }
+    pillar_details = build_pillar_details(
+        saju=saju,
+        interactions=interactions,
+    )
     special_stars = calculate_special_stars(saju)
     structure = analyze_structure(
         saju=saju,
@@ -105,6 +110,10 @@ def build_analysis_context(
         "interactions": interactions,
         "relations": relation_matrix,
         "pillar_roles": PILLAR_ROLES,
+        "twelve_states": pillar_details["twelve_states"],
+        "hidden_stems": pillar_details["hidden_stems"],
+        "hidden_stems_text": pillar_details["hidden_stems_text"],
+        "hapchung": pillar_details["hapchung"],
         "special_stars": special_stars,
         "structure": structure,
         "ten_gods": ten_gods,

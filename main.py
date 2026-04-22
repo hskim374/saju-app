@@ -355,6 +355,19 @@ def _ensure_extra_reading_cookie(request: Request, response: Response, cookie_va
     return new_id
 
 
+def _resolve_extra_reading_identity(request: Request, response: Response, data: dict | None = None) -> tuple[str, str]:
+    payload = data or {}
+    existing_cookie_uid = str(request.cookies.get(EXTRA_READING_COOKIE_KEY, "")).strip()
+    cookie_uid = _ensure_extra_reading_cookie(request, response)
+    explicit_user_id = str(payload.get("user_id") or "").strip() or (existing_cookie_uid or None)
+    user_key = resolve_extra_reading_user_key(
+        request,
+        email=payload.get("email"),
+        explicit_user_id=explicit_user_id,
+    )
+    return user_key, cookie_uid
+
+
 def _usage_to_dict(status) -> dict:
     return {
         "limit": status.limit,
@@ -684,12 +697,7 @@ async def api_extra_reading_categories(request: Request, payload: dict | None = 
     categories = get_extra_reading_categories()
     daily_limit = _resolve_extra_reading_daily_limit(request)
     response = JSONResponse({})
-    cookie_uid = _ensure_extra_reading_cookie(request, response)
-    user_key = resolve_extra_reading_user_key(
-        request,
-        email=data.get("email"),
-        explicit_user_id=data.get("user_id") or cookie_uid,
-    )
+    user_key, cookie_uid = _resolve_extra_reading_identity(request, response, data)
     usage = current_extra_reading_usage_status(user_key, limit=daily_limit)
     append_extra_reading_event(
         event_type="extra_reading_categories_view",
@@ -719,12 +727,7 @@ async def api_extra_reading_questions(request: Request, payload: dict | None = N
 
     daily_limit = _resolve_extra_reading_daily_limit(request)
     response = JSONResponse({})
-    cookie_uid = _ensure_extra_reading_cookie(request, response)
-    user_key = resolve_extra_reading_user_key(
-        request,
-        email=data.get("email"),
-        explicit_user_id=data.get("user_id") or cookie_uid,
-    )
+    user_key, cookie_uid = _resolve_extra_reading_identity(request, response, data)
     usage = current_extra_reading_usage_status(user_key, limit=daily_limit)
     append_extra_reading_event(
         event_type="extra_reading_question_list_view",
@@ -756,12 +759,7 @@ async def api_extra_reading_generate(request: Request, payload: dict | None = No
 
     daily_limit = _resolve_extra_reading_daily_limit(request)
     response = JSONResponse({})
-    cookie_uid = _ensure_extra_reading_cookie(request, response)
-    user_key = resolve_extra_reading_user_key(
-        request,
-        email=data.get("email"),
-        explicit_user_id=data.get("user_id") or cookie_uid,
-    )
+    user_key, cookie_uid = _resolve_extra_reading_identity(request, response, data)
     current_usage = current_extra_reading_usage_status(user_key, limit=daily_limit)
     if current_usage.blocked:
         append_extra_reading_event(
@@ -839,12 +837,7 @@ async def api_extra_reading_generate_bundle(request: Request, payload: dict | No
 
     daily_limit = _resolve_extra_reading_daily_limit(request)
     response = JSONResponse({})
-    cookie_uid = _ensure_extra_reading_cookie(request, response)
-    user_key = resolve_extra_reading_user_key(
-        request,
-        email=data.get("email"),
-        explicit_user_id=data.get("user_id") or cookie_uid,
-    )
+    user_key, cookie_uid = _resolve_extra_reading_identity(request, response, data)
     current_usage = current_extra_reading_usage_status(user_key, limit=daily_limit)
     if current_usage.blocked:
         append_extra_reading_event(

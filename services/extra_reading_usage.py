@@ -3,19 +3,21 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 import hashlib
 import json
+import os
 from pathlib import Path
 from threading import Lock
 from typing import Any
 
 from fastapi import Request
 
-USAGE_STORE_PATH = Path("logs/extra_reading_usage.json")
-EVENT_LOG_PATH = Path("logs/extra_reading_events.jsonl")
+USAGE_STORE_PATH = Path(os.getenv("EXTRA_READING_USAGE_STORE_PATH", "logs/extra_reading_usage.json"))
+EVENT_LOG_PATH = Path(os.getenv("EXTRA_READING_EVENT_LOG_PATH", "logs/extra_reading_events.jsonl"))
 FREE_DAILY_LIMIT = 2
 COOKIE_KEY = "saju_uid"
+KST = timezone(timedelta(hours=9), name="KST")
 
 _LOCK = Lock()
 
@@ -30,7 +32,7 @@ class UsageStatus:
 
 
 def _today_kst() -> str:
-    return datetime.now().strftime("%Y-%m-%d")
+    return datetime.now(KST).strftime("%Y-%m-%d")
 
 
 def _ensure_parent(path: Path) -> None:
@@ -122,4 +124,3 @@ def append_event(*, event_type: str, user_key: str, payload: dict[str, Any] | No
     with _LOCK:
         with EVENT_LOG_PATH.open("a", encoding="utf-8") as fp:
             fp.write(line + "\n")
-

@@ -1,0 +1,77 @@
+{
+  "id": "resp_0123c89d788d556b0069e87ee0d1a081a0b7ce50755ef2f786",
+  "object": "response",
+  "created_at": 1776844512,
+  "status": "completed",
+  "background": false,
+  "billing": {
+    "payer": "developer"
+  },
+  "completed_at": 1776844553,
+  "error": null,
+  "frequency_penalty": 0.0,
+  "incomplete_details": null,
+  "instructions": null,
+  "max_output_tokens": 20000,
+  "max_tool_calls": null,
+  "model": "gpt-5-nano-2025-08-07",
+  "moderation": null,
+  "output": [
+    {
+      "id": "rs_0123c89d788d556b0069e87ee1584081a098fafaf2fdcee2bf",
+      "type": "reasoning",
+      "summary": []
+    },
+    {
+      "id": "msg_0123c89d788d556b0069e87f05fc6881a086906ccf963bc787",
+      "type": "message",
+      "status": "completed",
+      "content": [
+        {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\n  \"premium_report\": {\n    \"report_title\": \"프리미엄 사주 스토리\",\n    \"version\": \"1.0\",\n    \"sections\": [\n      {\n        \"section_id\": \"story_overview\",\n        \"category\": \"overall\",\n        \"title\": \"프리미엄 사주 스토리\",\n        \"headline\": \"일상의 흐름을 다듬는 차분한 판단으로 삶의 방향을 잡아갑니다\",\n        \"summary_lines\": [\n          \"일상의 의사결정은 순서를 먼저 확인하고 차근차근 실행하는 경향이 뚜렷합니다.\",\n          \"재정 관리에서는 지속 가능한 방식이 마음의 부담을 줄이고 안정감을 만듭니다.\",\n          \"관계와 직장은 흐름을 존중하고 상대의 속도에 맞춰 조율하는 노력이 관계의 깊이를 더합니다.\"\n        ],\n        \"core_insight\": \"당신은 일을 시작하기 전에 기준과 순서를 먼저 정하는 편이라 상황이 바뀌어도 흐름을 따라가는 데 도움이 됩니다. 다만 이 같은 방식은 한 번에 여러 부분을 바꿀 때 시간을 들여 꼼꼼히 점검하는 습관이 필요하고, 이런 절차를 통해 주변 사람들에게도 변화를 차분히 설명하고 기대치를 맞추는 힘으로 작용합니다. 중요한 결정 순간에는 작은 신호를 놓치지 않고 일정한 리듬으로 진행하는 태도가 신뢰를 키웁니다.\",\n        \"strength\": \"일의 흐름을 한 걸음씩 다듬는 태도가 일상에서의 안정감으로 이어지며, 목표를 차분히 달성하는 데 도움을 줍니다.\",\n        \"risk\": \"한꺼번에 많은 변화를 주려 하기보다는 단계적으로 정리하는 편이 조율에 유리하지만, 이로 인해 새로운 기회가 지나갈 수도 있습니다.\",\n        \"action_points\": [\n          \"일의 흐름은 한 번에 하나의 단계로 나누어 실행하세요.\",\n          \"재정 관리 규칙을 작게 만들고 꾸준히 지키세요.\",\n          \"관계 상황에서는 상대의 속도와 기대를 먼저 확인하고 조율하세요.\"\n        ],\n        \"action_note\": \"현재 시기에는 기회를 가려 잡고, 내 판단을 우선시하는 태도를 유지하는 것이 바람직합니다.\"\n      }\n    ]\n  }\n}"
+        }
+      ],
+      "role": "assistant"
+    }
+  ],
+  "parallel_tool_calls": true,
+  "presence_penalty": 0.0,
+  "previous_response_id": null,
+  "prompt_cache_key": null,
+  "prompt_cache_retention": "in_memory",
+  "reasoning": {
+    "effort": "medium",
+    "summary": null
+  },
+  "safety_identifier": null,
+  "service_tier": "default",
+  "store": true,
+  "temperature": 1.0,
+  "text": {
+    "format": {
+      "type": "text"
+    },
+    "verbosity": "medium"
+  },
+  "tool_choice": "auto",
+  "tools": [],
+  "top_logprobs": 0,
+  "top_p": 1.0,
+  "truncation": "disabled",
+  "usage": {
+    "input_tokens": 1512,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens": 6095,
+    "output_tokens_details": {
+      "reasoning_tokens": 5568
+    },
+    "total_tokens": 7607
+  },
+  "user": null,
+  "metadata": {}
+}

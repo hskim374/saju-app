@@ -210,6 +210,81 @@ def _build_birth_signature(form_data: dict) -> str:
     )
 
 
+def _build_email_report_form_data(
+    *,
+    calendar_type: str,
+    year: int,
+    month: int,
+    day: int,
+    time_slot: str | None,
+    is_leap_month: str | bool | None,
+    gender: str | None,
+    target_year: str | None,
+    target_month: str | None,
+    target_date: str | None,
+) -> dict:
+    return {
+        "calendar_type": calendar_type,
+        "year": year,
+        "month": month,
+        "day": day,
+        "time_slot": time_slot or "",
+        "is_leap_month": _is_checked(is_leap_month),
+        "gender": gender,
+        "target_year": target_year or str(_today_in_seoul().year),
+        "target_month": target_month or str(_today_in_seoul().month),
+        "target_date": target_date or _today_in_seoul().isoformat(),
+    }
+
+
+def _send_report_email_and_save_lead(
+    *,
+    request: Request,
+    form_data: dict,
+    email: str | None,
+    name: str | None,
+    consent: str | bool | None,
+    ai_generated: dict | None = None,
+) -> tuple[dict, dict, str]:
+    normalized_email = _validate_email(email)
+    _check_email_rate_limit(normalized_email, _build_birth_signature(form_data))
+    resolved_form_data, result_data = _build_result_data(
+        calendar_type=form_data["calendar_type"],
+        year=int(form_data["year"]),
+        month=int(form_data["month"]),
+        day=int(form_data["day"]),
+        time_slot=form_data.get("time_slot") or None,
+        is_leap_month=form_data.get("is_leap_month"),
+        gender=form_data.get("gender"),
+        target_year=str(form_data.get("target_year") or ""),
+        target_month=str(form_data.get("target_month") or ""),
+        target_date=str(form_data.get("target_date") or ""),
+        premium=False,
+    )
+    detail_link = _build_report_view_link(request, result_data)
+    email_result_data = _display_result(result_data)
+    if isinstance(ai_generated, dict) and ai_generated:
+        email_result_data["api_generated"] = ai_generated
+
+    send_report_email(
+        to_email=normalized_email,
+        name=name,
+        result_data=email_result_data,
+        detail_link=detail_link,
+    )
+    save_lead(
+        build_lead_payload(
+            email=normalized_email,
+            name=name,
+            consent=_is_checked(consent),
+            result_data=result_data,
+        )
+    )
+    _mark_email_rate_limit(normalized_email, _build_birth_signature(resolved_form_data))
+    logger.info("Email report sent and lead saved for %s", normalized_email)
+    return resolved_form_data, result_data, normalized_email
+
+
 def _build_report_view_link(request: Request, result_data: dict) -> str:
     query = urlencode(_build_report_query_params(result_data))
     return f"{request.base_url}report/view?{query}"
@@ -1252,18 +1327,18 @@ async def report_email(
     consent: str | None = Form(None),
 ):
     """Send the HTML report email and persist the lead."""
-    form_data = {
-        "calendar_type": calendar_type,
-        "year": year,
-        "month": month,
-        "day": day,
-        "time_slot": time_slot or "",
-        "is_leap_month": _is_checked(is_leap_month),
-        "gender": gender,
-        "target_year": target_year or str(_today_in_seoul().year),
-        "target_month": target_month or str(_today_in_seoul().month),
-        "target_date": target_date or _today_in_seoul().isoformat(),
-    }
+    form_data = _build_email_report_form_data(
+        calendar_type=calendar_type,
+        year=year,
+        month=month,
+        day=day,
+        time_slot=time_slot,
+        is_leap_month=is_leap_month,
+        gender=gender,
+        target_year=target_year,
+        target_month=target_month,
+        target_date=target_date,
+    )
     email_form_data = {
         "email": email,
         "name": name or "",
@@ -1271,38 +1346,13 @@ async def report_email(
     }
 
     try:
-        normalized_email = _validate_email(email)
-        _check_email_rate_limit(normalized_email, _build_birth_signature(form_data))
-        form_data, result_data = _build_result_data(
-            calendar_type=calendar_type,
-            year=year,
-            month=month,
-            day=day,
-            time_slot=time_slot,
-            is_leap_month=is_leap_month,
-            gender=gender,
-            target_year=target_year,
-            target_month=target_month,
-            target_date=target_date,
-            premium=False,
-        )
-        detail_link = _build_report_view_link(request, result_data)
-        send_report_email(
-            to_email=normalized_email,
+        form_data, result_data, normalized_email = _send_report_email_and_save_lead(
+            request=request,
+            form_data=form_data,
+            email=email,
             name=name,
-            result_data=_display_result(result_data),
-            detail_link=detail_link,
+            consent=consent,
         )
-        save_lead(
-            build_lead_payload(
-                email=normalized_email,
-                name=name,
-                consent=_is_checked(consent),
-                result_data=result_data,
-            )
-        )
-        _mark_email_rate_limit(normalized_email, _build_birth_signature(form_data))
-        logger.info("Email report sent and lead saved for %s", normalized_email)
         email_success_message = "리포트가 이메일로 전송되었습니다."
         email_error_message = None
         email_form_data["email"] = normalized_email
@@ -1362,6 +1412,58 @@ async def report_email(
             "premium_pdf_link": _build_premium_pdf_link(request, result_data) if result_data["premium_report"]["enabled"] else None,
         },
     )
+
+
+@app.post("/api/report/email")
+async def api_report_email(request: Request, payload: dict | None = None):
+    """Send report email using JSON payload while reusing existing email delivery logic."""
+    data = payload or {}
+    try:
+        calendar_type = str(data.get("calendar_type") or "").strip()
+        year = int(data.get("year"))
+        month = int(data.get("month"))
+        day = int(data.get("day"))
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail="calendar_type/year/month/day 입력 형식이 올바르지 않습니다.") from exc
+
+    form_data = _build_email_report_form_data(
+        calendar_type=calendar_type,
+        year=year,
+        month=month,
+        day=day,
+        time_slot=str(data.get("time_slot") or ""),
+        is_leap_month=data.get("is_leap_month"),
+        gender=str(data.get("gender") or ""),
+        target_year=str(data.get("target_year") or ""),
+        target_month=str(data.get("target_month") or ""),
+        target_date=str(data.get("target_date") or ""),
+    )
+
+    email = str(data.get("email") or "")
+    name_raw = data.get("name")
+    name = str(name_raw).strip() if name_raw is not None else None
+    consent = data.get("consent")
+    ai_generated = data.get("api_generated")
+    if not isinstance(ai_generated, dict):
+        ai_generated = {}
+
+    try:
+        _, _, normalized_email = _send_report_email_and_save_lead(
+            request=request,
+            form_data=form_data,
+            email=email,
+            name=name,
+            consent=consent,
+            ai_generated=ai_generated,
+        )
+    except SajuCalculationError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    return {
+        "ok": True,
+        "message": "리포트가 이메일로 전송되었습니다.",
+        "email": normalized_email,
+    }
 
 
 if __name__ == "__main__":

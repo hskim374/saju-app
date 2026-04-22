@@ -236,39 +236,179 @@
         </div>
 
         <div style="margin-bottom:22px;">
-            <div style="display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:10px; margin:0 0 10px;">
-                <div style="font-size:18px; font-weight:700; color:#2f5d50;">특정 날짜 운세</div>
-                <div style="font-size:13px; color:#6b7280;">기준 날짜 {{ result.daily_fortune.date }}</div>
-            </div>
+            <div style="font-size:18px; font-weight:700; color:#2f5d50; margin:0 0 10px;">오늘의 운세</div>
             <div style="margin-bottom:12px; padding:14px; background:#f7f8f7; border-left:4px solid #2f5d50;">
                 <div style="margin-bottom:12px; padding:12px 14px; border:1px solid #d8ddd8; border-radius:12px; background:#eef5f0;">
                     <div style="font-size:13px; font-weight:700; color:#2f5d50; margin-bottom:6px;">{{ result.daily_fortune.score.title }}</div>
                     <div style="font-size:28px; font-weight:800; color:#1f2937; line-height:1; margin-bottom:8px;">{{ result.daily_fortune.score.value }}점</div>
                     <div style="display:inline-block; padding:4px 10px; border-radius:999px; background:rgba(47, 93, 80, 0.12); color:#2f5d50; font-size:13px; font-weight:700; margin-bottom:8px;">{{ result.daily_fortune.score.grade }} / {{ result.daily_fortune.score.label }}</div>
                     <div style="margin-bottom:8px;">{{ result.daily_fortune.score.summary }}</div>
-                    <div style="margin-top:10px; font-size:13px; font-weight:700; color:#2f5d50;">장점과 주의점</div>
-                    {% for item in result.daily_fortune.section.strength_and_risk %}
-                    <div style="font-size:13px; color:#6b7280; margin-bottom:6px;">{{ item }}</div>
-                    {% endfor %}
-                    <div style="margin-top:10px; font-size:13px; font-weight:700; color:#2f5d50;">행동 조언</div>
-                    {% for item in result.daily_fortune.section.action_advice %}
-                    <div style="font-size:13px; color:#6b7280; margin-bottom:3px;">{{ item }}</div>
-                    {% endfor %}
                 </div>
                 <div style="font-weight:bold; margin-bottom:6px;">한 줄 요약</div>
                 <div>{{ result.daily_fortune.section.one_line }}</div>
                 <div style="margin-top:10px; padding:10px 12px; background:#eef5f0; border-left:4px solid #2f5d50; font-weight:600;">{{ result.daily_fortune.section.highlight }}</div>
-                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">쉬운 설명</div>
-                {% for item in result.daily_fortune.section.easy_explanation %}
-                <div style="margin-bottom:4px;">{{ item }}</div>
-                {% endfor %}
-                <div style="margin-top:10px; font-weight:bold; margin-bottom:6px;">현실에서 이렇게 나타납니다</div>
-                {% for item in result.daily_fortune.section.real_life %}
-                <div style="margin-bottom:4px;">{{ item }}</div>
-                {% endfor %}
             </div>
-            <div style="font-size:13px; color:#6b7280;">일운 {{ result.daily_fortune.pillar_display }} / 키워드 {{ result.daily_fortune.keywords | join(", ") }}</div>
+            <div style="font-size:13px; color:#6b7280;">일운 {{ result.daily_fortune.pillar_display }} / 날짜 {{ result.daily_fortune.date }}</div>
         </div>
+
+        {% if result.tomorrow_fortune %}
+        <div style="margin-bottom:22px;">
+            <div style="font-size:18px; font-weight:700; color:#2f5d50; margin:0 0 10px;">내일의 운세</div>
+            <div style="margin-bottom:12px; padding:14px; background:#f7f8f7; border-left:4px solid #2f5d50;">
+                <div style="margin-bottom:12px; padding:12px 14px; border:1px solid #d8ddd8; border-radius:12px; background:#eef5f0;">
+                    <div style="font-size:13px; font-weight:700; color:#2f5d50; margin-bottom:6px;">{{ result.tomorrow_fortune.score.title | replace("오늘", "내일") }}</div>
+                    <div style="font-size:28px; font-weight:800; color:#1f2937; line-height:1; margin-bottom:8px;">{{ result.tomorrow_fortune.score.value }}점</div>
+                    <div style="display:inline-block; padding:4px 10px; border-radius:999px; background:rgba(47, 93, 80, 0.12); color:#2f5d50; font-size:13px; font-weight:700; margin-bottom:8px;">{{ result.tomorrow_fortune.score.grade }} / {{ result.tomorrow_fortune.score.label }}</div>
+                    <div style="margin-bottom:8px;">{{ result.tomorrow_fortune.score.summary }}</div>
+                </div>
+                <div style="font-weight:bold; margin-bottom:6px;">한 줄 요약</div>
+                <div>{{ result.tomorrow_fortune.section.one_line }}</div>
+                <div style="margin-top:10px; padding:10px 12px; background:#eef5f0; border-left:4px solid #2f5d50; font-weight:600;">{{ result.tomorrow_fortune.section.highlight }}</div>
+            </div>
+            <div style="font-size:13px; color:#6b7280;">일운 {{ result.tomorrow_fortune.pillar_display }} / 날짜 {{ result.tomorrow_fortune.date }}</div>
+        </div>
+        {% endif %}
+
+        {% if result.weekly_fortune %}
+        <div style="margin-bottom:22px;">
+            <div style="font-size:18px; font-weight:700; color:#2f5d50; margin:0 0 10px;">주간 운세</div>
+            <table style="width:100%; border-collapse:separate; border-spacing:0 10px;">
+                {% for item in result.weekly_fortune %}
+                {% if loop.index0 % 2 == 0 %}
+                <tr>
+                {% endif %}
+                    <td style="width:50%; vertical-align:top; padding:0 6px 0 0;">
+                        <div style="padding:12px; border:1px solid #d8ddd8; border-radius:12px; background:#fbfdfb;">
+                            <div style="font-size:12px; color:#6b7280; margin-bottom:6px;">{{ item.date_label }} ({{ item.weekday }})</div>
+                            <div style="font-size:22px; font-weight:800; color:#1f2937; line-height:1; margin-bottom:8px;">{{ item.score }}</div>
+                            <div style="display:inline-block; padding:4px 10px; border-radius:999px; background:rgba(47, 93, 80, 0.12); color:#2f5d50; font-size:12px; font-weight:700; margin-bottom:8px;">{{ item.grade }} / {{ item.label }}</div>
+                            <div style="font-size:13px; color:#334155; line-height:1.5;">{{ item.summary }}</div>
+                        </div>
+                    </td>
+                {% if loop.index0 % 2 == 1 or loop.last %}
+                    {% if loop.last and loop.index0 % 2 == 0 %}
+                    <td style="width:50%; padding-left:6px;"></td>
+                    {% endif %}
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </table>
+        </div>
+        {% endif %}
+
+        {% if result.premium_report and result.premium_report.sections %}
+        <div style="margin-bottom:22px;">
+            <div style="font-size:18px; font-weight:700; color:#2f5d50; margin:0 0 10px;">프리미엄 사주 리포트</div>
+            <div style="margin-bottom:12px; padding:14px; background:#f7f8f7; border-left:4px solid #2f5d50;">
+                <div style="font-weight:bold; margin-bottom:6px;">{{ result.premium_report.header }}</div>
+                <div style="margin-bottom:8px;">{{ result.premium_report.intro }}</div>
+                {% if result.premium_report.overview %}
+                <ul style="padding-left:18px; margin:8px 0 0;">
+                    {% for line in result.premium_report.overview %}
+                    <li style="margin-bottom:6px;">{{ line }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            {% for section in result.premium_report.sections[:3] %}
+            <div style="margin-bottom:10px; padding:12px; border:1px solid #d8ddd8; border-radius:12px; background:#fbfdfb;">
+                <div style="font-weight:bold; color:#1f2937; margin-bottom:6px;">{{ section.title }}</div>
+                <div style="margin-bottom:6px;"><strong>{{ section.headline }}</strong></div>
+                {% if section.core_insight %}
+                <div style="padding:9px 10px; background:#eef5f0; border-left:4px solid #2f5d50; font-weight:600; margin-bottom:6px;">{{ section.core_insight }}</div>
+                {% endif %}
+                {% if section.action_note %}
+                <div style="font-size:13px; color:#6b7280;">{{ section.action_note }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            <div style="margin-top:8px; font-size:13px; color:#6b7280;">
+                {{ result.premium_report.final_summary.headline }}: {{ result.premium_report.final_summary.text }}
+            </div>
+        </div>
+        {% endif %}
+
+        {% set api_generated = result.api_generated if result.api_generated is defined else {} %}
+        {% set api_premium = api_generated.premium_report if api_generated and api_generated.premium_report is defined else None %}
+        {% if api_premium and api_premium.sections %}
+        <div style="margin-bottom:22px;">
+            <div style="font-size:18px; font-weight:700; color:#2f5d50; margin:0 0 10px;">프리미엄 AI 사주 리포트</div>
+            <div style="margin-bottom:10px; padding:12px; border:1px solid #d8ddd8; border-radius:12px; background:#f7f8f7;">
+                <div style="font-weight:700; color:#1f2937;">{{ api_premium.report_title or "프리미엄 AI 리포트" }}</div>
+                {% if api_premium.version %}<div style="font-size:12px; color:#6b7280; margin-top:4px;">{{ api_premium.version }}</div>{% endif %}
+            </div>
+            {% for section in api_premium.sections %}
+            <div style="margin-bottom:10px; padding:12px; border:1px solid #d8ddd8; border-radius:12px; background:#fbfdfb;">
+                <div style="font-weight:bold; color:#1f2937; margin-bottom:6px;">{{ section.title }}</div>
+                {% if section.headline %}<div style="margin-bottom:6px;"><strong>{{ section.headline }}</strong></div>{% endif %}
+                {% if section.summary_lines %}
+                    {% for line in section.summary_lines %}
+                    <div style="margin-bottom:4px;">{{ line }}</div>
+                    {% endfor %}
+                {% endif %}
+                {% if section.core_insight %}
+                <div style="padding:9px 10px; background:#eef5f0; border-left:4px solid #2f5d50; font-weight:600; margin-top:8px; margin-bottom:6px;">{{ section.core_insight }}</div>
+                {% endif %}
+                {% if section.strength %}<div style="margin-bottom:4px;"><strong>장점:</strong> {{ section.strength }}</div>{% endif %}
+                {% if section.risk %}<div style="margin-bottom:4px;"><strong>주의:</strong> {{ section.risk }}</div>{% endif %}
+                {% if section.action_points %}
+                <div style="font-size:13px; font-weight:700; color:#2f5d50; margin-top:8px; margin-bottom:4px;">실행 포인트</div>
+                <ul style="padding-left:18px; margin:0;">
+                    {% for line in section.action_points %}
+                    <li style="margin-bottom:4px;">{{ line }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                {% if section.action_note %}
+                <div style="margin-top:8px; font-size:13px; color:#6b7280;">{{ section.action_note }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% set api_bundles = api_generated.extra_reading_bundles if api_generated and api_generated.extra_reading_bundles is defined else [] %}
+        {% if api_bundles %}
+        <div style="margin-bottom:22px;">
+            <div style="font-size:18px; font-weight:700; color:#2f5d50; margin:0 0 10px;">관심영역 상세해석</div>
+            {% for bundle in api_bundles %}
+            <div style="margin-bottom:10px; padding:10px 12px; border:1px solid #d8ddd8; border-radius:10px; background:#f7f8f7; font-weight:700; color:#1f2937;">
+                {{ bundle.category or "선택 영역" }}
+            </div>
+            {% for item in bundle.get("items", []) %}
+            <div style="margin-bottom:10px; padding:12px; border:1px solid #d8ddd8; border-radius:12px; background:#ffffff;">
+                {% if item.question %}<div style="margin-bottom:6px; font-weight:700; color:#2f5d50;">Q. {{ item.question }}</div>{% endif %}
+                {% if item.title %}<div style="margin-bottom:6px; font-weight:700;">{{ item.title }}</div>{% endif %}
+                {% if item.headline %}<div style="margin-bottom:6px;"><strong>{{ item.headline }}</strong></div>{% endif %}
+                {% if item.story %}
+                    {% for line in item.story %}
+                    <div style="margin-bottom:4px;">{{ line }}</div>
+                    {% endfor %}
+                {% endif %}
+                {% if item.warnings %}
+                <div style="font-size:13px; font-weight:700; color:#2f5d50; margin-top:8px; margin-bottom:4px;">주의 포인트</div>
+                <ul style="padding-left:18px; margin:0;">
+                    {% for line in item.warnings %}
+                    <li style="margin-bottom:4px;">{{ line }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                {% if item.tips %}
+                <div style="font-size:13px; font-weight:700; color:#2f5d50; margin-top:8px; margin-bottom:4px;">실행 팁</div>
+                <ul style="padding-left:18px; margin:0;">
+                    {% for line in item.tips %}
+                    <li style="margin-bottom:4px;">{{ line }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                {% if item.closing %}
+                <div style="margin-top:8px; color:#6b7280; font-size:13px;">{{ item.closing }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            {% endfor %}
+        </div>
+        {% endif %}
 
         <div style="margin-bottom:22px;">
             <div style="font-size:18px; font-weight:700; color:#2f5d50; margin:0 0 10px;">{{ result.raw_input.target_year }}년 월운</div>

@@ -911,30 +911,6 @@
             margin-top: 18px;
         }
 
-        .email-box {
-            margin-top: 18px;
-            padding: 18px;
-            border-radius: 14px;
-            background: var(--card-soft);
-        }
-
-        .email-box label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: bold;
-        }
-
-        .email-box input[type="text"],
-        .email-box input[type="email"] {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 14px;
-            border: 1px solid var(--line-soft);
-            border-radius: 10px;
-            box-sizing: border-box;
-            font-size: 15px;
-        }
-
         .check-label {
             display: flex;
             gap: 8px;
@@ -1019,6 +995,18 @@
             border: 1px solid var(--line-soft);
             border-radius: 14px;
             background: #f7fbf9;
+        }
+
+        .paid-action-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        #premium-email-open-button {
+            margin-left: auto;
+            border: 2px solid #4a90e2;
         }
 
         .paid-controls-gap {
@@ -1142,6 +1130,81 @@
             margin: 0 0 12px;
             color: var(--text-soft);
             font-size: 13px;
+        }
+
+        .email-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 1400;
+            display: none;
+        }
+
+        .email-modal.active {
+            display: block;
+        }
+
+        .email-modal-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.42);
+        }
+
+        .email-modal-panel {
+            position: relative;
+            width: min(92vw, 460px);
+            margin: 9vh auto 0;
+            padding: 18px;
+            border-radius: 14px;
+            border: 1px solid var(--line-soft);
+            background: #fff;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+        }
+
+        .email-modal-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            border: 1px solid var(--line-soft);
+            background: #fff;
+            color: var(--text-soft);
+            font-size: 20px;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .email-modal-panel h3 {
+            margin: 0 0 8px;
+            color: var(--deep-3);
+        }
+
+        .email-modal-panel label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .email-modal-panel input[type="text"],
+        .email-modal-panel input[type="email"] {
+            width: 100%;
+            padding: 11px 12px;
+            margin-bottom: 12px;
+            border: 1px solid var(--line-soft);
+            border-radius: 10px;
+            box-sizing: border-box;
+            font-size: 15px;
+        }
+
+        .email-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 8px;
+        }
+
+        body.modal-open {
+            overflow: hidden;
         }
 
         .extra-grid {
@@ -2993,44 +3056,6 @@
                 <div class="section">
                     <div class="section-label">안내</div>
                     <p class="trust-note">본 결과는 절기 기준 사주 계산과 대운/세운 흐름을 기반으로 분석되었습니다. 사주 기준에 따라 계산 방식과 해석 차이가 있을 수 있습니다.</p>
-                    <div class="email-box">
-                        <h2>이메일로 리포트 받기</h2>
-                        <p class="lead"><strong>입력한 이메일로 사주 리포트를 보내드립니다.</strong></p>
-                        <p class="muted">이후 운세/리포트 관련 안내 메일을 받아볼 수 있습니다.</p>
-                        <form action="/report/email" method="post">
-                            <input type="hidden" name="calendar_type" value="{{ result.raw_input.calendar_type }}">
-                            <input type="hidden" name="year" value="{{ result.raw_input.year }}">
-                            <input type="hidden" name="month" value="{{ result.raw_input.month }}">
-                            <input type="hidden" name="day" value="{{ result.raw_input.day }}">
-                            <input type="hidden" name="time_slot" value="{{ result.raw_input.time_slot or '' }}">
-                            <input type="hidden" name="is_leap_month"
-                                value="{% if result.raw_input.is_leap_month %}1{% else %}0{% endif %}">
-                            <input type="hidden" name="gender" value="{{ result.raw_input.gender }}">
-                            <input type="hidden" name="target_year" value="{{ result.raw_input.target_year }}">
-                            <input type="hidden" name="target_month" value="{{ result.raw_input.target_month or '' }}">
-                            <input type="hidden" name="target_date" value="{{ result.raw_input.target_date }}">
-
-                            <label for="email">이메일</label>
-                            <input id="email" name="email" type="email" value="{{ email_form_data.email }}" required>
-
-                            <label for="name">이름 (선택)</label>
-                            <input id="name" name="name" type="text" value="{{ email_form_data.name }}">
-
-                            <label class="check-label">
-                                <input type="checkbox" name="consent" {% if email_form_data.consent %}checked{% endif %}>
-                                <span>운세/리포트 관련 안내 메일을 받겠습니다.</span>
-                            </label>
-
-                            <button class="cta-button" type="submit">이메일로 리포트 받기</button>
-                        </form>
-
-                        {% if email_success_message %}
-                        <div class="status-message success">{{ email_success_message }}</div>
-                        {% endif %}
-                        {% if email_error_message %}
-                        <div class="status-message error">{{ email_error_message }}</div>
-                        {% endif %}
-                    </div>
                 </div>
             </div>
 
@@ -3101,8 +3126,12 @@
                         <div id="extra-reading-categories" class="extra-grid"></div>
 
                         <div class="paid-test-box" style="margin-top: 12px;">
-                            <button id="paid-ai-test-button" class="cta-button" type="button">프리미엄 AI 분석</button>
+                            <div class="paid-action-row">
+                                <button id="paid-ai-test-button" class="cta-button" type="button">프리미엄 AI 분석</button>
+                                <button id="premium-email-open-button" class="cta-button secondary" type="button">이메일 전송</button>
+                            </div>
                             <div id="paid-ai-test-status" class="paid-test-status">관심 영역을 고른 뒤 프리미엄 AI 분석 버튼을 누르면 사주 핵심 풀이와 선택한 영역 10개 주제를 AI가 분석해 행동지침을 전달합니다.</div>
+                            <div id="premium-email-status" class="paid-test-status"></div>
                             <div id="paid-ai-loading" class="paid-loading-indicator" aria-live="polite">
                                 <span class="paid-loading-spinner" aria-hidden="true"></span>
                                 <span id="paid-ai-loading-text">AI 응답을 기다리는 중입니다...</span>
@@ -3123,6 +3152,32 @@
                         <div id="paid-ai-test-output" class="paid-test-output"></div>
                         <div id="extra-reading-output" class="extra-output"></div>
                     </div>
+
+                    <div id="premium-email-modal" class="email-modal" aria-hidden="true">
+                        <div class="email-modal-backdrop" data-email-modal-close></div>
+                        <div class="email-modal-panel" role="dialog" aria-modal="true" aria-labelledby="premium-email-modal-title">
+                            <button class="email-modal-close" type="button" aria-label="닫기" data-email-modal-close>&times;</button>
+                            <h3 id="premium-email-modal-title">이메일로 리포트 받기</h3>
+                            <p class="muted">현재 사주 결과를 기준으로 이메일 리포트를 전송합니다.</p>
+                            <form id="premium-email-form">
+                                <label for="premium-email-input">이메일</label>
+                                <input id="premium-email-input" name="email" type="email" required autocomplete="email">
+
+                                <label for="premium-email-name">이름 (선택)</label>
+                                <input id="premium-email-name" name="name" type="text" autocomplete="name">
+
+                                <label class="check-label">
+                                    <input id="premium-email-consent" name="consent" type="checkbox">
+                                    <span>운세/리포트 관련 안내 메일을 받겠습니다.</span>
+                                </label>
+
+                                <div class="email-modal-actions">
+                                    <button id="premium-email-submit" class="cta-button" type="submit">전송</button>
+                                </div>
+                                <div id="premium-email-form-status" class="status-message" style="display: none;"></div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -3132,7 +3187,7 @@
             (function () {
                 var buttons = document.querySelectorAll("[data-tab-target]");
                 var panels = document.querySelectorAll("[data-tab-panel]");
-                var defaultTab = document.querySelector(".email-box .status-message") ? "saju" : "today";
+                var defaultTab = "today";
 
                 function activateTab(tabName, updateHash) {
                     buttons.forEach(function (button) {
@@ -3224,6 +3279,16 @@
                 var extraReadingCategories = document.getElementById("extra-reading-categories");
                 var extraReadingStatus = document.getElementById("extra-reading-status");
                 var extraReadingOutput = document.getElementById("extra-reading-output");
+                var extraUsageState = null;
+                var premiumEmailOpenButton = document.getElementById("premium-email-open-button");
+                var premiumEmailStatus = document.getElementById("premium-email-status");
+                var premiumEmailModal = document.getElementById("premium-email-modal");
+                var premiumEmailForm = document.getElementById("premium-email-form");
+                var premiumEmailInput = document.getElementById("premium-email-input");
+                var premiumEmailName = document.getElementById("premium-email-name");
+                var premiumEmailConsent = document.getElementById("premium-email-consent");
+                var premiumEmailSubmit = document.getElementById("premium-email-submit");
+                var premiumEmailFormStatus = document.getElementById("premium-email-form-status");
 
                 function escapeHtml(text) {
                     return String(text || "")
@@ -3299,14 +3364,33 @@
                 function renderUsageBadge(usage) {
                     if (!extraReadingUsage) return;
                     if (!usage || typeof usage !== "object") {
+                        extraUsageState = null;
                         extraReadingUsage.textContent = "무료 2회 / 상태 미확인";
                         return;
                     }
+                    extraUsageState = usage;
                     var limit = parseInt(usage.limit, 10) || 2;
                     var used = parseInt(usage.used, 10) || 0;
                     var remaining = parseInt(usage.remaining, 10);
                     if (isNaN(remaining)) remaining = Math.max(0, limit - used);
+                    var blocked = !!usage.blocked || remaining <= 0;
+                    extraReadingUsage.dataset.blocked = blocked ? "1" : "0";
+                    extraReadingUsage.dataset.remaining = String(remaining);
                     extraReadingUsage.textContent = "오늘 무료 " + limit + "회 중 " + used + "회 사용 (남은 " + remaining + "회)";
+                }
+
+                function isUsageBlocked() {
+                    if (extraUsageState && typeof extraUsageState === "object") {
+                        var remaining = parseInt(extraUsageState.remaining, 10);
+                        if (!isNaN(remaining) && remaining <= 0) return true;
+                        if (extraUsageState.blocked === true) return true;
+                    }
+                    if (extraReadingUsage) {
+                        if (extraReadingUsage.dataset.blocked === "1") return true;
+                        var badgeRemaining = parseInt(extraReadingUsage.dataset.remaining || "", 10);
+                        if (!isNaN(badgeRemaining) && badgeRemaining <= 0) return true;
+                    }
+                    return false;
                 }
 
                 function renderExtraReadingCard(extra) {
@@ -3650,11 +3734,64 @@
                         };
                     }
 
+                    function buildEmailPayloadFromResult(resultObj, formValues) {
+                        var rawInput = getObject(resultObj.raw_input);
+                        return {
+                            calendar_type: String(rawInput.calendar_type || ""),
+                            year: parseInt(rawInput.year, 10) || 0,
+                            month: parseInt(rawInput.month, 10) || 0,
+                            day: parseInt(rawInput.day, 10) || 0,
+                            time_slot: String(rawInput.time_slot || ""),
+                            is_leap_month: !!rawInput.is_leap_month,
+                            gender: String(rawInput.gender || ""),
+                            target_year: String(rawInput.target_year || ""),
+                            target_month: rawInput.target_month == null ? "" : String(rawInput.target_month),
+                            target_date: String(rawInput.target_date || ""),
+                            email: String(formValues.email || "").trim(),
+                            name: String(formValues.name || "").trim(),
+                            consent: !!formValues.consent,
+                            api_generated: getObject(formValues.api_generated)
+                        };
+                    }
+
                     var paidTestPayload = buildPaidPayloadFromResult(paidSourceResult);
                     var selectedExtraCategoryId = "";
                     var selectedExtraCategoryLabel = "";
                     var paidCoreReady = false;
                     var paidCoreInsight = "";
+                    var latestPremiumReport = null;
+                    var generatedExtraBundles = [];
+
+                    function setPremiumEmailFormStatus(message, type) {
+                        if (!premiumEmailFormStatus) return;
+                        if (!message) {
+                            premiumEmailFormStatus.style.display = "none";
+                            premiumEmailFormStatus.textContent = "";
+                            premiumEmailFormStatus.className = "status-message";
+                            return;
+                        }
+                        premiumEmailFormStatus.style.display = "block";
+                        premiumEmailFormStatus.textContent = message;
+                        premiumEmailFormStatus.className = "status-message " + (type === "error" ? "error" : "success");
+                    }
+
+                    function openPremiumEmailModal() {
+                        if (!premiumEmailModal) return;
+                        setPremiumEmailFormStatus("", "");
+                        premiumEmailModal.classList.add("active");
+                        premiumEmailModal.setAttribute("aria-hidden", "false");
+                        document.body.classList.add("modal-open");
+                        if (premiumEmailInput) {
+                            window.setTimeout(function () { premiumEmailInput.focus(); }, 20);
+                        }
+                    }
+
+                    function closePremiumEmailModal() {
+                        if (!premiumEmailModal) return;
+                        premiumEmailModal.classList.remove("active");
+                        premiumEmailModal.setAttribute("aria-hidden", "true");
+                        document.body.classList.remove("modal-open");
+                    }
 
                     function setExtraStatus(message) {
                         if (!extraReadingStatus) return;
@@ -3704,6 +3841,9 @@
                         }).then(function (data) {
                             renderUsageBadge(data.usage);
                             var bundle = data.extra_reading_bundle || {};
+                            if (bundle && bundle.items && bundle.items.length) {
+                                generatedExtraBundles.push(bundle);
+                            }
                             var bundleHtml = renderExtraReadingBundle(bundle);
                             var bundleTitle = "<div class='extra-category-title' style='margin-top:20px;'>" + escapeHtml((bundle.category || selectedExtraCategoryLabel || "선택 카테고리") + " 상세 해석") + "</div>";
                             paidAiTestOutput.innerHTML = paidAiTestOutput.innerHTML + bundleTitle + bundleHtml + renderGoogleAdBlock();
@@ -3717,9 +3857,79 @@
 
                     loadExtraCategories();
 
+                    if (premiumEmailOpenButton) {
+                        premiumEmailOpenButton.addEventListener("click", function () {
+                            openPremiumEmailModal();
+                        });
+                    }
+
+                    if (premiumEmailModal) {
+                        Array.prototype.forEach.call(
+                            premiumEmailModal.querySelectorAll("[data-email-modal-close]"),
+                            function (node) {
+                                node.addEventListener("click", function () {
+                                    closePremiumEmailModal();
+                                });
+                            }
+                        );
+                    }
+
+                    document.addEventListener("keydown", function (event) {
+                        if (event.key === "Escape" && premiumEmailModal && premiumEmailModal.classList.contains("active")) {
+                            closePremiumEmailModal();
+                        }
+                    });
+
+                    if (premiumEmailForm) {
+                        premiumEmailForm.addEventListener("submit", function (event) {
+                            event.preventDefault();
+                            if (!premiumEmailInput) return;
+
+                            var payload = buildEmailPayloadFromResult(paidSourceResult, {
+                                email: premiumEmailInput.value,
+                                name: premiumEmailName ? premiumEmailName.value : "",
+                                consent: premiumEmailConsent ? premiumEmailConsent.checked : false,
+                                api_generated: {
+                                    premium_report: latestPremiumReport || null,
+                                    extra_reading_bundles: generatedExtraBundles || []
+                                }
+                            });
+
+                            if (!payload.email) {
+                                setPremiumEmailFormStatus("이메일은 필수로 입력해 주세요.", "error");
+                                return;
+                            }
+
+                            if (premiumEmailSubmit) premiumEmailSubmit.disabled = true;
+                            setPremiumEmailFormStatus("이메일 전송 중입니다...", "success");
+
+                            requestJson("/api/report/email", payload)
+                                .then(function (data) {
+                                    var okMessage = (data && data.message) ? data.message : "리포트가 이메일로 전송되었습니다.";
+                                    setPremiumEmailFormStatus(okMessage, "success");
+                                    if (premiumEmailStatus) premiumEmailStatus.textContent = okMessage;
+                                    window.setTimeout(function () {
+                                        closePremiumEmailModal();
+                                    }, 600);
+                                })
+                                .catch(function (error) {
+                                    var message = error && error.message ? error.message : "이메일 전송에 실패했습니다.";
+                                    setPremiumEmailFormStatus(message, "error");
+                                    if (premiumEmailStatus) premiumEmailStatus.textContent = "실패: " + message;
+                                })
+                                .finally(function () {
+                                    if (premiumEmailSubmit) premiumEmailSubmit.disabled = false;
+                                });
+                        });
+                    }
+
                     paidAiTestButton.addEventListener("click", function () {
                         if (!selectedExtraCategoryId) {
                             paidAiTestStatus.textContent = "궁금한 영역을 선택해 주세요.";
+                            return;
+                        }
+                        if (isUsageBlocked()) {
+                            paidAiTestStatus.textContent = "오늘 무료 사용 횟수(2회)를 모두 사용했습니다. 내일 다시 시도해 주세요.";
                             return;
                         }
                         paidAiTestButton.disabled = true;
@@ -3761,6 +3971,7 @@
                                 })
                                 .then(function (data) {
                                     var report = data ? data.premium_report : null;
+                                    latestPremiumReport = report || null;
                                     if (report && Array.isArray(report.sections) && report.sections.length) {
                                         paidCoreInsight = String(report.sections[0].core_insight || report.sections[0].headline || "").trim();
                                     }

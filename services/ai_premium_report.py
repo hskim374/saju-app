@@ -101,6 +101,31 @@ def _is_timeout_like_error(exc: BaseException) -> bool:
     return "timed out" in text or "time out" in text
 
 
+def _is_retryable_http_status(status_code: int) -> bool:
+    return status_code in {408, 409, 425, 429, 500, 502, 503, 504, 520, 521, 522, 523, 524}
+
+
+def _retry_after_seconds(headers: Any) -> float:
+    if headers is None:
+        return 0.0
+    try:
+        raw = headers.get("Retry-After")  # urllib headers map-like
+    except Exception:
+        raw = None
+    if raw is None:
+        return 0.0
+    text = str(raw).strip()
+    if not text.isdigit():
+        return 0.0
+    return float(max(0, int(text)))
+
+
+def _compute_retry_sleep(attempt: int, retry_after: float = 0.0) -> float:
+    # Short bounded backoff: 0.6s, 1.2s, 1.8s...
+    backoff = min(6.0, 0.6 * float(attempt + 1) * 2.0)
+    return max(backoff, retry_after)
+
+
 def _is_max_output_incomplete(response_data: dict[str, Any]) -> bool:
     status = str(response_data.get("status") or "").lower()
     if status != "incomplete":
@@ -139,17 +164,22 @@ def _request_openai_responses_api(
             break
         except urllib.error.HTTPError as exc:  # pragma: no cover - runtime network path
             error_body = exc.read().decode("utf-8", errors="ignore")
+            if _is_retryable_http_status(exc.code) and attempt < retry_count:
+                time.sleep(_compute_retry_sleep(attempt, _retry_after_seconds(getattr(exc, "headers", None))))
+                continue
             raise RuntimeError(f"OpenAI API 요청 실패 ({exc.code}): {error_body}") from exc
         except urllib.error.URLError as exc:  # pragma: no cover - runtime network path
             if _is_timeout_like_error(exc):
                 last_timeout_error = exc
                 if attempt < retry_count:
+                    time.sleep(_compute_retry_sleep(attempt))
                     continue
                 break
             raise RuntimeError(f"OpenAI API 연결 실패: {exc.reason}") from exc
         except (TimeoutError, socket.timeout) as exc:  # pragma: no cover - runtime network path
             last_timeout_error = exc
             if attempt < retry_count:
+                time.sleep(_compute_retry_sleep(attempt))
                 continue
             break
 

@@ -1,0 +1,77 @@
+{
+  "id": "resp_087111b8bf5dcfd90069e867e2f6f0819c871a440ca5ab53c2",
+  "object": "response",
+  "created_at": 1776838627,
+  "status": "completed",
+  "background": false,
+  "billing": {
+    "payer": "developer"
+  },
+  "completed_at": 1776838688,
+  "error": null,
+  "frequency_penalty": 0.0,
+  "incomplete_details": null,
+  "instructions": null,
+  "max_output_tokens": 20000,
+  "max_tool_calls": null,
+  "model": "gpt-5-nano-2025-08-07",
+  "moderation": null,
+  "output": [
+    {
+      "id": "rs_087111b8bf5dcfd90069e867e37900819ca00c79e37986ab48",
+      "type": "reasoning",
+      "summary": []
+    },
+    {
+      "id": "msg_087111b8bf5dcfd90069e8681bbc48819ca78e5e982da2c9cb",
+      "type": "message",
+      "status": "completed",
+      "content": [
+        {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\n  \"premium_report\": {\n    \"report_title\": \"프리미엄 사주 스토리\",\n    \"version\": \"1.0\",\n    \"sections\": [\n      {\n        \"section_id\": \"section_1\",\n        \"category\": \"overall\",\n        \"title\": \"사람과 상황을 바라보는 시선\",\n        \"headline\": \"관계의 흐름을 읽고 행동의 순서를 다듬는 힘\",\n        \"summary_lines\": [\n          \"관계의 맥락을 세심히 살피는 습관이 당신의 선택에 큰 방향을 잡아줍니다.\",\n          \"사람들과의 거리를 느끼며 말의 순서를 천천히 다듬는 모습이 신뢰를 쌓습니다.\",\n          \"새로운 시작은 작은 순서를 먼저 확인하고 주변 반응을 점검하는 것이 도움이 됩니다.\"\n        ],\n        \"core_insight\": \"현재의 흐름은 관계의 맥락을 파악하고 조정하는 능력이 돋보이는 시기입니다. 처음 드러나는 인상보다 실제 판단은 관계의 흐름 속에서 달라지기 쉽고, 가까워질수록 말과 행동의 순서를 차분히 다듬는 편이 신뢰를 쌓는 바탕이 됩니다. 새로운 일을 시작할 때도 작은 순서를 먼저 확인하고 주변의 반응을 살피는 습관이 실질적인 성과를 돕고, 이로 인해 중요한 순간에는 선택의 방향이 보다 명확해집니다.\",\n        \"strength\": \"관계의 흐름을 파악하고 조율하는 능력이 돋보여 주변 사람들과의 신뢰를 차근차근 쌓아갑니다.\",\n        \"risk\": \"의도나 상황 파악에 시간이 다소 걸릴 수 있어 의사소통의 타이밍이 어긋나는 순간이 생길 수 있습니다.\",\n        \"action_points\": [\n          \"관계에서 중요한 판단은 한꺼번에 하기보다 일정 기간 동안의 피드백을 모아 결정하세요.\",\n          \"말의 순서를 의식적으로 먼저 점검하는 루틴을 만들어 매일 실천하세요.\",\n          \"다른 사람의 기대와 본인의 가치관 사이에서 균형을 찾되, 필요하면 선을 분명히 하세요.\"\n        ],\n        \"action_note\": \"작고 차분한 변화가 관계의 흐름을 더 매끄럽게 만들 수 있습니다.\"\n      }\n    ]\n  }\n}"
+        }
+      ],
+      "role": "assistant"
+    }
+  ],
+  "parallel_tool_calls": true,
+  "presence_penalty": 0.0,
+  "previous_response_id": null,
+  "prompt_cache_key": null,
+  "prompt_cache_retention": "in_memory",
+  "reasoning": {
+    "effort": "medium",
+    "summary": null
+  },
+  "safety_identifier": null,
+  "service_tier": "default",
+  "store": true,
+  "temperature": 1.0,
+  "text": {
+    "format": {
+      "type": "text"
+    },
+    "verbosity": "medium"
+  },
+  "tool_choice": "auto",
+  "tools": [],
+  "top_logprobs": 0,
+  "top_p": 1.0,
+  "truncation": "disabled",
+  "usage": {
+    "input_tokens": 1476,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens": 6253,
+    "output_tokens_details": {
+      "reasoning_tokens": 5696
+    },
+    "total_tokens": 7729
+  },
+  "user": null,
+  "metadata": {}
+}

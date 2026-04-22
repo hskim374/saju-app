@@ -1080,8 +1080,8 @@
         }
 
         .action-note-extra {
-            border-color: #ff6b6b;
-            color: #c74646;
+            border-color: #ff5a5f;
+            color: #e53935;
         }
 
         .action-note-muted {
@@ -1211,6 +1211,10 @@
             background: #fff;
         }
 
+        .extra-card + .extra-card {
+            margin-top: 14px;
+        }
+
         .extra-card h3 {
             margin: 0 0 8px;
             color: var(--deep-3);
@@ -1218,18 +1222,66 @@
         }
 
         .extra-category-title {
-            margin: 14px 0 10px;
-            font-size: 24px;
-            line-height: 1.25;
-            color: var(--deep-3);
+            margin: 14px 0 12px;
+            padding: 12px 14px;
+            border-left: 5px solid #4a90e2;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #eef6ff 0%, #f9fbff 100%);
+            box-shadow: 0 8px 18px rgba(74, 144, 226, 0.12);
+            font-size: 23px;
+            line-height: 1.3;
+            color: #1f4468;
             font-weight: 800;
             letter-spacing: -0.01em;
         }
 
         .extra-qa-line {
-            margin: 0 0 8px;
+            margin: 0;
+            padding: 10px 12px;
+            border: 1px solid var(--line-soft);
+            border-radius: 10px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .extra-qa-line + .extra-qa-line {
+            margin-top: 2px;
+        }
+
+        .extra-qa-question {
+            border-color: #4a90e2;
+            background: linear-gradient(135deg, #f2f8ff 0%, #ffffff 100%);
+        }
+
+        .extra-qa-answer {
+            border-color: #4caf50;
+            background: linear-gradient(135deg, #f3fbf3 0%, #ffffff 100%);
+        }
+
+        .extra-qa-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 82px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: 0.01em;
+            color: #fff;
+            background: #4a90e2;
+        }
+
+        .extra-qa-answer .extra-qa-badge {
+            background: #4caf50;
+        }
+
+        .extra-qa-text {
             font-size: 16px;
-            line-height: 1.45;
+            line-height: 1.5;
             color: var(--deep-3);
             font-weight: 700;
         }
@@ -1259,11 +1311,34 @@
 
         .extra-card .narrative-step {
             margin-top: 10px;
+            margin-bottom: 2px;
         }
 
         @media (max-width: 720px) {
             .extra-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .extra-category-title {
+                font-size: 20px;
+                padding: 10px 12px;
+                margin: 12px 0 10px;
+            }
+
+            .extra-qa-line {
+                padding: 8px 10px;
+                gap: 8px;
+            }
+
+            .extra-qa-badge {
+                min-width: 72px;
+                padding: 4px 8px;
+                font-size: 11px;
+            }
+
+            .extra-qa-text {
+                font-size: 14px;
+                line-height: 1.45;
             }
         }
 
@@ -3003,6 +3078,19 @@
                         {{ result.premium_report.final_summary.text }}
                     </div>
 
+                    <div class="affiliate-box" style="margin-top: 14px;">
+                        <div class="affiliate-banner-slot"></div>
+                        <script src="https://ads-partners.coupang.com/g.js"></script>
+                        <script>
+                            (function () {
+                                var bannerSlot = document.currentScript.previousElementSibling;
+                                var bannerWidth = Math.max(320, Math.floor(bannerSlot.clientWidth || bannerSlot.parentElement.clientWidth || 350));
+                                new PartnersCoupang.G({ "id": 933121, "trackingCode": "AF3819787", "subId": null, "template": "carousel", "width": String(bannerWidth), "height": "120" });
+                            })();
+                        </script>
+                        <p class="affiliate-note">쿠팡파트너스 활동을 통해 일정액의 수수료를 제공받습니다.</p>
+                    </div>
+
                     <div class="paid-controls-gap"></div>
                     <div class="extra-reading-shell">
                         <div class="extra-reading-head">
@@ -3019,10 +3107,20 @@
                                 <span class="paid-loading-spinner" aria-hidden="true"></span>
                                 <span id="paid-ai-loading-text">AI 응답을 기다리는 중입니다...</span>
                             </div>
-                            <div id="paid-ai-test-output" class="paid-test-output"></div>
                         </div>
 
+                        <div style="height: 20px;"></div>
+                        <div class="ad-block">
+                            <ins class="adsbygoogle saju_responsive_2" style="display:block"
+                                data-ad-client="ca-pub-3984376475463185" data-ad-slot="6065156606"></ins>
+                            <script>
+                                (adsbygoogle = window.adsbygoogle || []).push({});
+                            </script>
+                        </div>
+                    </div>
+                    <div class="premium-ai-generated-shell" style="margin-top: 14px;">
                         <div id="extra-reading-status" class="extra-status"></div>
+                        <div id="paid-ai-test-output" class="paid-test-output"></div>
                         <div id="extra-reading-output" class="extra-output"></div>
                     </div>
                 </div>
@@ -3143,6 +3241,27 @@
                     }).join("") + "</ul>";
                 }
 
+                function renderGoogleAdBlock() {
+                    return [
+                        '<div class="ad-block" style="margin-top: 14px;">',
+                        '<ins class="adsbygoogle saju_responsive_2 js-dynamic-adsbygoogle" style="display:block" data-ad-client="ca-pub-3984376475463185" data-ad-slot="6065156606"></ins>',
+                        "</div>"
+                    ].join("");
+                }
+
+                function activateDynamicAds(root) {
+                    if (!root || !window.adsbygoogle) return;
+                    var nodes = root.querySelectorAll("ins.js-dynamic-adsbygoogle:not([data-ad-initialized='1'])");
+                    Array.prototype.forEach.call(nodes, function (node) {
+                        node.setAttribute("data-ad-initialized", "1");
+                        try {
+                            (adsbygoogle = window.adsbygoogle || []).push({});
+                        } catch (err) {
+                            console.warn("[ads] dynamic push failed", err);
+                        }
+                    });
+                }
+
                 function renderPaidReport(report) {
                     if (!report || !Array.isArray(report.sections)) {
                         return '<div class="summary-box">리포트 형식이 올바르지 않습니다.</div>';
@@ -3208,8 +3327,8 @@
 
                     return [
                         '<div class="extra-card">',
-                        qText ? "<p class='extra-qa-line'>Question. " + qText + "</p>" : "",
-                        "<p class='extra-qa-line'>Answer " + title + "</p>",
+                        qText ? "<p class='extra-qa-line extra-qa-question'><span class='extra-qa-badge'>Question.</span><span class='extra-qa-text'>" + qText + "</span></p>" : "",
+                        "<p class='extra-qa-line extra-qa-answer'><span class='extra-qa-badge'>Answer</span><span class='extra-qa-text'>" + title + "</span></p>",
                         headline ? "<p><strong>" + headline + "</strong></p>" : "",
                         storyText ? "<div class='extra-story-box'><p>" + escapeHtml(storyText) + "</p></div>" : "",
                         (Array.isArray(extra.warnings) && extra.warnings.length) ? '<div class="narrative-step"><strong>주의 포인트</strong></div>' + renderTextList(extra.warnings) : "",
@@ -3586,8 +3705,9 @@
                             renderUsageBadge(data.usage);
                             var bundle = data.extra_reading_bundle || {};
                             var bundleHtml = renderExtraReadingBundle(bundle);
-                            var bundleTitle = "<div class='extra-category-title'>" + escapeHtml((bundle.category || selectedExtraCategoryLabel || "선택 카테고리") + " 상세 해석") + "</div>";
-                            paidAiTestOutput.innerHTML = paidAiTestOutput.innerHTML + bundleTitle + bundleHtml;
+                            var bundleTitle = "<div class='extra-category-title' style='margin-top:20px;'>" + escapeHtml((bundle.category || selectedExtraCategoryLabel || "선택 카테고리") + " 상세 해석") + "</div>";
+                            paidAiTestOutput.innerHTML = paidAiTestOutput.innerHTML + bundleTitle + bundleHtml + renderGoogleAdBlock();
+                            activateDynamicAds(paidAiTestOutput);
                             if (extraReadingOutput) {
                                 extraReadingOutput.innerHTML = "";
                             }
@@ -3644,7 +3764,8 @@
                                     if (report && Array.isArray(report.sections) && report.sections.length) {
                                         paidCoreInsight = String(report.sections[0].core_insight || report.sections[0].headline || "").trim();
                                     }
-                                    paidAiTestOutput.innerHTML = renderPaidCoreCard(report);
+                                    paidAiTestOutput.innerHTML = renderPaidCoreCard(report) + renderGoogleAdBlock();
+                                    activateDynamicAds(paidAiTestOutput);
                                     paidCoreReady = true;
                                     if (paidAiLoadingText) paidAiLoadingText.textContent = "사주 문의 답변을 작성중입니다...";
                                     return requestExtraBundleAndAppend();

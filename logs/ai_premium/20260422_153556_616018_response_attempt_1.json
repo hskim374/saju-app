@@ -1,0 +1,77 @@
+{
+  "id": "resp_0d241a1fe590cf850069e86c3140fc8191b7190084da0938a0",
+  "object": "response",
+  "created_at": 1776839729,
+  "status": "completed",
+  "background": false,
+  "billing": {
+    "payer": "developer"
+  },
+  "completed_at": 1776839756,
+  "error": null,
+  "frequency_penalty": 0.0,
+  "incomplete_details": null,
+  "instructions": null,
+  "max_output_tokens": 20000,
+  "max_tool_calls": null,
+  "model": "gpt-5-nano-2025-08-07",
+  "moderation": null,
+  "output": [
+    {
+      "id": "rs_0d241a1fe590cf850069e86c31bd00819199808f07746bc5bb",
+      "type": "reasoning",
+      "summary": []
+    },
+    {
+      "id": "msg_0d241a1fe590cf850069e86c480b888191a9d42d33b960477b",
+      "type": "message",
+      "status": "completed",
+      "content": [
+        {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\n  \"premium_report\": {\n    \"report_title\": \"개인 맞춤 사주 리포트\",\n    \"version\": \"1.0\",\n    \"sections\": [\n      {\n        \"section_id\": \"section_1\",\n        \"category\": \"overall\",\n        \"title\": \"프리미엄 사주 스토리\",\n        \"headline\": \"생각의 흐름이 삶의 방향을 좌우합니다\",\n        \"summary_lines\": [\n          \"새로운 아이디어를 제시하고 이를 차근차게 실행하는 능력이 돋보입니다.\",\n          \"관계가 가까워질수록 판단 기준의 차이가 나타나고, 서로의 기대를 맞추려는 노력이 필요합니다.\",\n          \"자원과 일의 흐름을 안정적으로 관리하는 습관이 생활의 균형에 큰 차이를 만듭니다.\"\n        ],\n        \"core_insight\": \"당신은 새로운 아이디어를 제시하고 그것을 실행하는 과정에서 여러 가능성을 함께 살피는 습관이 있습니다. 상황에 따라 선택의 순서를 조금씩 바꿔가며 방향을 찾아가고, 이런 융통성은 관계를 다듬고 협업을 원활하게 만듭니다. 다만 가까워질수록 자신의 기준이 달라지는 지점이 판단의 뼈대를 흔들 수 있어 말과 행동의 타이밍을 조정하는 능력이 더 중요해집니다. 이처럼 신중함과 융통성이 함께 작동하는 흐름이 일상과 업무의 균형을 만들어냅니다.\",\n        \"strength\": \"일의 흐름을 읽고 필요한 조정을 제때에 제시하는 모습이 팀과의 협업에서 돋보입니다.\",\n        \"risk\": \"관계가 가까워질수록 기준 차이가 커져 의사소통에서 작은 갈등이 생길 수 있어 말의 흐름을 정돈하는 노력이 필요합니다.\",\n        \"action_points\": [\n          \"아이디어를 실행하기 전에 상대의 의견을 다시 들어 흐름을 함께 정리하세요.\",\n          \"관계가 가까워질수록 본인의 기준이 달라질 수 있음을 의식하고 말의 흐름을 차분히 다듬는 습관을 가지세요.\",\n          \"자원 관리에 있어서는 작은 습관을 차곡차곡 쌓아가는 것을 생활화하세요.\"\n        ],\n        \"action_note\": \"이 리포트를 일상 속 상황에 적용하면 일과 관계의 균형이 더 자연스럽게 다듬어집니다. 필요하다면 구체적 상황에 맞춰 대화와 계획을 함께 조정해 보세요.\"\n      }\n    ]\n  }\n}"
+        }
+      ],
+      "role": "assistant"
+    }
+  ],
+  "parallel_tool_calls": true,
+  "presence_penalty": 0.0,
+  "previous_response_id": null,
+  "prompt_cache_key": null,
+  "prompt_cache_retention": "in_memory",
+  "reasoning": {
+    "effort": "medium",
+    "summary": null
+  },
+  "safety_identifier": null,
+  "service_tier": "default",
+  "store": true,
+  "temperature": 1.0,
+  "text": {
+    "format": {
+      "type": "text"
+    },
+    "verbosity": "medium"
+  },
+  "tool_choice": "auto",
+  "tools": [],
+  "top_logprobs": 0,
+  "top_p": 1.0,
+  "truncation": "disabled",
+  "usage": {
+    "input_tokens": 1476,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens": 4735,
+    "output_tokens_details": {
+      "reasoning_tokens": 4096
+    },
+    "total_tokens": 6211
+  },
+  "user": null,
+  "metadata": {}
+}

@@ -1,0 +1,77 @@
+{
+  "id": "resp_01af493720b110890069e87265bd1c81a29abfee11f344d69e",
+  "object": "response",
+  "created_at": 1776841317,
+  "status": "completed",
+  "background": false,
+  "billing": {
+    "payer": "developer"
+  },
+  "completed_at": 1776841396,
+  "error": null,
+  "frequency_penalty": 0.0,
+  "incomplete_details": null,
+  "instructions": null,
+  "max_output_tokens": 20000,
+  "max_tool_calls": null,
+  "model": "gpt-5-nano-2025-08-07",
+  "moderation": null,
+  "output": [
+    {
+      "id": "rs_01af493720b110890069e87266604081a2a9753cb702c7530a",
+      "type": "reasoning",
+      "summary": []
+    },
+    {
+      "id": "msg_01af493720b110890069e872ad77e081a2b83652ba5793c677",
+      "type": "message",
+      "status": "completed",
+      "content": [
+        {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\n  \"premium_report\": {\n    \"report_title\": \"프리미엄 사주 스토리\",\n    \"version\": \"1.0\",\n    \"sections\": [\n      {\n        \"section_id\": \"section_1\",\n        \"category\": \"overall\",\n        \"title\": \"프리미엄 사주 스토리\",\n        \"headline\": \"말과 생각의 흐름을 정돈하는 태도\",\n        \"summary_lines\": [\n          \"다양한 상황에서 판단의 흐름이 점진적으로 정비되며 같은 상황도 다르게 읽힐 수 있습니다.\",\n          \"타인과의 관계에서 기대치를 확인하는 시간을 가지면 갈등 가능성을 낮추고 말의 흐름을 안정적으로 이끌 수 있습니다.\",\n          \"현재 흐름은 목표를 향해 차분하게 움직여 중요한 순간에 선택의 폭을 유지하는 편입니다.\"\n        ],\n        \"core_insight\": \"당신은 여러 선택지가 열려 있을 때도 마음속 정리를 먼저 하는 편이라 같은 상황에서도 판단의 흐름이 달라질 수 있습니다. 이 차이를 이해하면 불필요한 갈등을 줄이고 필요한 부분에 집중하기 쉽습니다. 현재 흐름은 일정한 리듬으로 성과를 만들어 가려는 방향이며 말의 순서를 다듬는 일이 의사소통의 흐름을 매끄럽게 만듭니다. 관계를 다룰 때는 상대의 기대와 나의 기준 사이에서 균형을 찾아가는 과정이 중요합니다. 때로는 과거의 기억이 현재 선택에 스며들 때가 있지만 그것을 현명하게 살피면 방향이 더 명확해집니다.\",\n        \"strength\": \"사려 깊은 판단 흐름과 말의 순서를 다듬는 습관이, 복잡한 상황에서도 관계의 흐름이 매끄럽게 이어지도록 돕습니다.\",\n        \"risk\": \"선택지의 폭이 넓어 실행 시기가 늦춰질 수 있어, 속도와 선호의 균형을 신경 쓰는 것이 중요합니다.\",\n        \"action_points\": [\n          \"중요한 판단은 여러 각도에서 확인한 뒤 내리세요.\",\n          \"관계가 가까워질수록 상대의 기대를 함께 확인하고 공유하세요.\",\n          \"일과 삶의 균형을 맞추려는 계획을 먼저 세우고 실천에 옮기세요.\"\n        ],\n        \"action_note\": \"현재 흐름은 대화의 순서를 먼저 점검하고, 상대의 기대를 확인하는 시간을 가지는 것이 효과적입니다.\"\n      }\n    ]\n  }\n}"
+        }
+      ],
+      "role": "assistant"
+    }
+  ],
+  "parallel_tool_calls": true,
+  "presence_penalty": 0.0,
+  "previous_response_id": null,
+  "prompt_cache_key": null,
+  "prompt_cache_retention": "in_memory",
+  "reasoning": {
+    "effort": "medium",
+    "summary": null
+  },
+  "safety_identifier": null,
+  "service_tier": "default",
+  "store": true,
+  "temperature": 1.0,
+  "text": {
+    "format": {
+      "type": "text"
+    },
+    "verbosity": "medium"
+  },
+  "tool_choice": "auto",
+  "tools": [],
+  "top_logprobs": 0,
+  "top_p": 1.0,
+  "truncation": "disabled",
+  "usage": {
+    "input_tokens": 1476,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens": 7546,
+    "output_tokens_details": {
+      "reasoning_tokens": 6976
+    },
+    "total_tokens": 9022
+  },
+  "user": null,
+  "metadata": {}
+}

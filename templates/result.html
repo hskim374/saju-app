@@ -3505,6 +3505,21 @@
 
                 if (paidAiTestButton && paidAiTestStatus && paidAiTestOutput) {
                     var paidSourceResult = {{ result | tojson }};
+                    var EXTRA_USER_ID_STORAGE_KEY = "saju_extra_uid_v1";
+
+                    function getOrCreateExtraUserId() {
+                        try {
+                            var existing = window.localStorage.getItem(EXTRA_USER_ID_STORAGE_KEY);
+                            if (existing && String(existing).trim()) return String(existing).trim();
+                            var generated = "uid_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 10);
+                            window.localStorage.setItem(EXTRA_USER_ID_STORAGE_KEY, generated);
+                            return generated;
+                        } catch (err) {
+                            return "";
+                        }
+                    }
+
+                    var extraUserId = getOrCreateExtraUserId();
 
                     var STEM_DAY_MASTER_MAP = {
                         "갑": "갑목", "을": "을목", "병": "병화", "정": "정화", "무": "무토",
@@ -3822,7 +3837,9 @@
                     function loadExtraCategories() {
                         if (!extraReadingCategories) return;
                         setExtraStatus("카테고리를 불러오는 중...");
-                        requestJson("/api/extra-reading/categories", {})
+                        requestJson("/api/extra-reading/categories", {
+                            user_id: extraUserId
+                        })
                             .then(function (data) {
                                 renderUsageBadge(data.usage);
                                 renderCategoryButtons(data.categories || []);
@@ -3835,6 +3852,7 @@
 
                     function requestExtraBundleAndAppend() {
                         return requestJson("/api/extra-reading/generate-bundle", {
+                            user_id: extraUserId,
                             category_id: selectedExtraCategoryId,
                             context: paidTestPayload,
                             core_insight: paidCoreInsight

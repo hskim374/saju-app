@@ -42,6 +42,20 @@
             box-shadow: 0 18px 34px rgba(57, 75, 67, 0.08);
         }
 
+        .hero-image-wrap {
+            margin-bottom: 18px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 0;
+            background: #f8faf8;
+        }
+
+        .hero-image {
+            width: 100%;
+            display: block;
+            height: auto;
+        }
+
         h1 {
             margin-top: 0;
             font-size: 28px;
@@ -231,6 +245,9 @@
         </script>
     </div>
     <div class="container">
+        <div class="hero-image-wrap">
+            <img class="hero-image" src="{{ url_for('static', path='img/index-top-banner.png') }}" alt="사주 안내 이미지" onerror="this.parentElement.style.display='none'">
+        </div>
         <h1>무료사주 간단히 보기</h1>
         <p>양력/음력과 출생시간을 입력하면 실제 절기 기준 사주 8자를 계산합니다.</p>
 

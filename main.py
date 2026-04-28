@@ -26,6 +26,7 @@ except ImportError:  # pragma: no cover - optional runtime helper
         return False
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import JSONResponse, PlainTextResponse, Response
+from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from services.ai_extra_reading import (
@@ -80,6 +81,9 @@ load_dotenv()
 app = FastAPI(title="saju-mvp")
 templates = Jinja2Templates(directory="templates")
 logger = logging.getLogger(__name__)
+STATIC_DIR = Path("static")
+STATIC_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 EMAIL_REQUEST_LOG: dict[str, float] = {}
 EMAIL_RATE_LIMIT_SECONDS = 60
